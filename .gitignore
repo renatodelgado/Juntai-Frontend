@@ -1,0 +1,23 @@
+# Dependências e arquivos gerados
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Configurações locais (o exemplo deve ser versionado)
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor e sistema operacional
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
