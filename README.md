@@ -1,5 +1,7 @@
 # Juntaí! Frontend
 
+> **Cadastro integrado (13/09/2026):** startup e investidor/mentor enviam dados para a API na porta 3333. Login e edição online ainda dependem do backend; descrições de contas locais abaixo se referem à demonstração anterior. Consulte [contratos, campos pendentes e opções de simplificação](docs/integracao-cadastros.md).
+
 **Juntaí!**, uma solução de matchmaking desenvolvida para conectar startups, investidores anjo e mentores do ecossistema de inovação do Nordeste.
 
 O projeto faz parte do Projeto Integrador do 5º período de Análise e Desenvolvimento de Sistemas (ADS), com foco no ecossistema de startups e economia criativa, tendo como contexto o Porto Digital, no Bairro do Recife.
@@ -25,7 +27,7 @@ Desenvolver uma interface organizada, acessível e escalável capaz de:
 - Exibir pitches, avaliações e métricas;
 - Disponibilizar interfaces administrativas e de consentimento.
 
-Esses recursos representam o escopo previsto. A base atual inclui apenas a infraestrutura do frontend e uma página inicial de apresentação.
+Esses recursos representam o escopo do produto. A base atual inclui a infraestrutura do frontend, uma página inicial e o onboarding de startup com rascunho local. A integração de cadastros com a API ainda não está disponível.
 
 ---
 
@@ -191,7 +193,7 @@ O navegador consome a API HTTP; PostgreSQL e TypeORM são responsabilidades excl
 React → Fetch API → Backend Express → TypeORM → PostgreSQL
 ```
 
-Configure `VITE_API_URL` com a URL base da API, sem necessidade de barra final. A configuração padrão é `http://localhost:3000`. No backend consultado, `GET /` retorna uma mensagem textual de disponibilidade; os endpoints de negócio ainda não estão implementados. A página inicial funciona independentemente da API e não faz requisições automáticas.
+Configure `VITE_API_URL` com a URL base da API, sem necessidade de barra final. A configuração padrão é `http://localhost:3333`. No backend consultado, `GET /` retorna uma mensagem textual de disponibilidade e os cadastros usam `POST /startups` e `POST /investidores`. A página inicial funciona independentemente da API e não faz requisições automáticas.
 
 ---
 
@@ -241,7 +243,7 @@ cp .env.example .env
 Conteúdo inicial:
 
 ```dotenv
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3333
 ```
 
 Variáveis `VITE_*` são públicas e incorporadas ao bundle. Nunca inclua senhas, chaves privadas ou segredos. Reinicie o servidor após alterar `.env`.
@@ -297,7 +299,7 @@ npm run build
 | `npm run format`       | Aplicar a formatação                                |
 | `npm run check`        | Executar tipos, lint e conferência de formatação    |
 
-Ainda não há suíte automatizada de testes de comportamento. As verificações acima não substituem testes funcionais. Ao implementar funcionalidades, deverão ser adicionados testes de fluxos críticos, integração com a API, formulários, autenticação, acessibilidade e navegação, além de validação com usuários beta.
+Execute `npm test` para validar regras e contratos do onboarding com Vitest e `npm run test:e2e` para testar a jornada no navegador com Playwright. No Windows, os testes usam Microsoft Edge; em outros sistemas, instale Chromium com `npx playwright install chromium`. O servidor de testes utiliza a porta 5174. As cidades são simuladas nos testes para evitar dependência de rede. A integração com a API e testes com usuários beta continuam previstos.
 
 ---
 
@@ -397,10 +399,86 @@ Os requisitos abaixo representam o escopo do Projeto Integrador, ainda a impleme
 
 🚧 **Em desenvolvimento**
 
-Ambiente inicial configurado. As telas de negócio, autenticação e integrações serão implementadas nas próximas etapas. Este README deverá acompanhar a evolução do projeto.
+Ambiente inicial e cadastro de startup implementados no frontend. Autenticação, persistência no backend, publicação e moderação serão integradas nas próximas etapas.
+
+### Cadastro de startup
+
+Acesse `/cadastro/startup` ou use o botão da página inicial. A jornada contém 11 etapas: sobre, negócio, mercado, atuação, tração, investimento, parcerias, pitch e Canvas, equipe, revisão e consentimento.
+
+- As respostas permanecem em memória ao trocar de etapa. “Salvar e continuar depois” grava os dados e a apresentação no IndexedDB deste navegador. Fechar um editor do Canvas também salva o bloco e o rascunho. Não há sincronização entre dispositivos.
+- O rascunho tem versão, validação de estrutura ao carregar, opção de remoção e recuperação de anexos (PDF/PPT/PPTX até 10 MB). Erros de armazenamento são exibidos sem descartar os dados da tela.
+- Estado e cidade usam identificadores padronizados. As cidades são consultadas na [API de localidades do IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), com estado de carregamento, erro e nova tentativa.
+- Os catálogos editáveis ficam em `src/features/startup-onboarding/data/catalogs.ts`; a ordem, os títulos e identificadores de etapas ficam em `data/steps.ts`. Uma etapa nova precisa de componente e regras de validação próprios.
+- Os componentes reutilizáveis de formulário ficam em `src/shared/components/forms`, e botão, modal e stepper ficam em `src/shared/components/ui`.
+- Em telas menores, o indicador de progresso fica compacto e permite mostrar/ocultar a lista de etapas. Os erros de campo aparecem em balões sem alterar a posição dos campos. A jornada usa fundo terracotta suave; a página inicial mantém seu próprio fundo.
+- Atuação, crescimento e busca de parceiros usam cinco regiões brasileiras e Exterior. “Selecionar todo o Brasil” é um atalho para as cinco regiões, sem persistir uma categoria redundante. Rascunhos antigos com Pernambuco ou Outra precisam revisar essas seleções; as demais informações são preservadas.
+- Os textos do Canvas são editados em modais com indicador de preenchimento. Os termos e a política também abrem em modais dentro do cadastro, mantendo as rotas diretas disponíveis.
+- As cores de startup usam terracotta e os tokens `startup`, `startupStrong` (contraste para texto/botões) e `startupSoft`. O token `investor` corresponde a dark slate blue. Todos derivam do tema compartilhado. Os ícones são do [Phosphor](https://github.com/phosphor-icons/react).
+- `model/types.ts` define o rascunho, Canvas, integrantes, estados de moderação e contrato de eventos futuros. `model/validation.ts` valida cada etapa. `model/submission.ts` prepara o contrato de integração com números, listas de códigos, Canvas, pitch e integrantes separados.
+- Os estados previstos são `draft` (rascunho), `in_review` (em revisão), `approved` (aprovado), `changes_requested` (pendente de ajustes) e `rejected` (rejeitado). Nesta versão, todos os perfis continuam como rascunho local. O backend deverá controlar as transições de moderação.
+- `/termos-de-uso` e `/politica-de-privacidade` contêm minutas temporárias versionadas. Ao concluir a prévia, as escolhas são salvas junto da versão e da data/hora local. Não há usuário autenticado: a integração deverá associar os registros ao usuário e gerar o horário oficial no servidor. As minutas e as bases legais precisam ser revisadas antes da publicação.
+- Não há envio de cadastro, upload remoto, scoring, ranking, matchmaking ou emissão de eventos. O contrato `StartupRegistrationGateway` deverá ser implementado quando a API e a autenticação estiverem disponíveis. Nunca converter a conclusão local em status “em revisão” sem confirmação do servidor.
 
 ---
 
 ## 📄 Licença
 
 Este projeto foi desenvolvido para fins acadêmicos como parte do Projeto Integrador do curso de Análise e Desenvolvimento de Sistemas. A licença de distribuição do frontend ainda será definida pelo grupo.
+
+### Perfil provisório da startup
+
+Ao concluir a prévia local do cadastro, o usuário é direcionado para `/startup/perfil`.
+A tela usa os dados e a apresentação salvos no navegador, mantém o fundo terracotta
+e reúne negócio, mercado, tração, investimento, parceiros, equipe, pitch e Canvas.
+Cada seção pode ser editada em modal na própria página, sem retornar ao cadastro. O menu se recolhe
+em telas pequenas, e a apresentação pública pode ser conferida em um modal local.
+
+O estado “Em avaliação” é ilustrativo: nenhum cadastro é enviado para moderação.
+A completude representa seções preenchidas, não compatibilidade. Matches, mensagens
+e reuniões dependem da futura integração. Sem sessão ativa, a página direciona
+ao login. O código fica em `src/features/startup-profile`.
+
+### Conta e login locais
+
+Ao concluir o cadastro, informe e-mail e senha de teste. A conta armazena uma cópia
+independente do perfil no IndexedDB, incluindo logo (PNG, JPG ou WebP, até 2 MB)
+e apresentação. A senha fica como hash PBKDF2-SHA-256 com salt aleatório, não em
+texto puro. A sessão utiliza sessionStorage; “Sair da conta” encerra o acesso.
+`/login` autentica a conta criada no mesmo navegador e abre `/startup/perfil`
+ou `/investidor/perfil`, conforme o tipo de conta.
+Esta simulação não substitui autenticação ou autorização no backend.
+
+A home oferece as entradas “Tenho uma startup” e “Sou um investidor ou mentor”.
+`/cadastro/investidor` oferece o onboarding de investidores e mentores.
+
+### Cadastro de investidores e mentores
+
+O fluxo tem 13 etapas: apresentação, atuação, segmentos, estágios, ticket,
+modelos e regiões, experiência, histórico, disponibilidade, contribuições,
+preferências, revisão e consentimentos. A conta local é criada ao finalizar.
+O fundo é dark slate blue, com cartões claros e os mesmos componentes do
+cadastro de startups. Os campos financeiros são dispensados para mentores.
+
+O rascunho é salvo automaticamente no IndexedDB, com botão de salvamento manual.
+O perfil permite edição em modais, inclusive da disponibilidade. Os catálogos
+de segmentos, estágios, modelos e regiões são compartilhados entre os públicos.
+`investorSubmission` organiza os dados em grupos para uma futura API; tickets
+permanecem números, escolhas são identificadores e consentimentos incluem versão,
+usuário e data. O contrato de eventos futuros não emite eventos nesta versão.
+
+O código está em `src/features/investor-onboarding`. Moderação, matchmaking e
+envio de dados ao servidor continuam fora desta prévia local.
+
+### Painel do investidor e mentor
+
+`/investidor/perfil` apresenta o ambiente privado com a mesma estrutura visual
+do perfil da startup: sidebar responsiva, cabeçalho com foto, status, completude,
+cartões de interesses, investimento, experiência, contribuições e disponibilidade.
+Os estilos de perfil são compartilhados em `src/shared/components/profile`,
+mantendo terracotta para startups e dark slate blue para investidores e mentores.
+
+“Ver como startup” abre uma prévia local sem controles de edição. As alterações
+continuam em modais, sem retornar ao onboarding. Mentores não recebem métricas de
+investimento. O percentual usa informações reais do perfil, e a atividade fica
+vazia até existirem eventos. O modelo aceita comentários de moderação e eventos
+futuros, preservados durante a edição. Não há recomendações ou contato ativos.
