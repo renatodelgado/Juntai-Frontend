@@ -12,7 +12,7 @@ export const theme = {
     startup: palette.terracotta,
     startupStrong: '#A83C36',
     startupSoft: '#FFF3F0',
-    startupBackground: '#FCF3EF',
+    startupBackground: palette.terracotta,
     startupBorder: '#F0DDD6',
     investor: palette.darkSlateBlue,
     accent: palette.terracotta,
