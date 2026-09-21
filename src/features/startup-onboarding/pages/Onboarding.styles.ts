@@ -174,9 +174,6 @@ export const CanvasGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  > :nth-child(3) {
-    background: ${({ theme }) => theme.colors.accentSoft};
-  }
   > div {
     padding: 1rem;
     border: 1px solid ${({ theme }) => theme.colors.border};

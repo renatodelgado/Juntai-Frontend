@@ -79,6 +79,11 @@ export function useOnboarding(initial?: SavedDraft, persist = saveDraft) {
         next.secondarySegments = next.secondarySegments.filter(
           (segment) => segment !== value,
         );
+      if (
+        field === 'businessModels' &&
+        !next.businessModels.includes(next.primaryModel)
+      )
+        next.primaryModel = '';
       if (field === 'state') {
         next.cityId = '';
         next.cityName = '';

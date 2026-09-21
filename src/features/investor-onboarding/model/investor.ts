@@ -156,6 +156,7 @@ export const investorSchema = z.object({
   history: choice(historyOptions),
   investmentCount: choice(counts),
   experience: text,
+  experienceYears: z.number().finite().nullable().default(null),
   previousSectors: multiple(segments),
   frequency: choice(frequencies),
   interactions: multiple(interactions),
@@ -190,6 +191,7 @@ export function createInvestorDraft(): InvestorDraft {
     history: '',
     investmentCount: '',
     experience: '',
+    experienceYears: null,
     previousSectors: [],
     frequency: '',
     interactions: [],
@@ -359,6 +361,13 @@ export function validateInvestor(
           'O servidor aceita Nordeste ou abrangência nacional. Remova as regiões indisponíveis.';
       break;
     case 'experience':
+      if (
+        data.experienceYears !== null &&
+        (!Number.isInteger(data.experienceYears) ||
+          data.experienceYears < 0 ||
+          data.experienceYears > 32767)
+      )
+        errors.experienceYears = 'Informe um número inteiro entre 0 e 32.767.';
       required('expertise');
       if (data.participation !== 'mentor') required('risk');
       if (data.participation !== 'mentor' && data.risk === 'early_stage')

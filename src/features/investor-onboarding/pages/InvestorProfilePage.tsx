@@ -9,10 +9,7 @@ import {
   PencilSimpleIcon,
   ArrowRightIcon,
 } from '@phosphor-icons/react';
-import {
-  loadInvestorProfile,
-  logout,
-} from '@/features/auth/services/localAuth';
+import { loadInvestorProfile, logout } from '@/features/auth/services/profiles';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
@@ -119,6 +116,9 @@ export function InvestorProfilePage() {
                   Seu espaço no Juntaí!
                 </S.Badge>
                 <InvestorIdentity data={data} main />
+                <S.Muted>
+                  Alterações feitas aqui ficam apenas neste navegador.
+                </S.Muted>
                 <S.Row>
                   <Button onClick={() => setDialog('sections')}>
                     Editar perfil

@@ -1,3 +1,4 @@
+import { apiRegions } from '@/features/auth/services/registration';
 import { useEffect, useState } from 'react';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 import { Select } from '@/shared/components/forms/Fields';
@@ -89,13 +90,7 @@ export function LocationStep({ form }: { form: OnboardingController }) {
           </div>
         </Notice>
       )}
-      <RegionSelect
-        id="operatingRegions"
-        label="Onde vocês atuam hoje?"
-        value={form.data.operatingRegions}
-        error={form.errors.operatingRegions}
-        onChange={(value) => form.update('operatingRegions', value)}
-      />
+      {fields.select('registrationRegion', 'Região do cadastro', apiRegions)}
       <RegionSelect
         id="targetRegions"
         label="Em quais regiões vocês pretendem crescer?"

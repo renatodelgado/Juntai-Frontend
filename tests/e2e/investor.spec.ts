@@ -39,6 +39,9 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
       .fill('Ana do Recife');
     await page.getByLabel('Estado', { exact: true }).selectOption('PE');
     await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
+    await page
+      .getByRole('button', { name: 'Salvar e continuar depois' })
+      .click();
     await expect(page.getByRole('status')).toHaveText('Salvo neste navegador.');
     await page.reload();
     await expect(page.getByLabel('Nome completo', { exact: true })).toHaveValue(
@@ -142,7 +145,7 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
       page.getByRole('heading', { name: 'Perfil enviado!' }),
     ).toBeVisible();
     expect(requests).toBe(2);
-    await page.getByRole('link', { name: 'Voltar ao início' }).click();
-    await expect(page).toHaveURL('/');
+    await page.getByRole('link', { name: 'Entrar na minha conta' }).click();
+    await expect(page).toHaveURL('/login');
   });
 }

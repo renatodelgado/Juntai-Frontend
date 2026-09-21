@@ -1,3 +1,4 @@
+import { apiRegions } from '@/features/auth/services/registration';
 import { FieldSync } from '@/shared/components/forms/RegistrationSync';
 import type { ReactNode } from 'react';
 import { PencilSimpleIcon } from '@phosphor-icons/react';
@@ -80,6 +81,7 @@ export function ReviewStep({
   return (
     <Fields>
       <SummaryCard title="Sobre a startup" step="about" onEdit={onEdit}>
+        <Item label="Responsável">{data.ownerName}</Item>
         <Item field="name" label="Nome">
           {data.name}
         </Item>
@@ -115,6 +117,12 @@ export function ReviewStep({
         <Item field="businessModels" label="Modelo de negócio">
           {labels(catalogs.businessModels, data.businessModels)}
         </Item>
+        <Item label="Modelo principal">
+          {catalogs.optionLabel(
+            catalogs.businessModels,
+            data.primaryModel || data.businessModels[0] || '',
+          )}
+        </Item>
         <Item label="Público atendido">{data.targetMarket}</Item>
         <Item label="Problema">{data.problem}</Item>
         <Item label="Solução">{data.solution}</Item>
@@ -127,8 +135,11 @@ export function ReviewStep({
         <Item field="cityId" label="Localização">
           {data.cityName ? `${data.cityName} / ${data.state}` : ''}
         </Item>
-        <Item field="operatingRegions" label="Atuação atual">
-          {labels(catalogs.regions, data.operatingRegions)}
+        <Item label="Região do cadastro">
+          {
+            apiRegions.find((item) => item.value === data.registrationRegion)
+              ?.label
+          }
         </Item>
         <Item field="targetRegions" label="Mercados pretendidos">
           {labels(catalogs.regions, data.targetRegions)}
@@ -145,6 +156,16 @@ export function ReviewStep({
             ? 'Prefiro não informar'
             : catalogs.optionLabel(catalogs.revenueRanges, data.revenue)}
         </Item>
+        <Item label="Faturamento mensal exato">
+          {data.revenue === 'none'
+            ? 'R$ 0,00'
+            : data.revenue !== 'undisclosed' && data.monthlyRevenue !== null
+              ? new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(data.monthlyRevenue)
+              : 'Não informado'}
+        </Item>
         <Item field="growthPercent" label="Crescimento">
           {data.growthPercent !== null
             ? `${data.growthPercent.toLocaleString('pt-BR')}% ${data.growthPeriod === 'monthly' ? 'ao mês' : 'ao ano'} · ${data.growthMetric === 'revenue' ? 'Receita' : 'Clientes'}`
@@ -153,17 +174,15 @@ export function ReviewStep({
         <Item field="growthNotes" label="Evolução do negócio">
           {data.growthNotes}
         </Item>
-        <Item field="teamSize" label="Tamanho da equipe">
-          {catalogs.optionLabel(catalogs.teamSizes, data.teamSize)}
+        <Item field="exactTeamSize" label="Tamanho da equipe">
+          {data.exactTeamSize}
         </Item>
       </SummaryCard>
-      <SummaryCard title="Investimento" step="investment" onEdit={onEdit}>
-        <Item field="seekingInvestment" label="Busca investimento?">
-          {catalogs.optionLabel(
-            catalogs.seekingInvestment,
-            data.seekingInvestment,
-          )}
-        </Item>
+      <SummaryCard
+        title="Investimento e parcerias"
+        step="investment"
+        onEdit={onEdit}
+      >
         {data.seekingInvestment === 'yes' && (
           <>
             <Item label="Capital procurado">
@@ -182,22 +201,13 @@ export function ReviewStep({
         <Item field="needs" label="Necessidades">
           {labels(catalogs.needs, data.needs)}
         </Item>
-      </SummaryCard>
-      <SummaryCard title="Matchmaking" step="matching" onEdit={onEdit}>
+
         <Item field="partnerType" label="Tipo de parceiro">
           {catalogs.optionLabel(catalogs.partnerTypes, data.partnerType)}
         </Item>
         <Item field="expertise" label="Experiência desejada">
           {labels(catalogs.expertise, data.expertise)}
         </Item>
-        <Item field="partnerRegions" label="Regiões de interesse">
-          {labels(catalogs.regions, data.partnerRegions)}
-        </Item>
-        {data.partnerType !== 'mentor' && (
-          <Item field="partnerStages" label="Estágios apoiados pelo investidor">
-            {labels(catalogs.stages, data.partnerStages)}
-          </Item>
-        )}
         <Item field="preferences" label="Preferências adicionais">
           {data.preferences}
         </Item>
@@ -216,30 +226,12 @@ export function ReviewStep({
           </Item>
         ))}
       </SummaryCard>
-      <SummaryCard title="Equipe" step="team" onEdit={onEdit}>
-        {data.members.length ? (
-          data.members.map((member) => (
-            <Item
-              field="members"
-              key={member.id}
-              label={`${member.name} · ${member.role}`}
-            >
-              {[member.bio, member.linkedin].filter(Boolean).join('\n') ||
-                'Sem informações adicionais'}
-            </Item>
-          ))
-        ) : (
-          <Item field="members" label="Integrantes">
-            Você pode adicionar depois.
-          </Item>
-        )}
-      </SummaryCard>
       <Notice>
         <strong>Tudo certo? Vamos criar seu perfil.</strong>
         <p>
-          Ao finalizar, você revisará os termos e seus consentimentos. Os campos
-          compatíveis serão enviados ao backend; os destacados permanecem no
-          navegador.
+          Ao finalizar, você revisará os termos e criará seu acesso. Para
+          guardar suas informações neste navegador, clique em “Salvar e
+          continuar depois”.
         </p>
       </Notice>
     </Fields>

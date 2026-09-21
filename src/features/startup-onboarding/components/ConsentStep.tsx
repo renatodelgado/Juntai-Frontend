@@ -17,7 +17,8 @@ export function ConsentStep({ form }: { form: OnboardingController }) {
           <strong>Você está experimentando uma prévia do cadastro.</strong> Os
           documentos abaixo são provisórios. Ao finalizar, os dados compatíveis
           do cadastro serão enviados ao servidor. Os consentimentos e as
-          informações complementares ficam neste navegador.
+          informações complementares só ficam neste navegador se você clicar em
+          “Salvar e continuar depois”.
         </p>
       </Notice>
       <div>

@@ -14,14 +14,12 @@ import {
 import logo from '@/shared/assets/images/logo-txt.svg';
 import { Button } from '@/shared/components/ui/Button';
 import { Modal } from '@/shared/components/ui/Modal';
-import { Input, Select, NumberInput } from '@/shared/components/forms/Fields';
+import { Input } from '@/shared/components/forms/Fields';
 import {
-  apiRegions,
   startupPayload,
   registerRemote,
   registrationError,
 } from '@/features/auth/services/registration';
-import { businessModels } from '../data/catalogs';
 import { Stepper } from '@/shared/components/ui/Stepper';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { steps, type StepId } from '../data/steps';
@@ -31,12 +29,8 @@ import {
   MarketStep,
 } from '../components/BusinessSteps';
 import { LocationStep } from '../components/LocationStep';
-import {
-  TractionStep,
-  InvestmentStep,
-  MatchingStep,
-} from '../components/GrowthSteps';
-import { PitchStep, TeamStep } from '../components/PresentationSteps';
+import { TractionStep, InvestmentStep } from '../components/GrowthSteps';
+import { PitchStep } from '../components/PresentationSteps';
 import { ReviewStep } from '../components/ReviewStep';
 import { ConsentStep } from '../components/ConsentStep';
 import {
@@ -58,13 +52,8 @@ export function StartupOnboardingPage() {
   const form = useOnboarding();
   const [params] = useSearchParams();
   const initialStep = useRef(false);
-  const [modal, setModal] = useState<'finish' | 'reset' | null>(null);
+  const [modal, setModal] = useState<'reset' | null>(null);
   const [finished, setFinished] = useState(false);
-  const [ownerName, setOwnerName] = useState('');
-  const [region, setRegion] = useState('');
-  const [primaryModel, setPrimaryModel] = useState('');
-  const [monthlyRevenue, setMonthlyRevenue] = useState<number | null>(null);
-  const [teamSize, setTeamSize] = useState<number | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -112,8 +101,9 @@ export function StartupOnboardingPage() {
   }
   function submit(event: FormEvent) {
     event.preventDefault();
+    if (accountBusy || form.busy || finished) return;
     if (form.current === 'consent') {
-      if (form.validateAll()) setModal('finish');
+      if (form.validateAll()) void createAccount();
       else focusError();
     } else if (form.next()) {
       if (editing) {
@@ -121,6 +111,36 @@ export function StartupOnboardingPage() {
         setEditing(false);
       }
     } else focusError();
+  }
+  async function createAccount() {
+    setAccountError('');
+    if (password !== confirmPassword) {
+      setAccountError('As senhas precisam ser iguais.');
+      return;
+    }
+    setAccountBusy(true);
+    try {
+      const payload = startupPayload(
+        { ...form.data, seekingInvestment: 'yes' },
+        email,
+        password,
+        {
+          ownerName: form.data.ownerName,
+          region: form.data.registrationRegion,
+          primaryModel: form.data.primaryModel,
+          monthlyRevenue: form.data.monthlyRevenue,
+          teamSize: form.data.exactTeamSize,
+        },
+      );
+      await registerRemote('startups', payload);
+      setPassword('');
+      setConfirmPassword('');
+      setFinished(true);
+    } catch (cause) {
+      setAccountError(registrationError(cause));
+    } finally {
+      setAccountBusy(false);
+    }
   }
   function edit(step: StepId) {
     setEditing(true);
@@ -133,13 +153,47 @@ export function StartupOnboardingPage() {
     location: <LocationStep form={form} />,
     traction: <TractionStep form={form} />,
     investment: <InvestmentStep form={form} />,
-    matching: <MatchingStep form={form} />,
     pitch: <PitchStep form={form} />,
-    team: <TeamStep form={form} />,
     review: (
       <ReviewStep data={form.data} attachment={form.attachment} onEdit={edit} />
     ),
-    consent: <ConsentStep form={form} />,
+    consent: (
+      <>
+        <ConsentStep form={form} />
+        <div style={{ display: 'grid', gap: '1rem', marginTop: '2rem' }}>
+          <Input
+            id="account-email"
+            label="E-mail de acesso"
+            type="email"
+            required
+            autoComplete="username"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <Input
+            id="account-password"
+            label="Crie uma senha"
+            type="password"
+            required
+            minLength={6}
+            hint="Pelo menos 6 caracteres."
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <Input
+            id="account-confirm"
+            label="Confirme a senha"
+            type="password"
+            required
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+          {accountError && <p role="alert">{accountError}</p>}
+        </div>
+      </>
+    ),
   };
 
   return (
@@ -155,19 +209,14 @@ export function StartupOnboardingPage() {
                 <PlantIcon size={18} aria-hidden="true" />
                 Perfil de startup
               </JourneyLabel>
-              <span>Rascunho</span>
             </div>
           </Header>
           {finished ? (
             <Content>
               <h1>Startup cadastrada!</h1>
-              <p>
-                O servidor recebeu seu cadastro. O login e a edição online ainda
-                não estão disponíveis. As informações complementares continuam
-                no rascunho deste navegador.
-              </p>
-              <Button as={Link} to="/">
-                Voltar ao início
+              <p>Seu cadastro foi recebido. Entre para acessar seu perfil.</p>
+              <Button as={Link} to="/login">
+                Entrar na minha conta
               </Button>
             </Content>
           ) : form.loading ? (
@@ -206,7 +255,7 @@ export function StartupOnboardingPage() {
                   </Notice>
                 )}
                 <form ref={formRef} noValidate onSubmit={submit}>
-                  <FormBody disabled={form.busy}>
+                  <FormBody disabled={form.busy || accountBusy}>
                     {Object.values(form.errors).some(Boolean) && (
                       <ErrorSummary role="alert">
                         <p>
@@ -277,154 +326,27 @@ export function StartupOnboardingPage() {
             </>
           )}
           <Modal
-            open={modal !== null}
-            busy={form.busy || accountBusy}
-            title={
-              modal === 'reset'
-                ? 'Remover este rascunho?'
-                : 'Crie seu acesso ao Juntaí!'
-            }
-            confirmLabel={
-              modal === 'reset' ? 'Remover rascunho' : 'Criar conta'
-            }
+            open={modal === 'reset'}
+            busy={form.busy}
+            title="Remover este rascunho?"
+            confirmLabel="Remover rascunho"
             onClose={() => setModal(null)}
             onConfirm={() => {
-              if (accountBusy || finished) return;
-              void (async () => {
-                if (modal === 'reset') {
-                  if (await form.reset()) {
-                    setModal(null);
-                    setFinished(false);
-                    setEditing(false);
-                  }
-                } else {
+              void form.reset().then((ok) => {
+                if (ok) {
+                  setModal(null);
+                  setEditing(false);
+                  setEmail('');
+                  setPassword('');
+                  setConfirmPassword('');
                   setAccountError('');
-                  if (password !== confirmPassword) {
-                    setAccountError('As senhas precisam ser iguais.');
-                    return;
-                  }
-                  setAccountBusy(true);
-                  try {
-                    const payload = startupPayload(form.data, email, password, {
-                      ownerName,
-                      region,
-                      primaryModel,
-                      monthlyRevenue,
-                      teamSize,
-                    });
-                    if (!(await form.save())) return;
-                    await registerRemote('startups', payload);
-                    setPassword('');
-                    setConfirmPassword('');
-                    setModal(null);
-                    setFinished(true);
-                  } catch (cause) {
-                    setAccountError(registrationError(cause));
-                  } finally {
-                    setAccountBusy(false);
-                  }
                 }
-              })();
+              });
             }}
           >
-            {modal === 'reset' ? (
-              <p>
-                Os dados e a apresentação salvos neste navegador serão
-                removidos. Essa ação não pode ser desfeita.
-              </p>
-            ) : (
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                <p>
-                  Os dados compatíveis serão enviados para criar sua conta.
-                  Fotos, links, apresentação, preferências e consentimentos
-                  ficam apenas no rascunho deste navegador. O acesso e a edição
-                  online ainda não estão disponíveis.
-                </p>
-                <Input
-                  id="owner-name"
-                  label="Nome completo do responsável"
-                  required
-                  value={ownerName}
-                  onChange={(event) => setOwnerName(event.target.value)}
-                />
-                <Select
-                  id="registration-region"
-                  label="Região do cadastro"
-                  required
-                  options={apiRegions}
-                  value={region}
-                  onChange={(event) => setRegion(event.target.value)}
-                />
-                {form.data.businessModels.length > 1 && (
-                  <Select
-                    id="primary-model"
-                    label="Modelo de negócio principal"
-                    required
-                    options={businessModels.filter((item) =>
-                      form.data.businessModels.includes(item.value),
-                    )}
-                    value={primaryModel}
-                    onChange={(event) => setPrimaryModel(event.target.value)}
-                  />
-                )}
-                {form.data.revenue !== 'undisclosed' &&
-                  form.data.revenue !== 'none' && (
-                    <NumberInput
-                      id="monthly-revenue"
-                      label="Faturamento mensal exato (R$)"
-                      min={0}
-                      step="0.01"
-                      value={monthlyRevenue}
-                      onValueChange={setMonthlyRevenue}
-                      hint="A faixa escolhida não será convertida em um valor. Deixe vazio para não informar."
-                    />
-                  )}
-                {form.data.teamSize !== '1' && (
-                  <NumberInput
-                    id="exact-team"
-                    label="Número exato de pessoas na equipe"
-                    min={1}
-                    step={1}
-                    value={teamSize}
-                    onValueChange={setTeamSize}
-                    hint="Deixe vazio para não enviar o tamanho da equipe."
-                  />
-                )}
-                <Input
-                  id="account-email"
-                  label="E-mail de acesso"
-                  type="email"
-                  required
-                  autoComplete="username"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-                <Input
-                  id="account-password"
-                  label="Crie uma senha"
-                  type="password"
-                  required
-                  minLength={6}
-                  hint="Pelo menos 6 caracteres."
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <Input
-                  id="account-confirm"
-                  label="Confirme a senha"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                />
-                {accountError && <p role="alert">{accountError}</p>}
-              </div>
-            )}
-            {form.message.startsWith('Não conseguimos') && (
-              <p role="alert">{form.message}</p>
-            )}
+            <p>
+              Os dados e a apresentação salvos neste navegador serão removidos.
+            </p>
           </Modal>
           {blocker.state === 'blocked' && (
             <Modal

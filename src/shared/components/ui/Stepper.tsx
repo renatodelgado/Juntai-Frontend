@@ -150,7 +150,6 @@ export function Stepper({
               $complete={completed.includes(step.id)}
               aria-current={step.id === current ? 'step' : undefined}
               aria-label={`${stepIndex + 1}. ${step.label}${completed.includes(step.id) ? ', concluída' : ''}`}
-              disabled={stepIndex > index && !completed.includes(step.id)}
               onClick={() => {
                 onSelect(step.id);
                 setExpanded(false);

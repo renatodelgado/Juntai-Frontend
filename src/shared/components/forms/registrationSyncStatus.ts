@@ -13,7 +13,7 @@ export type SyncScope = {
 };
 export const RegistrationSyncContext = createContext<SyncScope | null>(null);
 const local = (
-  text = 'Fica no rascunho deste navegador; não é enviado no cadastro.',
+  text = 'Não é enviado no cadastro. Para guardar neste navegador, use “Salvar e continuar depois”.',
 ): SyncNote => ({ kind: 'local', text });
 const partial = (text: string): SyncNote => ({ kind: 'partial', text });
 
@@ -76,13 +76,13 @@ export function registrationSyncNote(
       (scope.data.businessModels?.length ?? 0) > 1
     )
       return partial(
-        'Somente o modelo principal escolhido na conclusão será enviado.',
+        'Somente o modelo principal escolhido em Mercado será enviado.',
       );
     if (field === 'revenue' && scope.data.revenue !== 'none')
       return local(
         scope.data.revenue === 'undisclosed'
           ? 'Nenhum faturamento será enviado, conforme sua escolha.'
-          : 'Esta faixa não é enviada. Você pode informar o valor exato na conclusão.',
+          : 'Esta faixa não é enviada. Você pode informar o valor exato em Tração.',
       );
     if (field === 'teamSize' && scope.data.teamSize !== '1')
       return local(

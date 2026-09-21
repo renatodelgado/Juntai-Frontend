@@ -40,6 +40,16 @@ export async function loadDraft(): Promise<SavedDraft | null> {
       'Não foi possível abrir o rascunho salvo. Você pode removê-lo e começar novamente.',
     );
   const saved = parsed.data;
+  saved.step =
+    saved.step === 'matching'
+      ? 'investment'
+      : saved.step === 'team'
+        ? 'traction'
+        : saved.step;
+  saved.completed = saved.completed.filter(
+    (id) => id !== 'matching' && id !== 'team',
+  );
+  saved.data.seekingInvestment = 'yes';
   const validIds: readonly string[] = steps.map((step) => step.id);
   if (
     !validIds.includes(saved.step) ||

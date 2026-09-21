@@ -1,6 +1,4 @@
 import { MultiSelect } from '@/shared/components/forms/Fields';
-import { Button } from '@/shared/components/ui/Button';
-import { CheckIcon } from '@phosphor-icons/react';
 import { regions, brazilRegionIds } from '../data/catalogs';
 import { Fields } from '../pages/Onboarding.styles';
 
@@ -77,25 +75,6 @@ export function RegionSelect({
         error={error}
         hint="Escolha as regiões brasileiras e, se fizer sentido, o exterior."
       />
-      <div>
-        <Button
-          type="button"
-          $variant="quiet"
-          aria-pressed={allBrazil}
-          onClick={() =>
-            onChange(
-              allBrazil
-                ? value.filter((region) => !brazilRegionIds.includes(region))
-                : [...new Set([...value, ...brazilRegionIds])],
-            )
-          }
-        >
-          {allBrazil && <CheckIcon size={18} aria-hidden="true" />}
-          {allBrazil
-            ? 'Desmarcar regiões do Brasil'
-            : 'Selecionar todo o Brasil'}
-        </Button>
-      </div>
     </Fields>
   );
 }

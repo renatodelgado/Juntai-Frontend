@@ -13,7 +13,7 @@ describe('perfil provisório', () => {
     const data = createDraft();
     data.hideCustomers = true;
     const result = profileCompleteness(data, null);
-    expect(result.missing.some((section) => section.step === 'traction')).toBe(
+    expect(result.missing.some((section) => section.label === 'Tração')).toBe(
       false,
     );
   });

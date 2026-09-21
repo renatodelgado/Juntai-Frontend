@@ -13,7 +13,7 @@ import { loadInvestorDraft, saveInvestorDraft } from '../services/storage';
 export function useInvestor(
   initial?: SavedInvestor,
   persist = saveInvestorDraft,
-  autoSave = true,
+  autoSave = false,
 ) {
   const [data, setData] = useState(initial?.data ?? createInvestorDraft);
   const [step, setStep] = useState<InvestorStep>(initial?.step ?? 'about');

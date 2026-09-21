@@ -36,17 +36,10 @@ export const steps = [
   },
   {
     id: 'investment',
-    label: 'Investimento',
+    label: 'Investimento e parcerias',
     title: 'O que vocês estão buscando?',
     description:
       'Capital, conhecimento ou novas portas abertas: vamos entender o que faz diferença agora.',
-  },
-  {
-    id: 'matching',
-    label: 'Parcerias',
-    title: 'Que tipo de parceiro vocês procuram?',
-    description:
-      'Suas respostas vão ajudar a encontrar investidores e mentores com experiências e interesses mais próximos dos seus.',
   },
   {
     id: 'pitch',
@@ -54,13 +47,6 @@ export const steps = [
     title: 'Agora conte a história da sua startup',
     description:
       'Apresente sua ideia e organize seu modelo de negócio. Você pode começar pelo que já tem e complementar depois.',
-  },
-  {
-    id: 'team',
-    label: 'Equipe',
-    title: 'Quem está por trás da startup?',
-    description:
-      'Boas conexões começam com pessoas. Apresente quem está construindo esse negócio com você.',
   },
   {
     id: 'review',
@@ -71,8 +57,8 @@ export const steps = [
   },
   {
     id: 'consent',
-    label: 'Consentimento',
-    title: 'Uma conexão começa com confiança',
+    label: 'Acesso',
+    title: 'Crie seu acesso ao Juntaí!',
     description:
       'Entenda como suas informações serão utilizadas e escolha seus consentimentos com clareza.',
   },

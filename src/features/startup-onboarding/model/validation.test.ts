@@ -41,7 +41,7 @@ describe('validação do cadastro', () => {
       }),
     ).toHaveProperty('secondarySegments');
   });
-  it('só exige capital e finalidade quando busca investimento', () => {
+  it('exige capital, finalidade e preferências de parceria', () => {
     const data = {
       ...createDraft(),
       seekingInvestment: 'yes',
@@ -53,13 +53,14 @@ describe('validação do cadastro', () => {
     );
     expect(
       validateStep('investment', { ...data, seekingInvestment: 'no' }),
-    ).toEqual({});
+    ).toHaveProperty('capital');
   });
   it('aceita zero clientes, recusa negativos e exige contexto para percentual', () => {
     const data = {
       ...createDraft(),
       revenue: 'none',
       teamSize: '1',
+      exactTeamSize: 1,
       customers: 0,
     };
     expect(validateStep('traction', data)).toEqual({});
@@ -73,15 +74,8 @@ describe('validação do cadastro', () => {
       validateStep('traction', { ...data, growthPercent: -101 }),
     ).toHaveProperty('growthPercent');
   });
-  it('não obriga equipe, pitch ou consentimento opcional, mas valida integrantes adicionados', () => {
-    expect(validateStep('team', createDraft())).toEqual({});
+  it('não obriga pitch ou consentimento opcional', () => {
     expect(validateStep('pitch', createDraft())).toEqual({});
-    expect(
-      validateStep('team', {
-        ...createDraft(),
-        members: [{ id: '1', name: '', role: '', bio: '', linkedin: '' }],
-      }),
-    ).toHaveProperty('member-1');
     expect(
       validateStep('consent', {
         ...createDraft(),

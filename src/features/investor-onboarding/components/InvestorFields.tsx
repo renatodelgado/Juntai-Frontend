@@ -322,7 +322,8 @@ export function InvestorFields({
         <p>
           Ao finalizar, sua identificação, atuação, interesses e dados de
           investimento serão enviados ao servidor. As informações complementares
-          e os consentimentos ficam no rascunho deste navegador.
+          e os consentimentos só ficam neste navegador se você clicar em “Salvar
+          e continuar depois”.
         </p>
         <Button
           type="button"

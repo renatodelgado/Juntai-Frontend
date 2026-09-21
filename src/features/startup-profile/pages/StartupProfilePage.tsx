@@ -17,7 +17,7 @@ import logo from '@/shared/assets/images/logo-txt.svg';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import type { SavedDraft } from '@/features/startup-onboarding/services/draftStorage';
-import { loadProfile, logout } from '@/features/auth/services/localAuth';
+import { loadProfile, logout } from '@/features/auth/services/profiles';
 import { ProfileEditor } from '../components/ProfileEditor';
 import { PresentationLink } from '../components/PresentationLink';
 import { steps } from '@/features/startup-onboarding/data/steps';
@@ -196,8 +196,8 @@ export function StartupProfilePage() {
                 content: (
                   <>
                     <p>
-                      Seu perfil está salvo somente neste navegador. Você pode
-                      atualizar os dados aqui no ambiente da sua conta.
+                      Alterações no perfil ficam salvas neste navegador e ainda
+                      não são enviadas para sua conta.
                     </p>
                     <Button onClick={() => edit('consent')}>
                       Revisar consentimentos
@@ -251,7 +251,7 @@ export function StartupProfilePage() {
                 Espaço da startup
               </S.Badge>
               <S.Muted>
-                Prévia local · nenhum perfil foi enviado ou publicado.
+                Alterações feitas aqui ficam apenas neste navegador.
               </S.Muted>
             </div>
             <S.Card>
@@ -473,7 +473,7 @@ export function StartupProfilePage() {
               )}
               {section(
                 'Parceiros que queremos encontrar',
-                'matching',
+                'investment',
                 <>
                   <h3>
                     {catalogs.optionLabel(
@@ -498,37 +498,6 @@ export function StartupProfilePage() {
                 </>,
               )}
             </S.Grid>
-            {section(
-              'Quem está por trás da startup',
-              'team',
-              <>
-                <S.Grid>
-                  {data.members.map((member) => (
-                    <div key={member.id}>
-                      <S.Row>
-                        <S.Avatar aria-hidden="true">
-                          {member.name.slice(0, 1).toUpperCase()}
-                        </S.Avatar>
-                        <div>
-                          <h3>{member.name}</h3>
-                          <p>{member.role}</p>
-                        </div>
-                      </S.Row>
-                      <p>{member.bio}</p>
-                      <ExternalLink url={member.linkedin}>
-                        LinkedIn de {member.name}
-                      </ExternalLink>
-                    </div>
-                  ))}
-                </S.Grid>
-                {!data.members.length && (
-                  <p>Apresente as pessoas que fazem o negócio acontecer.</p>
-                )}
-                <Button $variant="quiet" onClick={() => edit('team')}>
-                  Adicionar integrante
-                </Button>
-              </>,
-            )}
             {section(
               'Nosso pitch',
               'pitch',

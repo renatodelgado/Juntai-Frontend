@@ -20,7 +20,7 @@ export function profileCompleteness(
     {
       label: 'Localização',
       step: 'location',
-      filled: !!data.cityId && !!data.operatingRegions.length,
+      filled: !!data.cityId && !!data.registrationRegion,
     },
     {
       label: 'Tração',
@@ -28,7 +28,7 @@ export function profileCompleteness(
       filled: data.customers !== null || data.hideCustomers || !!data.revenue,
     },
     { label: 'Necessidades', step: 'investment', filled: !!data.needs.length },
-    { label: 'Parceiros', step: 'matching', filled: !!data.partnerType },
+    { label: 'Parceiros', step: 'investment', filled: !!data.partnerType },
     {
       label: 'Pitch',
       step: 'pitch',
@@ -41,8 +41,8 @@ export function profileCompleteness(
     },
     {
       label: 'Equipe',
-      step: 'team',
-      filled: data.members.some((member) => !!member.name.trim()),
+      step: 'traction',
+      filled: data.exactTeamSize !== null,
     },
   ];
   return {

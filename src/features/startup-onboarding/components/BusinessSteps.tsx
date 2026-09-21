@@ -26,6 +26,11 @@ export function AboutStep({ form }: { form: OnboardingController }) {
   const fields = bindFields(form);
   return (
     <Fields>
+      {fields.input('ownerName', 'Nome completo do responsável', {
+        required: true,
+        maxLength: 150,
+        autoComplete: 'name',
+      })}
       <LogoUpload form={form} />
       {fields.input('name', 'Nome da startup', {
         required: true,
@@ -156,6 +161,14 @@ export function MarketStep({ form }: { form: OnboardingController }) {
         true,
         'Você pode combinar o público atendido e a forma de gerar receita.',
       )}
+      {form.data.businessModels.length > 1 &&
+        fields.select(
+          'primaryModel',
+          'Modelo de negócio principal',
+          businessModels.filter((item) =>
+            form.data.businessModels.includes(item.value),
+          ),
+        )}
       {fields.textarea('targetMarket', 'Quem é o cliente da sua startup?', {
         required: true,
         maxLength: 200,

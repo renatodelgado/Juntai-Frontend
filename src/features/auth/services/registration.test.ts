@@ -198,10 +198,13 @@ describe('cadastro na API', () => {
       expect.stringMatching(/\/investidores$/),
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: expect.any(Headers),
         body: JSON.stringify(payload),
       },
     );
+    expect(
+      new Headers(fetch.mock.calls[0]![1].headers).get('Content-Type'),
+    ).toBe('application/json');
     await expect(registerRemote('investidores', payload)).rejects.toThrow(
       'E-mail já cadastrado',
     );

@@ -54,7 +54,8 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
 
   switch (step) {
     case 'about':
-      requireFields('name', 'description');
+      requireFields('ownerName', 'name', 'description');
+      maxLength('ownerName', 150);
       maxLength('name', 120);
       maxLength('publicName', 120);
       maxLength('description', 280);
@@ -84,6 +85,11 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       break;
     case 'market':
       requireFields('businessModels', 'targetMarket', 'problem', 'solution');
+      if (
+        data.businessModels.length > 1 &&
+        !data.businessModels.includes(data.primaryModel)
+      )
+        errors.primaryModel = 'Escolha o modelo principal.';
       if (data.businessModels.some((value) => !supportedModel(value)))
         errors.businessModels =
           'Remova os modelos ainda não aceitos pelo servidor.';
@@ -93,12 +99,24 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('targetMarket', 200);
       break;
     case 'location':
-      requireFields('state', 'cityId', 'operatingRegions', 'targetRegions');
+      requireFields('state', 'cityId', 'registrationRegion', 'targetRegions');
       if (data.cityId && (!/^\d{7}$/.test(data.cityId) || !data.cityName))
         errors.cityId = 'Selecione uma cidade da lista.';
       break;
     case 'traction':
-      requireFields('revenue', 'teamSize');
+      requireFields('revenue', 'exactTeamSize');
+      if (
+        data.exactTeamSize !== null &&
+        (!Number.isInteger(data.exactTeamSize) ||
+          data.exactTeamSize < 1 ||
+          data.exactTeamSize > 32767)
+      )
+        errors.exactTeamSize = 'Informe um número inteiro entre 1 e 32.767.';
+      if (
+        data.monthlyRevenue !== null &&
+        (data.monthlyRevenue < 0 || data.monthlyRevenue > 999999999999.99)
+      )
+        errors.monthlyRevenue = 'Informe um faturamento válido.';
       if (
         !data.hideCustomers &&
         data.customers !== null &&
@@ -113,16 +131,14 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('growthNotes', 1000);
       break;
     case 'investment':
-      requireFields('seekingInvestment', 'needs');
-      if (data.seekingInvestment === 'yes') {
+      requireFields('needs');
+      {
         requireFields('capital', 'investmentPurposes');
         if (data.capital !== null && (data.capital <= 0 || data.capital > 1e12))
           errors.capital =
             'Informe um valor maior que zero e de até R$ 1 trilhão.';
       }
-      break;
-    case 'matching':
-      requireFields('partnerType', 'expertise', 'partnerRegions');
+      requireFields('partnerType', 'expertise');
       maxLength('preferences', 1500);
       break;
     case 'pitch':
@@ -130,27 +146,6 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('pitchText', 5000);
       if (Object.values(data.canvas).some((value) => value.length > 1500))
         errors.canvas = 'Use até 1.500 caracteres em cada bloco do Canvas.';
-      break;
-    case 'team':
-      data.members.forEach((member) => {
-        let message = '';
-        if (!member.name.trim() || !member.role.trim())
-          message =
-            'Informe o nome e a função deste integrante ou remova o cartão.';
-        if (
-          member.name.length > 120 ||
-          member.role.length > 120 ||
-          member.bio.length > 600
-        )
-          message =
-            'Use até 120 caracteres no nome e função e 600 na descrição.';
-        try {
-          normalizeUrl(member.linkedin);
-        } catch {
-          message = 'Confira o LinkedIn deste integrante.';
-        }
-        if (message) errors[`member-${member.id}`] = message;
-      });
       break;
     case 'consent':
       requireFields('termsAccepted', 'privacyAcknowledged');

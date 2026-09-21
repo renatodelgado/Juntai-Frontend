@@ -47,6 +47,11 @@ export const draftSchema = z.object({
         /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value),
     )
     .default(''),
+  ownerName: text.default(''),
+  registrationRegion: text.default(''),
+  primaryModel: text.default(''),
+  monthlyRevenue: number.default(null),
+  exactTeamSize: number.default(null),
   name: text,
   publicName: text,
   description: text,
@@ -122,6 +127,11 @@ export type RegistrationStatus =
 
 export function createDraft(): StartupDraft {
   return {
+    ownerName: '',
+    registrationRegion: '',
+    primaryModel: '',
+    monthlyRevenue: null,
+    exactTeamSize: null,
     logo: '',
     name: '',
     publicName: '',
@@ -150,7 +160,7 @@ export function createDraft(): StartupDraft {
     growthPercent: null,
     growthNotes: '',
     teamSize: '',
-    seekingInvestment: '',
+    seekingInvestment: 'yes',
     capital: null,
     investmentPurposes: [],
     needs: [],

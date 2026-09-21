@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
-import { saveInvestorProfile } from '@/features/auth/services/localAuth';
+import { saveInvestorProfile } from '@/features/auth/services/profiles';
 import { InvestorFields } from './InvestorFields';
 import {
   investorSteps,

@@ -8,7 +8,7 @@ import {
   Content,
   Fields,
 } from '@/features/startup-onboarding/pages/Onboarding.styles';
-import { loginLocal } from '../services/localAuth';
+import { login } from '../services/auth';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,13 +21,15 @@ export function LoginPage() {
     setBusy(true);
     setError('');
     try {
-      const destination = await loginLocal(email, password);
+      const destination = await login(email, password);
       await navigate(destination, { replace: true });
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Não conseguimos entrar. Tente novamente.',
+        cause instanceof TypeError
+          ? 'Não foi possível conectar ao servidor. Tente novamente.'
+          : cause instanceof Error
+            ? cause.message
+            : 'Não conseguimos entrar. Tente novamente.',
       );
     } finally {
       setBusy(false);
@@ -39,11 +41,6 @@ export function LoginPage() {
         <Content>
           <Link to="/">Juntaí! · Início</Link>
           <h1>Que bom ter você de volta</h1>
-          <p>
-            Este acesso atende somente às contas antigas de demonstração salvas
-            neste navegador. Os novos cadastros são enviados ao servidor, mas o
-            login online ainda não está disponível.
-          </p>
           <form onSubmit={(event) => void submit(event)}>
             <Fields>
               <Input
@@ -76,10 +73,6 @@ export function LoginPage() {
                   Sou um investidor ou mentor
                 </Link>
               </p>
-              <small>
-                Acesso de teste, disponível somente no navegador onde a conta
-                foi criada.
-              </small>
             </Fields>
           </form>
         </Content>

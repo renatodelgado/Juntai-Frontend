@@ -82,10 +82,9 @@ export function LegalDocument({ document }: { document: 'terms' | 'privacy' }) {
           </p>
           <p>
             A senha do novo cadastro é enviada ao servidor para criação da conta
-            e não é gravada pelo frontend. O login online ainda não está
-            disponível. Contas antigas de demonstração continuam armazenadas
-            somente neste navegador, com uma verificação criptográfica da senha
-            e sessão local.
+            e não é gravada pelo frontend. O login é validado pelo servidor. O
+            token de acesso fica no armazenamento de sessão da aba e é removido
+            ao sair da conta. Alterações no perfil continuam locais.
           </p>
           <h2>3. Serviços externos utilizados</h2>
           <p>

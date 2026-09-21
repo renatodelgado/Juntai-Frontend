@@ -38,7 +38,6 @@ import { InvestorBackground, investorTheme } from './Investor.styles';
 export function InvestorOnboardingPage() {
   const form = useInvestor();
   const [editing, setEditing] = useState(false);
-  const [years, setYears] = useState<number | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -93,8 +92,12 @@ export function InvestorOnboardingPage() {
     setAccountBusy(true);
     setAccountError('');
     try {
-      const payload = investorPayload(form.data, email, password, years);
-      if (!(await form.save())) return;
+      const payload = investorPayload(
+        form.data,
+        email,
+        password,
+        form.data.experienceYears,
+      );
       await registerRemote('investidores', payload);
       setPassword('');
       setConfirmation('');
@@ -129,13 +132,9 @@ export function InvestorOnboardingPage() {
                 <h1 ref={title} tabIndex={-1}>
                   Perfil enviado!
                 </h1>
-                <p>
-                  O servidor recebeu seu cadastro. O login e a edição online
-                  ainda não estão disponíveis. As informações complementares
-                  continuam no rascunho deste navegador.
-                </p>
-                <Button as={Link} to="/">
-                  Voltar ao início
+                <p>Seu cadastro foi recebido. Entre para acessar seu perfil.</p>
+                <Button as={Link} to="/login">
+                  Entrar na minha conta
                 </Button>
               </Content>
             ) : (
@@ -177,23 +176,32 @@ export function InvestorOnboardingPage() {
                         update={form.update}
                         edit={edit}
                       />
+                      {form.step === 'experience' && (
+                        <Fields>
+                          {' '}
+                          <NumberInput
+                            id="experience-years"
+                            label="Anos de experiência"
+                            min={0}
+                            step={1}
+                            value={form.data.experienceYears}
+                            error={form.errors.experienceYears}
+                            onValueChange={(value) =>
+                              form.update('experienceYears', value)
+                            }
+                          />
+                        </Fields>
+                      )}
                       {form.step === 'consent' && (
                         <Fields style={{ marginTop: '2rem' }}>
                           <h2>Crie sua conta</h2>
                           <p>
                             Identificação, atuação, interesses e dados de
                             investimento serão enviados. Foto, links,
-                            disponibilidade, contribuições e consentimentos
-                            ficam apenas neste navegador.
+                            disponibilidade, contribuições e consentimentos só
+                            ficam neste navegador se você clicar em “Salvar e
+                            continuar depois”.
                           </p>
-                          <NumberInput
-                            id="experience-years"
-                            label="Anos de experiência"
-                            min={0}
-                            step={1}
-                            value={years}
-                            onValueChange={setYears}
-                          />
                           <Input
                             id="account-email"
                             label="E-mail de acesso"
@@ -268,7 +276,7 @@ export function InvestorOnboardingPage() {
                     {form.busy
                       ? 'Salvando…'
                       : form.message ||
-                        'Salvamento automático apenas neste navegador.'}
+                        'Seus dados só ficam neste navegador ao clicar em “Salvar e continuar depois”.'}
                   </SaveMessage>
                 </Content>
               </>

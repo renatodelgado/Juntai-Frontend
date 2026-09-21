@@ -65,6 +65,7 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page
     .getByLabel('Descrição curta', { exact: true })
     .fill('Conectamos artistas de Pernambuco a oportunidades de trabalho.');
+  await page.getByLabel('Nome completo do responsável').fill('Ana Souza');
   await continueStep(page);
   await page.getByLabel('Segmento principal').selectOption('creative_economy');
   await page.getByRole('radio', { name: /^MVP/ }).check();
@@ -83,10 +84,7 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page.getByLabel('Estado', { exact: true }).selectOption('PE');
   await expect(page.getByLabel('Cidade', { exact: true })).toBeEnabled();
   await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
-  await page
-    .getByRole('group', { name: 'Onde vocês atuam hoje?' })
-    .getByLabel('Nordeste')
-    .check();
+  await page.getByLabel('Região do cadastro').selectOption('recife');
   await page
     .getByRole('group', { name: 'Em quais regiões vocês pretendem crescer?' })
     .getByLabel('Nordeste')
@@ -96,22 +94,19 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page
     .getByLabel('Qual é o faturamento atual da startup?', { exact: true })
     .selectOption('none');
-  await page.getByLabel('Tamanho da equipe').selectOption('2_5');
+  await page.getByLabel('Tamanho da equipe').fill('5');
   await continueStep(page);
-  await page.getByRole('radio', { name: /^Sim/ }).check();
   await page.getByLabel('Quanto pretendem captar?').fill('500000');
   await page.getByLabel('Desenvolvimento de produto', { exact: true }).check();
   await page.getByLabel('Mentoria', { exact: true }).check();
-  await continueStep(page);
   await page
     .getByRole('radio', { name: 'Investidor + mentor', exact: true })
     .check();
-  await page.getByLabel('Tecnologia', { exact: true }).check();
   await page
     .getByRole('group', {
-      name: 'Regiões de interesse para encontrar parceiros',
+      name: 'Que tipo de experiência seria mais valiosa para sua startup?',
     })
-    .getByLabel('Nordeste')
+    .getByLabel('Tecnologia', { exact: true })
     .check();
   await continueStep(page);
   await page
@@ -175,10 +170,6 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
   await continueStep(page);
-  await page.getByRole('button', { name: 'Adicionar integrante' }).click();
-  await page.getByLabel('Nome', { exact: true }).fill('Ana Souza');
-  await page.getByLabel('Cargo/função', { exact: true }).fill('Fundadora');
-  await continueStep(page);
   await expect(
     page.getByRole('heading', {
       name: 'Confira seu perfil antes de entrar no Juntaí!',
@@ -194,9 +185,7 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page
     .getByLabel('Nome da startup', { exact: true })
     .fill('Maré Conecta');
-  await page
-    .getByRole('button', { name: 'Salvar alterações e revisar' })
-    .click();
+  await page.getByRole('button', { name: /^8\. Revisão/ }).click();
   await expect(page.getByText('Maré Conecta', { exact: true })).toBeVisible();
   await page
     .getByRole('button', { name: 'Finalizar cadastro', exact: true })
@@ -221,8 +210,6 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await expect(page.getByRole('alert')).toContainText('Falta só ajustar');
   await page.locator('#termsAccepted').check();
   await page.locator('#privacyAcknowledged').check();
-  await page.getByRole('button', { name: 'Enviar cadastro' }).click();
-  await expect(page.getByRole('dialog')).toBeVisible();
   let requests = 0;
   await page.route('**/startups', async (route) => {
     requests++;
@@ -238,22 +225,18 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
       json: { id: 'startup-id', statusModeracao: 'pendente' },
     });
   });
-  await page.getByLabel('Nome completo do responsável').fill('Ana Souza');
-  await page
-    .getByLabel('Região do cadastro', { exact: true })
-    .selectOption('recife');
-  const primary = page.getByLabel('Modelo de negócio principal');
-  if (await primary.count()) await primary.selectOption('b2b');
   await page.getByLabel('E-mail de acesso').fill('mare@example.com');
   await page.getByLabel('Crie uma senha').fill('Teste-local-123');
   await page.getByLabel('Confirme a senha').fill('Teste-local-123');
-  await page.getByRole('button', { name: 'Criar conta', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Enviar cadastro', exact: true })
+    .click();
   await expect(
     page.getByRole('heading', { name: 'Startup cadastrada!' }),
   ).toBeVisible();
   expect(requests).toBe(1);
-  await page.getByRole('link', { name: 'Voltar ao início' }).click();
-  await expect(page).toHaveURL('/');
+  await page.getByRole('link', { name: 'Entrar na minha conta' }).click();
+  await expect(page).toHaveURL('/login');
   expect(browserErrors).toEqual([]);
 });
 

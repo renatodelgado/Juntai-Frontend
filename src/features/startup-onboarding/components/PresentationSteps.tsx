@@ -33,7 +33,6 @@ export function PitchStep({ form }: { form: OnboardingController }) {
     if (!editor || form.busy) return;
     const canvas = { ...form.data.canvas, [editor.field.value]: editor.text };
     form.update('canvas', canvas);
-    await form.save(false, { ...form.data, canvas });
     setEditor(null);
   }
   return (
@@ -59,7 +58,7 @@ export function PitchStep({ form }: { form: OnboardingController }) {
       <section aria-labelledby="canvas-title">
         <h2 id="canvas-title">Seu modelo de negócio, em um Canvas</h2>
         <p>
-          Abra um bloco para escrever com calma. Ao fechar, o texto fica salvo e
+          Abra um bloco para escrever com calma. Ao fechar, o texto é aplicado e
           o bloco aparece como preenchido.
         </p>
         <CanvasGrid>
@@ -117,7 +116,8 @@ export function PitchStep({ form }: { form: OnboardingController }) {
               }
             />
             <p>
-              Ao fechar, este bloco e seu rascunho são salvos neste navegador.
+              Ao fechar, o texto é aplicado ao cadastro. Para guardar no
+              navegador, use “Salvar e continuar depois”.
             </p>
           </Fields>
         )}

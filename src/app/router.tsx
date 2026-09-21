@@ -3,6 +3,8 @@ import { HomePage } from '@/features/home/pages/HomePage';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { ProtectedRoute, AuthRouteError } from '@/features/auth/ProtectedRoute';
+import { requireRole } from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -17,11 +19,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/investidor/perfil',
-    lazy: async () => {
-      const { InvestorProfilePage } =
-        await import('@/features/investor-onboarding/pages/InvestorProfilePage');
-      return { Component: InvestorProfilePage };
-    },
+    element: <ProtectedRoute />,
+    loader: requireRole('investidor'),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { InvestorProfilePage } =
+            await import('@/features/investor-onboarding/pages/InvestorProfilePage');
+          return { Component: InvestorProfilePage };
+        },
+      },
+    ],
   },
   {
     path: '/cadastro/startup',
@@ -33,11 +43,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/startup/perfil',
-    lazy: async () => {
-      const { StartupProfilePage } =
-        await import('@/features/startup-profile/pages/StartupProfilePage');
-      return { Component: StartupProfilePage };
-    },
+    element: <ProtectedRoute />,
+    loader: requireRole('startup'),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { StartupProfilePage } =
+            await import('@/features/startup-profile/pages/StartupProfilePage');
+          return { Component: StartupProfilePage };
+        },
+      },
+    ],
   },
   { path: '/termos-de-uso', element: <LegalPage document="terms" /> },
   {

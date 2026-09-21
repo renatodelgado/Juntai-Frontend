@@ -13,14 +13,10 @@ import { LocationStep } from '@/features/startup-onboarding/components/LocationS
 import {
   TractionStep,
   InvestmentStep,
-  MatchingStep,
 } from '@/features/startup-onboarding/components/GrowthSteps';
-import {
-  PitchStep,
-  TeamStep,
-} from '@/features/startup-onboarding/components/PresentationSteps';
+import { PitchStep } from '@/features/startup-onboarding/components/PresentationSteps';
 import { ConsentStep } from '@/features/startup-onboarding/components/ConsentStep';
-import { saveProfile } from '@/features/auth/services/localAuth';
+import { saveProfile } from '@/features/auth/services/profiles';
 
 export function ProfileEditor({
   saved,
@@ -34,7 +30,7 @@ export function ProfileEditor({
   onSaved: (profile: SavedDraft) => void;
 }) {
   const snapshot = useRef(saved);
-  // Canvas can save inside its own dialog. Other changes remain pending until confirmation.
+  // Changes remain pending until confirmation.
   async function persist(profile: SavedDraft) {
     const next = { ...profile, previewCompletedAt: saved.previewCompletedAt };
     await saveProfile(next);
@@ -49,9 +45,7 @@ export function ProfileEditor({
     location: <LocationStep form={form} />,
     traction: <TractionStep form={form} />,
     investment: <InvestmentStep form={form} />,
-    matching: <MatchingStep form={form} />,
     pitch: <PitchStep form={form} />,
-    team: <TeamStep form={form} />,
     consent: <ConsentStep form={form} />,
     review: null,
   };

@@ -12,7 +12,6 @@ import {
   Header,
   Hero,
   HeroCopy,
-  Status,
   SymbolComposition,
   Title,
 } from './HomePage.styles';
@@ -23,7 +22,6 @@ export function HomePage() {
       <Header>
         <Brand src={logo} alt="Juntaí!" />
         <div>
-          <Status>Versão de testes</Status>{' '}
           <Button as={Link} to="/login" $variant="secondary">
             Entrar
           </Button>
