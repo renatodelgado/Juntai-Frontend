@@ -10,7 +10,7 @@ const Dialog = styled.dialog`
   border: 1px solid ${({ theme }) => theme.colors.accentBorder};
   border-radius: ${({ theme }) => theme.radii.card};
   background: ${({ theme }) => theme.colors.white};
-  color: ${({ theme }) => theme.colors.darkSlateBlue};
+  color: ${({ theme }) => theme.colors.nileBlue};
   &[open] {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;

@@ -28,14 +28,14 @@ export const Button = styled.button<{
     $variant === 'secondary' &&
     css`
       background: ${theme.colors.white};
-      color: ${theme.colors.darkSlateBlue};
+      color: ${theme.colors.nileBlue};
       border-color: ${theme.colors.border};
     `}
   ${({ $variant, theme }) =>
     $variant === 'quiet' &&
     css`
       background: transparent;
-      color: ${theme.colors.darkSlateBlue};
+      color: ${theme.colors.nileBlue};
       padding-inline: 0.5rem;
     `}
   &:hover:not(:disabled) {

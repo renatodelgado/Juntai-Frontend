@@ -19,7 +19,7 @@ export const Shell = styled.main`
   background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.accentBorder};
   border-radius: ${({ theme }) => theme.radii.card};
-  box-shadow: 0 12px 40px ${({ theme }) => theme.colors.darkSlateBlue}06;
+  box-shadow: 0 12px 40px ${({ theme }) => theme.colors.nileBlue}06;
   @media (max-width: 40rem) {
     width: calc(100% - 1rem);
     margin: 0.5rem auto;
@@ -262,7 +262,7 @@ export const CanvasTile = styled.button`
   padding: 0;
   border: 0;
   background: transparent;
-  color: ${({ theme }) => theme.colors.darkSlateBlue};
+  color: ${({ theme }) => theme.colors.nileBlue};
   text-align: left;
   cursor: pointer;
   strong {

@@ -7,7 +7,7 @@ const Dialog = styled.dialog`
   padding: 2rem;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.card};
-  color: ${({ theme }) => theme.colors.darkSlateBlue};
+  color: ${({ theme }) => theme.colors.nileBlue};
   background: ${({ theme }) => theme.colors.white};
   &::backdrop {
     background: ${({ theme }) => theme.colors.overlay};

@@ -32,7 +32,7 @@ const control = css`
   min-width: 0;
   min-height: 3.25rem;
   padding: 0.85rem 1rem;
-  color: ${({ theme }) => theme.colors.darkSlateBlue};
+  color: ${({ theme }) => theme.colors.nileBlue};
   background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.input};

@@ -85,7 +85,7 @@ export const Eyebrow = styled.p`
     width: 0.6rem;
     height: 0.6rem;
     border-radius: 50%;
-    background: ${({ theme }) => theme.colors.terracotta};
+    background: ${({ theme }) => theme.colors.mountainMeadow};
   }
 `;
 
@@ -97,7 +97,7 @@ export const Title = styled.h1`
   white-space: nowrap;
 
   span {
-    color: ${({ theme }) => theme.colors.terracotta};
+    color: ${({ theme }) => theme.colors.mountainMeadow};
   }
 
   .wide-break {
@@ -123,9 +123,9 @@ export const Description = styled.p`
 
 export const Card = styled.section`
   padding: clamp(1.5rem, 4vw, 2rem);
-  background: ${({ theme }) => theme.colors.darkSlateBlue};
+  background: ${({ theme }) => theme.colors.nileBlue};
   color: ${({ theme }) => theme.colors.white};
-  border-top: 4px solid ${({ theme }) => theme.colors.terracotta};
+  border-top: 4px solid ${({ theme }) => theme.colors.mountainMeadow};
   border-radius: ${({ theme }) => theme.radii.card};
   h2 {
     margin-top: 0;

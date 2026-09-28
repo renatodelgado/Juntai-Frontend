@@ -6,7 +6,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     min-width: 320px;
     background: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.darkSlateBlue};
+    color: ${({ theme }) => theme.colors.nileBlue};
     font-family: ${({ theme }) => theme.fonts.body};
     line-height: 1.6;
   }
@@ -21,9 +21,9 @@ export const GlobalStyle = createGlobalStyle`
     text-underline-offset: 0.2em;
     text-decoration-thickness: 2px;
   }
-  a:hover { text-decoration-color: ${({ theme }) => theme.colors.terracotta}; }
+  a:hover { text-decoration-color: ${({ theme }) => theme.colors.mountainMeadow}; }
   ::selection {
-    background: ${({ theme }) => theme.colors.darkSlateBlue};
+    background: ${({ theme }) => theme.colors.nileBlue};
     color: ${({ theme }) => theme.colors.white};
   }
   :focus-visible {

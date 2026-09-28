@@ -7,5 +7,5 @@ export const PageContainer = styled.main`
   background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.card};
-  box-shadow: 0 16px 48px ${({ theme }) => theme.colors.darkSlateBlue}08;
+  box-shadow: 0 16px 48px ${({ theme }) => theme.colors.nileBlue}08;
 `;
