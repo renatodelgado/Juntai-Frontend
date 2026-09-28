@@ -29,6 +29,7 @@ export interface SavedDraft {
   previewCompletedAt: string | null;
   regionCatalogVersion?: number;
   notice?: string;
+  statusModeracao?: string;
 }
 
 export async function loadDraft(): Promise<SavedDraft | null> {

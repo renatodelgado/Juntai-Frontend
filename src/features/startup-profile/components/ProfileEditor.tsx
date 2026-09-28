@@ -32,7 +32,11 @@ export function ProfileEditor({
   const snapshot = useRef(saved);
   // Changes remain pending until confirmation.
   async function persist(profile: SavedDraft) {
-    const next = { ...profile, previewCompletedAt: saved.previewCompletedAt };
+    const next = {
+      ...profile,
+      previewCompletedAt: saved.previewCompletedAt,
+      statusModeracao: saved.statusModeracao,
+    };
     await saveProfile(next);
     snapshot.current = next;
   }

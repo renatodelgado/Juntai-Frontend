@@ -5,11 +5,40 @@ import { LegalPage } from '@/features/legal/LegalPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
 import { ProtectedRoute, AuthRouteError } from '@/features/auth/ProtectedRoute';
-import { requireRole } from '@/features/auth/services/requireRole';
+import {
+  requireRole,
+  redirectAuthenticated,
+} from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
-  { path: '/', element: <HomePage /> },
-  { path: '/login', element: <LoginPage /> },
+  {
+    path: '/',
+    element: <HomePage />,
+    loader: redirectAuthenticated,
+    errorElement: <AuthRouteError />,
+  },
+  {
+    path: '/login',
+    element: <LoginPage />,
+    loader: redirectAuthenticated,
+    errorElement: <AuthRouteError />,
+  },
+  ...(['startup', 'investidor'] as const).map((role) => ({
+    path: `/${role}/inicio`,
+    element: <ProtectedRoute />,
+    loader: requireRole(role),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { DashboardPage } =
+            await import('@/features/dashboard/pages/DashboardPage');
+          return { Component: DashboardPage };
+        },
+      },
+    ],
+  })),
   { path: '/esqueci-minha-senha', element: <ForgotPasswordPage /> },
   {
     path: '/cadastro/investidor',

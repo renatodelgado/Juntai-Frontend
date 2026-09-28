@@ -267,7 +267,9 @@ export const CanvasTile = styled.button`
   cursor: pointer;
   strong {
     font-family: ${({ theme }) => theme.fonts.heading};
+    font-size: 0.85rem;
     line-height: 1.3;
+    overflow-wrap: anywhere;
   }
   > span {
     color: ${({ theme }) => theme.colors.muted};

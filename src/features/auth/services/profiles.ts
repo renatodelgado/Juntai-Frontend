@@ -34,7 +34,7 @@ const base = {
   atualizadoEm: z.string(),
   statusModeracao: z.string(),
 };
-const startupSchema = z.object({
+export const startupSchema = z.object({
   ...base,
   nomeFantasia: z.string(),
   segmento: z.string(),
@@ -46,9 +46,11 @@ const startupSchema = z.object({
   capitalProcurado: numeric,
   taxaCrescimentoPct: numeric,
   descricaoPitch: z.string().nullish(),
+  tamanhoEquipe: numeric,
+  finalidadeInvestimento: z.string().nullish(),
   canvasJson: z.record(z.string(), z.unknown()).nullish(),
 });
-const investorSchema = z.object({
+export const investorSchema = z.object({
   ...base,
   nome: z.string(),
   tipoInvestidor: z.enum(['anjo', 'mentor', 'anjo_mentor']),
@@ -56,6 +58,7 @@ const investorSchema = z.object({
   ticketMaximo: numeric,
   perfilRisco: z.string().nullish(),
   bio: z.string().nullish(),
+  anosExperiencia: numeric,
   segmentosInteresse: z.array(z.string()),
   estagiosInteresse: z.array(z.string()),
   regioesInteresse: z.array(z.string()),
@@ -63,15 +66,19 @@ const investorSchema = z.object({
 });
 const key = (id: string, role: string) => `juntai:profile-draft:${role}:${id}`;
 
-export async function loadProfile(): Promise<SavedDraft | null> {
+export async function loadProfile(
+  remoteProfile?: z.infer<typeof startupSchema>,
+): Promise<SavedDraft | null> {
   const session = getSession();
   if (session?.usuario.tipoPerfil !== 'startup') return null;
-  const remote = startupSchema.parse(
-    await (await apiRequest('auth/profile', { authenticated: true })).json(),
-  );
+  const remote =
+    remoteProfile ??
+    startupSchema.parse(
+      await (await apiRequest('auth/profile', { authenticated: true })).json(),
+    );
   if (getSession()?.token !== session.token) return null;
   const local = await get<SavedDraft>(key(session.usuario.id, 'startup'));
-  if (local) return local;
+  if (local) return { ...local, statusModeracao: remote.statusModeracao };
   const data = createDraft();
   data.name = remote.nomeFantasia;
   data.publicName = remote.nomeFantasia;
@@ -84,6 +91,8 @@ export async function loadProfile(): Promise<SavedDraft | null> {
   data.seekingInvestment = (data.capital ?? 0) > 0 ? 'yes' : 'no';
   data.growthPercent = remote.taxaCrescimentoPct ?? null;
   data.pitchText = remote.descricaoPitch ?? '';
+  data.registrationRegion = remote.regiao;
+  data.exactTeamSize = remote.tamanhoEquipe ?? null;
   const canvas = remote.canvasJson ?? {};
   for (const field of Object.keys(
     data.canvas,
@@ -94,6 +103,7 @@ export async function loadProfile(): Promise<SavedDraft | null> {
   data.solution = typeof canvas.solucao === 'string' ? canvas.solucao : '';
   return {
     version: 1,
+    statusModeracao: remote.statusModeracao,
     data,
     step: 'about',
     completed: [],

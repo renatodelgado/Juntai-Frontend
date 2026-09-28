@@ -27,9 +27,11 @@ export function ProfileTags({
 export function InvestorIdentity({
   data,
   main = false,
+  compact = false,
 }: {
   data: model.InvestorDraft;
   main?: boolean;
+  compact?: boolean;
 }) {
   const linkedin = safeLink(data.linkedin);
   const name = data.name || 'Seu perfil';
@@ -61,22 +63,26 @@ export function InvestorIdentity({
         </S.Avatar>
         <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
           {main ? <h1>{name}</h1> : <h2>{name}</h2>}
-          <p>{catalogs.optionLabel(model.participation, data.participation)}</p>
+          <S.Badge>
+            {catalogs.optionLabel(model.participation, data.participation)}
+          </S.Badge>
+          <p>{data.title || 'Título profissional não informado'}</p>
+          <S.Muted>
+            <MapPinIcon size={16} aria-hidden="true" />{' '}
+            {data.cityName && data.state
+              ? `${data.cityName}, ${data.state}`
+              : 'Localização não informada'}
+          </S.Muted>
         </div>
       </S.Row>
-      <p>{data.title || 'Título profissional não informado'}</p>
-      <S.Muted>
-        <MapPinIcon size={16} aria-hidden="true" />{' '}
-        {data.cityName && data.state
-          ? `${data.cityName}, ${data.state}`
-          : 'Localização não informada'}
-      </S.Muted>
-      {linkedin && (
+      {!compact && linkedin && (
         <a href={linkedin} target="_blank" rel="noopener noreferrer">
           <LinkedinLogoIcon size={18} aria-hidden="true" /> LinkedIn
         </a>
       )}
-      <p>{data.bio || 'Adicione uma bio para apresentar sua trajetória.'}</p>
+      {!compact && (
+        <p>{data.bio || 'Adicione uma bio para apresentar sua trajetória.'}</p>
+      )}
     </>
   );
 }

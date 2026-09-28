@@ -22,6 +22,13 @@ export const theme = {
     muted: '#726C86',
     error: '#B42332',
     overlay: `${palette.darkSlateBlue}A6`,
+    appBackground: '#F7F8FA',
+    appText: '#263044',
+    appMuted: '#68758A',
+    appBorder: '#E8ECF2',
+    statusBackground: '#FFFAEB',
+    statusBorder: '#F2DEA6',
+    statusText: '#8A5A14',
   },
   fonts: {
     heading: '"Quicksand", system-ui, sans-serif',

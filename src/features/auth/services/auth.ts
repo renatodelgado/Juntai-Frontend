@@ -2,7 +2,7 @@ import { apiRequest } from '@/shared/services/api';
 import {
   getSession,
   logout,
-  profilePath,
+  homePath,
   saveSession,
   sessionSchema,
   userSchema,
@@ -20,7 +20,7 @@ export async function login(email: string, senha: string) {
     throw new Error('A área administrativa ainda não está disponível.');
   }
   saveSession(session);
-  return profilePath(session.usuario.tipoPerfil);
+  return homePath(session.usuario.tipoPerfil);
 }
 
 export async function validateSession() {

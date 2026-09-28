@@ -46,6 +46,7 @@ export function profileCompleteness(
     },
   ];
   return {
+    sections,
     percent: Math.round(
       (sections.filter((section) => section.filled).length / sections.length) *
         100,

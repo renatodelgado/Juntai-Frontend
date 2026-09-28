@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  PlusIcon,
-  TrashIcon,
-  UsersThreeIcon,
-  CheckCircleIcon,
-} from '@phosphor-icons/react';
+import { PlusIcon, TrashIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { Input, Textarea } from '@/shared/components/forms/Fields';
 import { ErrorText } from '@/shared/components/forms/styles';
 import { Upload } from '@/shared/components/forms/Upload';
@@ -13,14 +8,8 @@ import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import type { OnboardingController } from '../hooks/useOnboarding';
 import { bindFields } from './fields';
 import { canvasFields } from '../data/catalogs';
-import {
-  Fields,
-  Columns,
-  CanvasGrid,
-  CanvasTile,
-  SubCard,
-  Notice,
-} from '../pages/Onboarding.styles';
+import { CanvasBoard } from './CanvasBoard';
+import { Fields, Columns, SubCard, Notice } from '../pages/Onboarding.styles';
 import type { TeamMember } from '../model/types';
 
 export function PitchStep({ form }: { form: OnboardingController }) {
@@ -61,37 +50,12 @@ export function PitchStep({ form }: { form: OnboardingController }) {
           Abra um bloco para escrever com calma. Ao fechar, o texto é aplicado e
           o bloco aparece como preenchido.
         </p>
-        <CanvasGrid>
-          {canvasFields.map((field) => (
-            <div key={field.value}>
-              <CanvasTile
-                type="button"
-                aria-label={`${form.data.canvas[field.value].trim() ? 'Editar' : 'Preencher'} ${field.label}`}
-                onClick={() =>
-                  setEditor({ field, text: form.data.canvas[field.value] })
-                }
-              >
-                <strong>{field.label}</strong>
-                <span>
-                  {form.data.canvas[field.value].trim() || field.hint}
-                </span>
-                <small>
-                  {form.data.canvas[field.value].trim() ? (
-                    <>
-                      <CheckCircleIcon size={18} aria-hidden="true" />
-                      Preenchido
-                    </>
-                  ) : (
-                    <>
-                      <PlusIcon size={18} aria-hidden="true" />
-                      Adicionar
-                    </>
-                  )}
-                </small>
-              </CanvasTile>
-            </div>
-          ))}
-        </CanvasGrid>
+        <CanvasBoard
+          canvas={form.data.canvas}
+          onEdit={(field) =>
+            setEditor({ field, text: form.data.canvas[field.value] })
+          }
+        />
         {form.errors.canvas && <ErrorText>{form.errors.canvas}</ErrorText>}
       </section>
       <ContentDialog
