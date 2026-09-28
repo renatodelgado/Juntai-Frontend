@@ -2,9 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/shared/components/forms/Fields';
 import { Button } from '@/shared/components/ui/Button';
+import { PageContainer } from '@/shared/components/PageContainer';
 import {
-  JourneyBackground,
-  Shell,
   Content,
   Fields,
 } from '@/features/startup-onboarding/pages/Onboarding.styles';
@@ -36,47 +35,44 @@ export function LoginPage() {
     }
   }
   return (
-    <JourneyBackground>
-      <Shell style={{ maxWidth: '32rem' }}>
-        <Content>
-          <Link to="/">Juntaí! · Início</Link>
-          <h1>Que bom ter você de volta</h1>
-          <form onSubmit={(event) => void submit(event)}>
-            <Fields>
-              <Input
-                id="email"
-                label="E-mail"
-                type="email"
-                required
-                autoComplete="username"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-              <Input
-                id="password"
-                label="Senha"
-                type="password"
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              {error && <p role="alert">{error}</p>}
-              <Button disabled={busy} type="submit">
-                {busy ? 'Entrando…' : 'Entrar'}
-              </Button>
-              <p>
-                Não tem uma conta?{' '}
-                <Link to="/cadastro/startup">Tenho uma startup</Link>
-                {' · '}
-                <Link to="/cadastro/investidor">
-                  Sou um investidor ou mentor
-                </Link>
-              </p>
-            </Fields>
-          </form>
-        </Content>
-      </Shell>
-    </JourneyBackground>
+    <PageContainer style={{ maxWidth: '32rem' }}>
+      <Content>
+        <Link to="/">Juntaí! · Início</Link>
+        <h1>Que bom ter você de volta</h1>
+        <form onSubmit={(event) => void submit(event)}>
+          <Fields>
+            <Input
+              id="email"
+              label="E-mail"
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Input
+              id="password"
+              label="Senha"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            {error && <p role="alert">{error}</p>}
+            <Link to="/esqueci-minha-senha">Esqueci minha senha</Link>
+            <Button disabled={busy} type="submit">
+              {busy ? 'Entrando…' : 'Entrar'}
+            </Button>
+            <p>
+              Não tem uma conta?{' '}
+              <Link to="/cadastro/startup">Tenho uma startup</Link>
+              {' · '}
+              <Link to="/cadastro/investidor">Sou um investidor ou mentor</Link>
+            </p>
+          </Fields>
+        </form>
+      </Content>
+    </PageContainer>
   );
 }

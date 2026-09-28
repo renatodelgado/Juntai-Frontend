@@ -32,3 +32,11 @@ export async function validateSession() {
   saveSession({ token: session.token, usuario });
   return usuario;
 }
+
+export async function checkRecoveryEmail(email: string): Promise<void> {
+  await apiRequest('auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  });
+}

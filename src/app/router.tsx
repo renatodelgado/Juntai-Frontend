@@ -3,12 +3,14 @@ import { HomePage } from '@/features/home/pages/HomePage';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
 import { ProtectedRoute, AuthRouteError } from '@/features/auth/ProtectedRoute';
 import { requireRole } from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/esqueci-minha-senha', element: <ForgotPasswordPage /> },
   {
     path: '/cadastro/investidor',
     lazy: async () => {
