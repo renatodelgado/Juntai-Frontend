@@ -181,10 +181,10 @@ export function StartupProfilePage() {
             <HeartIcon size={20} />
             Matches
           </button>
-          <button disabled>
+          <Link to="/startup/mensagens">
             <ChatCircleIcon size={20} />
             Mensagens
-          </button>
+          </Link>
           <button disabled>
             <CalendarIcon size={20} />
             Reuniões

@@ -8,6 +8,23 @@ import { ProtectedRoute, AuthRouteError } from '@/features/auth/ProtectedRoute';
 import { requireRole } from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
+  ...(['startup', 'investidor'] as const).map((role) => ({
+    id: `${role}-messages`,
+    path: `/${role}/mensagens`,
+    element: <ProtectedRoute />,
+    loader: requireRole(role),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { MessagesPage } =
+            await import('@/features/messages/MessagesPage');
+          return { Component: MessagesPage };
+        },
+      },
+    ],
+  })),
   { path: '/', element: <HomePage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/esqueci-minha-senha', element: <ForgotPasswordPage /> },

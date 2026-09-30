@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   HouseIcon,
   HandshakeIcon,
@@ -19,13 +19,17 @@ export function ProfileSidebar({
   status,
   onSettings,
   onLogout,
+  unreadMessages = 0,
 }: {
   profilePath: string;
   status: string;
   onSettings: () => void;
   onLogout: () => void;
+  unreadMessages?: number;
 }) {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  const messagesPath = profilePath.replace('/perfil', '/mensagens');
   return (
     <Sidebar>
       <Link to="/" aria-label="Juntaí! — início">
@@ -46,7 +50,10 @@ export function ProfileSidebar({
           <HouseIcon size={20} aria-hidden="true" />
           Início
         </Link>
-        <Link to={profilePath} aria-current="page">
+        <Link
+          to={profilePath}
+          aria-current={pathname === profilePath ? 'page' : undefined}
+        >
           <HandshakeIcon size={20} aria-hidden="true" />
           Meu perfil
         </Link>
@@ -54,10 +61,14 @@ export function ProfileSidebar({
           <HeartIcon size={20} aria-hidden="true" />
           Matches
         </button>
-        <button disabled title="Em preparação">
+        <Link
+          to={messagesPath}
+          aria-current={pathname === messagesPath ? 'page' : undefined}
+        >
           <ChatCircleIcon size={20} aria-hidden="true" />
           Mensagens
-        </button>
+          {unreadMessages > 0 && <Badge>{unreadMessages}</Badge>}
+        </Link>
         <button disabled title="Em preparação">
           <CalendarIcon size={20} aria-hidden="true" />
           Reuniões
