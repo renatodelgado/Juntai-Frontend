@@ -6,7 +6,15 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'test-results', 'playwright-report'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'test-results',
+      'playwright-report',
+      'cypress/artifacts',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -15,5 +23,6 @@ export default tseslint.config(
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
   },
   { files: ['*.{js,ts}'], languageOptions: { globals: globals.node } },
+  { files: ['scripts/**/*.mjs'], languageOptions: { globals: globals.node } },
   prettier,
 );

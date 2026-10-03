@@ -260,13 +260,19 @@ for (const role of ['startup', 'investidor'] as const) {
         .getByRole('button', { name: 'Cancelar / fechar', exact: true })
         .click();
       await expect(page.getByRole('dialog')).toBeHidden();
-      await page.getByRole('link', { name: 'Início', exact: true }).click();
+      await page
+        .getByRole('navigation', { name: 'Navegação do perfil' })
+        .getByRole('link', { name: 'Início', exact: true })
+        .click();
     }
     await page.getByRole('link', { name: 'Meu perfil', exact: true }).click();
     await expect(
+      page.getByRole('heading', { name: 'Meu perfil', level: 1, exact: true }),
+    ).toBeVisible();
+    await expect(
       page.getByRole('heading', {
         name: role === 'startup' ? 'Startup de teste' : 'Investidora de teste',
-        level: 1,
+        level: 2,
         exact: true,
       }),
     ).toBeVisible();
@@ -285,7 +291,10 @@ for (const role of ['startup', 'investidor'] as const) {
       ),
     ).toBe(true);
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.getByRole('link', { name: 'Início', exact: true }).click();
+    await page
+      .getByRole('navigation', { name: 'Navegação do perfil' })
+      .getByRole('link', { name: 'Início', exact: true })
+      .click();
     await expect(page).toHaveURL(`/${role}/inicio`);
     await page.reload();
     await expect(page.getByRole('button', { name: /Sair/ })).toBeVisible();
@@ -397,7 +406,7 @@ test('falha temporária da API permite tentar novamente sem apagar a sessão', a
   await page.getByRole('button', { name: 'Tentar novamente' }).click();
   await expect(
     page.getByRole('heading', {
-      name: 'Olá, Investidora de teste! 👋',
+      name: 'Olá, Investidora de teste!',
       exact: true,
       level: 1,
     }),

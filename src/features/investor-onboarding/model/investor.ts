@@ -37,6 +37,9 @@ export const risks = [
   { value: 'early_stage', label: 'Alto risco / estágio inicial' },
 ];
 export const expertise = [
+  { value: 'mentoring', label: 'Mentoria' },
+  { value: 'networking', label: 'Networking' },
+  { value: 'growth', label: 'Growth' },
   { value: 'technology', label: 'Tecnologia' },
   { value: 'product', label: 'Produto' },
   { value: 'sales', label: 'Vendas' },
@@ -76,6 +79,12 @@ export const interactions = [
   { value: 'events', label: 'Eventos' },
   { value: 'opportunities', label: 'Análise de oportunidades' },
   { value: 'ongoing', label: 'Acompanhamento contínuo' },
+];
+export const availabilityOptions = [
+  { value: 'algumas_horas_mes', label: 'Algumas horas por mês' },
+  { value: 'algumas_horas_semana', label: 'Algumas horas por semana' },
+  { value: 'meio_periodo', label: 'Meio período' },
+  { value: 'dedicacao_integral', label: 'Dedicação integral' },
 ];
 export const openness = [
   { value: 'yes', label: 'Sim' },
@@ -155,6 +164,8 @@ export const investorSchema = z.object({
   expertise: multiple(expertise),
   history: choice(historyOptions),
   investmentCount: choice(counts),
+  exactInvestmentCount: z.number().finite().nullable().default(null),
+  availability: choice(availabilityOptions).default(''),
   experience: text,
   experienceYears: z.number().finite().nullable().default(null),
   previousSectors: multiple(segments),
@@ -190,6 +201,8 @@ export function createInvestorDraft(): InvestorDraft {
     expertise: [],
     history: '',
     investmentCount: '',
+    exactInvestmentCount: null,
+    availability: '',
     experience: '',
     experienceYears: null,
     previousSectors: [],
@@ -350,15 +363,9 @@ export function validateInvestor(
       if (data.businessModels.some((value) => !supportedModel(value)))
         errors.businessModels =
           'Remova os modelos ainda não aceitos pelo servidor.';
-      if (
-        data.regions.includes('international') ||
-        (data.regions.some((value) => value !== 'northeast') &&
-          !['north', 'northeast', 'central_west', 'southeast', 'south'].every(
-            (value) => data.regions.includes(value),
-          ))
-      )
+      if (data.regions.includes('international'))
         errors.regions =
-          'O servidor aceita Nordeste ou abrangência nacional. Remova as regiões indisponíveis.';
+          'O servidor aceita apenas as cinco regiões brasileiras.';
       break;
     case 'experience':
       if (
@@ -375,6 +382,13 @@ export function validateInvestor(
       break;
     case 'history':
       required('history');
+      if (
+        data.exactInvestmentCount !== null &&
+        (!Number.isInteger(data.exactInvestmentCount) ||
+          data.exactInvestmentCount < 0 ||
+          data.exactInvestmentCount > 32767)
+      )
+        errors.exactInvestmentCount = 'Informe um inteiro entre 0 e 32.767.';
       break;
     case 'availability':
       required('frequency', 'interactions');

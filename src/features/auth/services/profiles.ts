@@ -10,6 +10,10 @@ import {
 import {
   registrationSegments,
   registrationModels,
+  registrationRegions,
+  registrationGrowthPeriods,
+  registrationNeeds,
+  registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 import { getSession } from './session';
 export { logout } from './session';
@@ -39,7 +43,27 @@ export const startupSchema = z.object({
   nomeFantasia: z.string(),
   segmento: z.string(),
   estagio: z.string(),
-  regiao: z.string(),
+  regiao: z.string().optional(),
+  descricaoCurta: z.string().nullish(),
+  siteUrl: z.string().nullish(),
+  videoApresentacaoUrl: z.string().nullish(),
+  linksSociais: z
+    .object({
+      linkedin: z.string().optional(),
+      instagram: z.string().optional(),
+      outros: z.array(z.string()).optional(),
+    })
+    .nullish(),
+  estado: z.string().nullish(),
+  cidade: z.string().nullish(),
+  segmentosSecundarios: z.array(z.string()).optional(),
+  regioesAtuacao: z.array(z.string()).optional(),
+  regioesCrescimento: z.array(z.string()).optional(),
+  metricaCrescimento: z.string().nullish(),
+  periodoComparacaoCrescimento: z.string().nullish(),
+  descricaoEvolucao: z.string().nullish(),
+  buscaInvestimento: z.boolean().optional(),
+  necessidadesAdicionais: z.array(z.string()).optional(),
   modeloNegocio: z.string(),
   mercadoAlvo: z.string().nullish(),
   numeroClientes: numeric,
@@ -58,6 +82,16 @@ export const investorSchema = z.object({
   ticketMaximo: numeric,
   perfilRisco: z.string().nullish(),
   bio: z.string().nullish(),
+  tituloProfissional: z.string().nullish(),
+  linkedinUrl: z.string().nullish(),
+  estado: z.string().nullish(),
+  cidade: z.string().nullish(),
+  areasAjuda: z.array(z.string()).optional(),
+  disponibilidade: z.string().nullish(),
+  jaAtuouComStartups: z.boolean().optional(),
+  numeroAproximadoInvestimentos: numeric,
+  descricaoExperiencia: z.string().nullish(),
+  setoresAtuacao: z.array(z.string()).optional(),
   anosExperiencia: numeric,
   segmentosInteresse: z.array(z.string()),
   estagiosInteresse: z.array(z.string()),
@@ -91,7 +125,41 @@ export async function loadProfile(
   data.seekingInvestment = (data.capital ?? 0) > 0 ? 'yes' : 'no';
   data.growthPercent = remote.taxaCrescimentoPct ?? null;
   data.pitchText = remote.descricaoPitch ?? '';
-  data.registrationRegion = remote.regiao;
+  data.registrationRegion = remote.regiao ?? '';
+  data.description = remote.descricaoCurta ?? '';
+  data.website = remote.siteUrl ?? '';
+  data.videoUrl = remote.videoApresentacaoUrl ?? '';
+  data.linkedin = remote.linksSociais?.linkedin ?? '';
+  data.instagram = remote.linksSociais?.instagram ?? '';
+  data.otherLinks = (remote.linksSociais?.outros ?? []).map((url, index) => ({
+    id: `remote-${index}`,
+    url,
+  }));
+  data.state = remote.estado ?? '';
+  data.cityName = remote.cidade ?? '';
+  data.secondarySegments = (remote.segmentosSecundarios ?? []).map((value) =>
+    reverse(registrationSegments, value),
+  );
+  data.operatingRegions = (remote.regioesAtuacao ?? []).map((value) =>
+    reverse(registrationRegions, value),
+  );
+  data.targetRegions = (remote.regioesCrescimento ?? []).map((value) =>
+    reverse(registrationRegions, value),
+  );
+  data.growthPeriod = reverse(
+    registrationGrowthPeriods,
+    remote.periodoComparacaoCrescimento ?? '',
+  );
+  data.growthMetric = reverse(
+    { revenue: 'receita', customers: 'clientes', both: 'clientes_e_receita' },
+    remote.metricaCrescimento ?? '',
+  );
+  data.growthNotes = remote.descricaoEvolucao ?? '';
+  if (remote.buscaInvestimento !== undefined)
+    data.seekingInvestment = remote.buscaInvestimento ? 'yes' : 'no';
+  data.needs = (remote.necessidadesAdicionais ?? []).map((value) =>
+    reverse(registrationNeeds, value),
+  );
   data.exactTeamSize = remote.tamanhoEquipe ?? null;
   const canvas = remote.canvasJson ?? {};
   for (const field of Object.keys(
@@ -132,6 +200,26 @@ export async function loadInvestorProfile(): Promise<SavedInvestor | null> {
   const data = createInvestorDraft();
   data.name = remote.nome;
   data.bio = remote.bio ?? '';
+  data.title = remote.tituloProfissional ?? '';
+  data.linkedin = remote.linkedinUrl ?? '';
+  data.state = remote.estado ?? '';
+  data.cityName = remote.cidade ?? '';
+  data.expertise = (remote.areasAjuda ?? []).map((value) =>
+    reverse(registrationHelpAreas, value),
+  );
+  data.availability = remote.disponibilidade ?? '';
+  data.history =
+    remote.jaAtuouComStartups === undefined
+      ? ''
+      : remote.jaAtuouComStartups
+        ? 'yes'
+        : 'no';
+  data.exactInvestmentCount = remote.numeroAproximadoInvestimentos ?? null;
+  data.experience = remote.descricaoExperiencia ?? '';
+  data.previousSectors = (remote.setoresAtuacao ?? []).map((value) =>
+    reverse(registrationSegments, value),
+  );
+  data.experienceYears = remote.anosExperiencia ?? null;
   data.participation = {
     anjo: 'investor',
     mentor: 'mentor',
@@ -157,9 +245,7 @@ export async function loadInvestorProfile(): Promise<SavedInvestor | null> {
   data.regions = remote.regioesInteresse.flatMap((value) =>
     value === 'nacional'
       ? ['north', 'northeast', 'central_west', 'southeast', 'south']
-      : value === 'nordeste'
-        ? ['northeast']
-        : [value],
+      : [reverse(registrationRegions, value)],
   );
   return {
     version: 1,

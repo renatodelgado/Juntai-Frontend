@@ -14,6 +14,7 @@
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
-    "tests"
+    "tests",
+    "cypress.config.ts"
   ]
 }

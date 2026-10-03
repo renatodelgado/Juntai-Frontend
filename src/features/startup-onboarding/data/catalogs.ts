@@ -110,6 +110,22 @@ export const teamSizes: Option[] = [
   { value: '51_plus', label: '51+ pessoas' },
 ];
 
+export function growthLabel(period: string, metric: string) {
+  const periods: Record<string, string> = {
+    monthly: 'mensal (período antigo, não aceito pela API)',
+    yearly: 'último ano',
+    three_months: 'últimos 3 meses',
+    six_months: 'últimos 6 meses',
+    since_founding: 'desde a fundação',
+  };
+  const metrics: Record<string, string> = {
+    revenue: 'Receita',
+    customers: 'Clientes',
+    both: 'Clientes e receita',
+  };
+  return `${periods[period] ?? 'Período não informado'} · ${metrics[metric] ?? 'Métrica não informada'}`;
+}
+
 export const seekingInvestment: Option[] = [
   {
     value: 'yes',
@@ -140,6 +156,7 @@ export const investmentPurposes: Option[] = [
 ];
 
 export const needs: Option[] = [
+  { value: 'hiring', label: 'Contratação de talentos' },
   { value: 'investment', label: 'Investimento' },
   { value: 'mentoring', label: 'Mentoria' },
   { value: 'networking', label: 'Networking' },

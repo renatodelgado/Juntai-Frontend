@@ -45,6 +45,92 @@ const investor = {
 
 afterEach(() => vi.unstubAllGlobals());
 describe('cadastro na API', () => {
+  it('envia as novas colunas de startup com crescimento contextualizado e regiões atuais', () => {
+    const payload = startupPayload(
+      {
+        ...startup,
+        description: 'Gestão financeira',
+        website: 'techflow.example.com',
+        linkedin: 'https://linkedin.com/company/techflow',
+        state: 'PE',
+        cityName: 'Recife',
+        operatingRegions: ['northeast'],
+        targetRegions: ['south', 'southeast'],
+        secondarySegments: ['edtech'],
+        growthPercent: 12.5,
+        growthMetric: 'revenue',
+        growthPeriod: 'six_months',
+        growthNotes: 'Receita recorrente',
+        needs: ['mentoring', 'partnerships'],
+      },
+      'joao@teste.com',
+      '123456',
+      details,
+    );
+    expect(payload).toMatchObject({
+      descricaoCurta: 'Gestão financeira',
+      siteUrl: 'https://techflow.example.com/',
+      estado: 'PE',
+      cidade: 'Recife',
+      segmentosSecundarios: ['edtech'],
+      regioesAtuacao: ['nordeste'],
+      regioesCrescimento: ['sul', 'sudeste'],
+      taxaCrescimentoPct: 12.5,
+      metricaCrescimento: 'receita',
+      periodoComparacaoCrescimento: 'ultimos_6_meses',
+      descricaoEvolucao: 'Receita recorrente',
+      buscaInvestimento: true,
+      necessidadesAdicionais: ['mentoria', 'parcerias_estrategicas'],
+    });
+    expect(payload).not.toHaveProperty('regiao');
+  });
+  it('envia apresentação e experiência sem inferir quantidades ou disponibilidade', () => {
+    const payload = investorPayload(
+      {
+        ...investor,
+        title: 'Mentora de produto',
+        state: 'CE',
+        cityName: 'Fortaleza',
+        history: 'yes',
+        investmentCount: 'two_five',
+        exactInvestmentCount: 4,
+        experience: 'Apoio a empresas',
+        previousSectors: ['edtech'],
+        expertise: ['technology', 'product', 'sales'],
+        availability: 'algumas_horas_semana',
+        regions: ['south'],
+      },
+      'maria@teste.com',
+      '123456',
+      5,
+    );
+    expect(payload).toMatchObject({
+      tituloProfissional: 'Mentora de produto',
+      estado: 'CE',
+      cidade: 'Fortaleza',
+      jaAtuouComStartups: true,
+      numeroAproximadoInvestimentos: 4,
+      descricaoExperiencia: 'Apoio a empresas',
+      setoresAtuacao: ['edtech'],
+      areasAjuda: ['produto_tecnologia', 'vendas_marketing'],
+      disponibilidade: 'algumas_horas_semana',
+      regioesInteresse: ['sul'],
+    });
+    const undisclosed = investorPayload(
+      {
+        ...investor,
+        history: 'undisclosed',
+        frequency: 'weekly',
+        investmentCount: 'two_five',
+      },
+      'maria@teste.com',
+      '123456',
+      null,
+    );
+    expect(undisclosed).not.toHaveProperty('jaAtuouComStartups');
+    expect(undisclosed).not.toHaveProperty('disponibilidade');
+    expect(undisclosed).not.toHaveProperty('numeroAproximadoInvestimentos');
+  });
   it('separa responsável da startup e envia valores exatos e enums do backend', () => {
     const payload = startupPayload(
       startup,
@@ -151,7 +237,7 @@ describe('cadastro na API', () => {
   it('não reduz regiões ou segmentos silenciosamente', () => {
     expect(() =>
       investorPayload(
-        { ...investor, regions: ['south'] },
+        { ...investor, regions: ['international'] },
         'maria@teste.com',
         '123456',
         null,
@@ -175,7 +261,7 @@ describe('cadastro na API', () => {
         '123456',
         null,
       ).regioesInteresse,
-    ).toEqual(['nacional']);
+    ).toEqual(['norte', 'nordeste', 'centro_oeste', 'sudeste', 'sul']);
   });
   it('envia POST JSON e não trata erro HTTP como sucesso', async () => {
     const fetch = vi

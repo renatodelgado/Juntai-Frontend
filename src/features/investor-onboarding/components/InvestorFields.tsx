@@ -10,6 +10,7 @@ import {
   MultiSelect,
   RadioGroup,
   MoneyInput,
+  NumberInput,
   Select,
   Checkbox,
 } from '@/shared/components/forms/Fields';
@@ -238,6 +239,18 @@ export function InvestorFields({
         )}
         {data.history === 'yes' && (
           <>
+            {data.participation !== 'mentor' && (
+              <NumberInput
+                id="exactInvestmentCount"
+                label="Quantidade de investimentos (valor exato)"
+                min={0}
+                max={32767}
+                step={1}
+                value={data.exactInvestmentCount}
+                error={errors.exactInvestmentCount}
+                onValueChange={(value) => update('exactInvestmentCount', value)}
+              />
+            )}
             {data.participation !== 'mentor' &&
               radio(
                 'investmentCount',
@@ -253,7 +266,11 @@ export function InvestorFields({
             {multi(
               'previousSectors',
               'Setores em que já atuou',
-              catalogs.segments,
+              catalogs.segments.filter(
+                (item) =>
+                  supportedSegment(item.value) ||
+                  data.previousSectors.includes(item.value),
+              ),
               false,
             )}
           </>
@@ -262,6 +279,13 @@ export function InvestorFields({
     ),
     availability: (
       <>
+        <Select
+          id="availability"
+          label="Quanto tempo você pode dedicar?"
+          value={data.availability}
+          options={model.availabilityOptions}
+          onChange={(event) => update('availability', event.target.value)}
+        />
         {radio(
           'frequency',
           'Com que frequência você gostaria de interagir com startups?',

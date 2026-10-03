@@ -1,5 +1,8 @@
 # Integração dos cadastros — 13/09/2026
 
+> Histórico do contrato anterior. Para as alterações das entidades e enums
+> verificadas em 03/10/2026, consulte [cadastro e novas colunas](cadastro-novas-colunas.md).
+
 Contratos conferidos no código local de `../Juntai-Backend`: serviços, entidades, enums, controllers e rotas. As alterações desta entrega são somente no frontend.
 
 ## O que está ligado

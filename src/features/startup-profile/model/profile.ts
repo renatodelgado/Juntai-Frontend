@@ -20,7 +20,7 @@ export function profileCompleteness(
     {
       label: 'Localização',
       step: 'location',
-      filled: !!data.cityId && !!data.registrationRegion,
+      filled: !!data.cityName && !!data.state && !!data.operatingRegions.length,
     },
     {
       label: 'Tração',

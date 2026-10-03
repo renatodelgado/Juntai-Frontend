@@ -26,18 +26,16 @@ export function RegionSelect({
         required
         error={error}
         options={[
-          { value: 'northeast', label: 'Nordeste' },
+          ...regions.filter((item) => item.value !== 'international'),
           { value: 'brazil', label: 'Nacional' },
           ...regions
             .filter(
               (item) =>
-                item.value !== 'northeast' &&
-                value.includes(item.value) &&
-                (!allBrazil || item.value === 'international'),
+                item.value === 'international' && value.includes(item.value),
             )
             .map((item) => ({
               ...item,
-              label: `${item.label} (indisponível; remova para continuar)`,
+              label: `${item.label} (indisponivel; remova para continuar)`,
             })),
         ]}
         value={
@@ -60,7 +58,7 @@ export function RegionSelect({
               : next,
           )
         }
-        hint="O cadastro aceita Nordeste ou abrangência nacional. As demais regiões precisam ser disponibilizadas pelo servidor."
+        hint="Nacional seleciona todas as cinco regiões brasileiras."
       />
     );
   return (

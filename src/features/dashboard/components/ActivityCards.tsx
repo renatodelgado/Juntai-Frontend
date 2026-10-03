@@ -4,6 +4,9 @@ import {
   ClockIcon,
   HandshakeIcon,
 } from '@phosphor-icons/react';
+import { Link } from 'react-router-dom';
+import { getSession } from '@/features/auth/services/session';
+import { Button } from '@/shared/components/ui/Button';
 import {
   Card,
   Muted,
@@ -33,8 +36,14 @@ export function MessagesCard() {
         <ChatCircleIcon size={24} aria-hidden="true" />
         <h2>Mensagens</h2>
       </Row>
-      <p>Suas conversas terão um lugar aqui.</p>
-      <Muted>A área de mensagens ainda não está disponível.</Muted>
+      <p>Converse com suas conexões e avance suas oportunidades.</p>
+      <Button
+        as={Link}
+        to={`/${getSession()?.usuario.tipoPerfil === 'investidor' ? 'investidor' : 'startup'}/mensagens`}
+        $variant="secondary"
+      >
+        Abrir mensagens
+      </Button>
     </Card>
   );
 }

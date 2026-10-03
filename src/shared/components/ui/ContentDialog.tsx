@@ -73,6 +73,7 @@ export function ContentDialog({
   return (
     <Dialog
       ref={ref}
+      aria-label={title}
       aria-labelledby={id}
       onCancel={(event) => {
         event.preventDefault();

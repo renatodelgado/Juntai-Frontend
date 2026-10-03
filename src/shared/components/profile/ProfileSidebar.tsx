@@ -11,6 +11,7 @@ import {
   ListIcon,
   SignOutIcon,
   CaretDownIcon,
+  CompassIcon,
 } from '@phosphor-icons/react';
 import logo from '@/shared/assets/images/logo-txt.svg';
 import { getSession } from '@/features/auth/services/session';
@@ -152,6 +153,8 @@ export function ProfileSidebar({
   onLogout,
   name,
   subtitle,
+  unreadMessages = 0,
+  onMatches,
 }: {
   profilePath: string;
   status: string;
@@ -159,10 +162,18 @@ export function ProfileSidebar({
   onLogout: () => void;
   name?: string;
   subtitle?: string;
+  unreadMessages?: number;
+  onMatches?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const fromMatches =
+    pathname.startsWith('/startups/') &&
+    state &&
+    typeof state === 'object' &&
+    'returnTo' in state &&
+    state.returnTo === '/investidor/matches';
   const home = profilePath.replace('/perfil', '/inicio');
   const displayName = name || getSession()?.usuario.nome || 'Minha conta';
   return (
@@ -182,33 +193,122 @@ export function ProfileSidebar({
         </button>
         <nav id={id} aria-label="Navegação do perfil" data-open={open}>
           <Link to={home} aria-current={pathname === home ? 'page' : undefined}>
-            <HouseIcon size={17} aria-hidden="true" />
+            <HouseIcon
+              size={17}
+              weight={pathname === home ? 'fill' : 'regular'}
+              aria-hidden="true"
+            />
             Início
           </Link>
           <Link
             to={profilePath}
             aria-current={pathname === profilePath ? 'page' : undefined}
           >
-            <HandshakeIcon size={17} aria-hidden="true" />
+            <HandshakeIcon
+              size={17}
+              weight={pathname === profilePath ? 'fill' : 'regular'}
+              aria-hidden="true"
+            />
             Meu perfil
           </Link>
           {profilePath.startsWith('/investidor') && (
-            <button disabled title="Em preparação">
-              Startups
+            <Link
+              to="/investidor/startups"
+              aria-current={
+                pathname === '/investidor/startups' ||
+                (pathname.startsWith('/startups/') && !fromMatches)
+                  ? 'page'
+                  : undefined
+              }
+            >
+              <CompassIcon
+                size={17}
+                weight={
+                  pathname === '/investidor/startups' ||
+                  (pathname.startsWith('/startups/') && !fromMatches)
+                    ? 'fill'
+                    : 'regular'
+                }
+                aria-hidden="true"
+              />
+              Explorar
+            </Link>
+          )}
+          {profilePath.startsWith('/investidor') ? (
+            <Link
+              to="/investidor/matches"
+              aria-current={
+                pathname === '/investidor/matches' || fromMatches
+                  ? 'page'
+                  : undefined
+              }
+            >
+              <HeartIcon
+                size={17}
+                weight={
+                  pathname === '/investidor/matches' || !!fromMatches
+                    ? 'fill'
+                    : 'regular'
+                }
+                aria-hidden="true"
+              />
+              Matches
+            </Link>
+          ) : (
+            <button
+              disabled={!onMatches}
+              onClick={onMatches}
+              title={
+                onMatches ? undefined : 'Disponível após aprovação e integração'
+              }
+            >
+              <HeartIcon size={17} aria-hidden="true" />
+              Matches
             </button>
           )}
-          <button disabled title="Disponível após aprovação e integração">
-            <HeartIcon size={17} aria-hidden="true" />
-            Matches
-          </button>
-          <button disabled title="Em preparação">
-            <ChatCircleIcon size={17} aria-hidden="true" />
+          <Link
+            to={profilePath.replace('/perfil', '/mensagens')}
+            aria-current={
+              pathname === profilePath.replace('/perfil', '/mensagens')
+                ? 'page'
+                : undefined
+            }
+          >
+            <ChatCircleIcon
+              size={17}
+              weight={
+                pathname === profilePath.replace('/perfil', '/mensagens')
+                  ? 'fill'
+                  : 'regular'
+              }
+              aria-hidden="true"
+            />
             Mensagens
-          </button>
-          <button disabled title="Em preparação">
-            <CalendarIcon size={17} aria-hidden="true" />
+            {unreadMessages > 0 && (
+              <span aria-label={`${unreadMessages} mensagens não lidas`}>
+                ({unreadMessages})
+              </span>
+            )}
+          </Link>
+          <Link
+            to={profilePath.replace('/perfil', '/reunioes')}
+            aria-current={
+              pathname === profilePath.replace('/perfil', '/reunioes')
+                ? 'page'
+                : undefined
+            }
+          >
+            <CalendarIcon
+              size={17}
+              weight={
+                pathname === profilePath.replace('/perfil', '/reunioes')
+                  ? 'fill'
+                  : 'regular'
+              }
+              aria-hidden="true"
+            />
             Reuniões
-          </button>
+          </Link>
         </nav>
         <button
           className="account"

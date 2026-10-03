@@ -131,6 +131,7 @@ export function useInvestor(
         next.risk = '';
         next.openInvestment = '';
         next.investmentCount = '';
+        next.exactInvestmentCount = null;
         next.offers = next.offers.filter((offer) => offer !== 'capital');
       }
       return next;

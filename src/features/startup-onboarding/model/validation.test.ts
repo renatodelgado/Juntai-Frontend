@@ -53,7 +53,10 @@ describe('validação do cadastro', () => {
     );
     expect(
       validateStep('investment', { ...data, seekingInvestment: 'no' }),
-    ).toHaveProperty('capital');
+    ).not.toHaveProperty('capital');
+    expect(
+      validateStep('investment', { ...data, seekingInvestment: 'evaluating' }),
+    ).not.toHaveProperty('capital');
   });
   it('aceita zero clientes, recusa negativos e exige contexto para percentual', () => {
     const data = {
@@ -111,7 +114,7 @@ describe('contrato de integração', () => {
       capital: 500000,
       customers: 0,
       growthPercent: 12.5,
-      growthPeriod: 'monthly',
+      growthPeriod: 'yearly',
       growthMetric: 'revenue',
       termsAccepted: true,
       privacyAcknowledged: true,

@@ -143,6 +143,13 @@ export function InvestorSummary({
                     catalogs.optionLabel(model.counts, data.investmentCount)}
                   <br />
                   {data.experience}
+                  {data.participation !== 'mentor' &&
+                    data.exactInvestmentCount !== null && (
+                      <span>
+                        {' '}
+                        · Quantidade informada: {data.exactInvestmentCount}
+                      </span>
+                    )}
                   <br />
                   {labels(catalogs.segments, data.previousSectors)}
                 </>
@@ -154,6 +161,13 @@ export function InvestorSummary({
             'availability',
             <>
               <p>{catalogs.optionLabel(model.frequencies, data.frequency)}</p>
+              <p>
+                Tempo disponível:{' '}
+                {catalogs.optionLabel(
+                  model.availabilityOptions,
+                  data.availability,
+                )}
+              </p>
               <p>{labels(model.interactions, data.interactions)}</p>
               <p>
                 Aceita mentorias:{' '}

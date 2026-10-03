@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+﻿import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import {
@@ -13,6 +13,7 @@ import { loadInvestorProfile, logout } from '@/features/auth/services/profiles';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
+import { PageHeader } from '@/shared/components/profile/PageHeader';
 import * as S from '@/shared/components/profile/Profile.styles';
 import { investorTheme } from '@/shared/styles/theme';
 import * as catalogs from '@/features/startup-onboarding/data/catalogs';
@@ -104,29 +105,20 @@ export function InvestorProfilePage() {
           }}
         />
         <S.Main>
+          <PageHeader
+            title="Meu perfil"
+            subtitle="Apresente sua experiência, seus interesses e as conexões que você procura."
+          />
           {error ? (
             <S.Card role="alert">{error}</S.Card>
           ) : !data || !saved ? (
             <S.Card role="status">Preparando seu perfil…</S.Card>
           ) : (
             <>
-              <S.ContextBar>
-                <S.Row>
-                  <S.Badge>
-                    <HandshakeIcon size={16} aria-hidden="true" /> Espaço do{' '}
-                    {mentor ? 'mentor' : 'investidor'}
-                  </S.Badge>
-                  <span aria-hidden="true">/</span>
-                  <strong>Meu perfil</strong>
-                </S.Row>
-                <S.Muted>
-                  Alterações feitas aqui ficam apenas neste navegador.
-                </S.Muted>
-              </S.ContextBar>
               <S.ProfileColumns>
                 <S.PrimaryColumn>
                   <S.IdentityCard>
-                    <InvestorIdentity data={data} main compact />
+                    <InvestorIdentity data={data} compact />
                     <Button
                       $variant="secondary"
                       onClick={() => setDialog('public')}

@@ -9,12 +9,8 @@ import {
   sessionEvent,
 } from '@/features/auth/services/session';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
-import {
-  Main,
-  Card,
-  Row,
-  Badge,
-} from '@/shared/components/profile/Profile.styles';
+import { PageHeader } from '@/shared/components/profile/PageHeader';
+import { Main, Card, Row } from '@/shared/components/profile/Profile.styles';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import {
@@ -37,7 +33,7 @@ import {
   moderation,
   type Dashboard,
 } from '../model/dashboard';
-import { DashboardLayout, Header, Columns, Overview } from './Dashboard.styles';
+import { DashboardLayout, Columns, Overview } from './Dashboard.styles';
 
 export function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
@@ -104,39 +100,34 @@ export function DashboardPage() {
           }}
         />
         <Main>
-          <Header>
-            <div>
-              <Badge>
-                {role === 'startup'
-                  ? 'Espaço da startup'
-                  : 'Espaço do investidor'}{' '}
-                · Início
-              </Badge>
-              <h1>Olá, {name}!</h1>
-              <p>
-                {role === 'startup'
-                  ? 'Veja o que está acontecendo com seu perfil e suas conexões.'
-                  : 'Encontre startups alinhadas aos seus interesses e experiência.'}
-              </p>
-            </div>
-            <Row>
-              <Button
-                $variant="secondary"
-                aria-label="Notificações"
-                onClick={() => setDialog('notifications')}
-              >
-                <BellIcon size={22} aria-hidden="true" />
-              </Button>
-              <Button
-                as={Link}
-                to={profile}
-                $variant="secondary"
-                aria-label="Acessar meu perfil"
-              >
-                <UserCircleIcon size={24} aria-hidden="true" />
-              </Button>
-            </Row>
-          </Header>
+          <PageHeader
+            title={`Olá, ${name}!`}
+            breadcrumbs={[{ label: 'Início' }]}
+            subtitle={
+              role === 'startup'
+                ? 'Veja o que está acontecendo com seu perfil e suas conexões.'
+                : 'Encontre startups alinhadas aos seus interesses e experiência.'
+            }
+            actions={
+              <Row>
+                <Button
+                  $variant="secondary"
+                  aria-label="Notificações"
+                  onClick={() => setDialog('notifications')}
+                >
+                  <BellIcon size={22} aria-hidden="true" />
+                </Button>
+                <Button
+                  as={Link}
+                  to={profile}
+                  $variant="secondary"
+                  aria-label="Acessar meu perfil"
+                >
+                  <UserCircleIcon size={24} aria-hidden="true" />
+                </Button>
+              </Row>
+            }
+          />
           {error ? (
             <Card role="alert">
               <h2>Não conseguimos atualizar seu painel</h2>

@@ -86,10 +86,14 @@ export const draftSchema = z.object({
   growthPeriod: choice([
     { value: 'monthly', label: '' },
     { value: 'yearly', label: '' },
+    { value: 'three_months', label: '' },
+    { value: 'six_months', label: '' },
+    { value: 'since_founding', label: '' },
   ]),
   growthMetric: choice([
     { value: 'revenue', label: '' },
     { value: 'customers', label: '' },
+    { value: 'both', label: '' },
   ]),
   growthPercent: number,
   growthNotes: text,

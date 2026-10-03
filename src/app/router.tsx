@@ -11,6 +11,80 @@ import {
 } from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
+  ...(['startup', 'investidor'] as const).map((role) => ({
+    id: `${role}-meetings`,
+    path: `/${role}/reunioes`,
+    element: <ProtectedRoute />,
+    loader: requireRole(role),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { MeetingsPage } =
+            await import('@/features/meetings/MeetingsPage');
+          return { Component: MeetingsPage };
+        },
+      },
+    ],
+  })),
+  {
+    id: 'investor-matches',
+    path: '/investidor/matches',
+    element: <ProtectedRoute />,
+    loader: requireRole('investidor'),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { InvestorMatchesPage } =
+            await import('@/features/investor-matches/InvestorMatchesPage');
+          return { Component: InvestorMatchesPage };
+        },
+      },
+    ],
+  },
+  ...['/investidor/startups', '/startups/:id'].map((path) => ({
+    id:
+      path === '/investidor/startups' ? 'discovery-list' : 'discovery-profile',
+    path,
+    element: <ProtectedRoute />,
+    loader: requireRole('investidor'),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          if (path === '/startups/:id') {
+            const { PublicStartupProfile } =
+              await import('@/features/explore-startups/PublicStartupProfile');
+            return { Component: PublicStartupProfile };
+          }
+          const { ExploreStartups } =
+            await import('@/features/explore-startups/ExploreStartups');
+          return { Component: ExploreStartups };
+        },
+      },
+    ],
+  })),
+  ...(['startup', 'investidor'] as const).map((role) => ({
+    id: `${role}-messages`,
+    path: `/${role}/mensagens`,
+    element: <ProtectedRoute />,
+    loader: requireRole(role),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { MessagesPage } =
+            await import('@/features/messages/MessagesPage');
+          return { Component: MessagesPage };
+        },
+      },
+    ],
+  })),
   {
     path: '/',
     element: <HomePage />,

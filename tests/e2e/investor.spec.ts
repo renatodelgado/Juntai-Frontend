@@ -19,6 +19,11 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
       expect(body.tipoInvestidor).toBe(mentor ? 'mentor' : 'anjo_mentor');
       expect(body.regioesInteresse).toEqual(['nordeste']);
       expect(body.estagiosInteresse).toEqual(['mvp']);
+      expect(body.estado).toBe('PE');
+      expect(body.cidade).toBe('Recife');
+      expect(body.areasAjuda).toEqual(['produto_tecnologia']);
+      expect(body.jaAtuouComStartups).toBe(false);
+      expect(body.disponibilidade).toBe('algumas_horas_semana');
       if (mentor) expect(body).not.toHaveProperty('ticketMinimo');
       if (requests === 1)
         await route.fulfill({
@@ -99,6 +104,9 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
     await next(page);
     await page.getByRole('radio', { name: 'Não', exact: true }).check();
     await next(page);
+    await page
+      .getByLabel(/^Quanto tempo você pode dedicar\?/)
+      .selectOption('algumas_horas_semana');
     await page
       .getByRole('radio', { name: 'Semanalmente', exact: true })
       .check();

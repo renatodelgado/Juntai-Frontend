@@ -17,7 +17,13 @@
     "format:check": "prettier --check .",
     "check": "npm run typecheck && npm run lint && npm run format:check",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "cypress:open": "cypress open --e2e",
+    "cypress:run": "cypress run --e2e",
+    "cypress:demo": "node scripts/cypress-demo.mjs",
+    "cypress:demo:open": "node scripts/cypress-demo.mjs --open",
+    "cypress:demo:failure": "node scripts/cypress-demo.mjs --failure",
+    "cypress:typecheck": "tsc -p cypress/tsconfig.json"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -35,6 +41,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "cypress": "^16.1.1",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",

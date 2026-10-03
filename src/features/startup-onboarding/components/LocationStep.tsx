@@ -1,4 +1,3 @@
-import { apiRegions } from '@/features/auth/services/registration';
 import { useEffect, useState } from 'react';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 import { Select } from '@/shared/components/forms/Fields';
@@ -11,6 +10,7 @@ import { RegionSelect } from './RegionSelect';
 import { Columns, Fields, Notice } from '../pages/Onboarding.styles';
 
 export function LocationStep({ form }: { form: OnboardingController }) {
+  const fields = bindFields(form);
   const [result, setResult] = useState<{
     state: string;
     cities: City[];
@@ -39,7 +39,6 @@ export function LocationStep({ form }: { form: OnboardingController }) {
   const loading = !!state && result?.state !== state;
   const cities = result?.state === state ? result.cities : [];
   const error = result?.state === state ? result.error : '';
-  const fields = bindFields(form);
   const options = cities.map((city) => ({ value: city.id, label: city.name }));
   if (
     form.data.cityId &&
@@ -90,8 +89,16 @@ export function LocationStep({ form }: { form: OnboardingController }) {
           </div>
         </Notice>
       )}
-      {fields.select('registrationRegion', 'Região do cadastro', apiRegions)}
       <RegionSelect
+        apiCompatible
+        id="operatingRegions"
+        label="Em quais regiões vocês já atuam?"
+        value={form.data.operatingRegions}
+        error={form.errors.operatingRegions}
+        onChange={(value) => form.update('operatingRegions', value)}
+      />
+      <RegionSelect
+        apiCompatible
         id="targetRegions"
         label="Em quais regiões vocês pretendem crescer?"
         value={form.data.targetRegions}

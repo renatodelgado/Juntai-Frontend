@@ -99,7 +99,7 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('targetMarket', 200);
       break;
     case 'location':
-      requireFields('state', 'cityId', 'registrationRegion', 'targetRegions');
+      requireFields('state', 'cityId', 'operatingRegions', 'targetRegions');
       if (data.cityId && (!/^\d{7}$/.test(data.cityId) || !data.cityName))
         errors.cityId = 'Selecione uma cidade da lista.';
       break;
@@ -125,14 +125,17 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
         errors.customers = 'Use um número inteiro igual ou maior que zero.';
       if (data.growthPercent !== null) {
         requireFields('growthPeriod', 'growthMetric');
-        if (data.growthPercent < -100 || data.growthPercent > 100000)
-          errors.growthPercent = 'Informe um percentual entre -100 e 100.000.';
+        if (data.growthPeriod === 'monthly')
+          errors.growthPeriod =
+            'Escolha um dos novos períodos de comparação; mensal não existe no contrato atual.';
+        if (data.growthPercent < -100 || data.growthPercent > 9999.99)
+          errors.growthPercent = 'Informe um percentual entre -100 e 9.999,99.';
       }
       maxLength('growthNotes', 1000);
       break;
     case 'investment':
       requireFields('needs');
-      {
+      if (data.seekingInvestment === 'yes') {
         requireFields('capital', 'investmentPurposes');
         if (data.capital !== null && (data.capital <= 0 || data.capital > 1e12))
           errors.capital =

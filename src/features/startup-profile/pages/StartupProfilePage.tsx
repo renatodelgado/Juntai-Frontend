@@ -1,7 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+﻿import { useEffect, useState, type ReactNode } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  PlantIcon,
   LockSimpleIcon,
   PencilSimpleIcon,
   MapPinIcon,
@@ -12,6 +11,7 @@ import {
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
+import { PageHeader } from '@/shared/components/profile/PageHeader';
 import type { SavedDraft } from '@/features/startup-onboarding/services/draftStorage';
 import { loadProfile, logout } from '@/features/auth/services/profiles';
 import { ProfileEditor } from '../components/ProfileEditor';
@@ -239,6 +239,10 @@ export function StartupProfilePage() {
         }
       />
       <S.Main>
+        <PageHeader
+          title="Meu perfil"
+          subtitle="Apresente sua startup, sua solução e os próximos passos do negócio."
+        />
         {loading ? (
           <S.Card role="status">Preparando seu perfil…</S.Card>
         ) : !data || !saved ? (
@@ -255,18 +259,6 @@ export function StartupProfilePage() {
           </S.Card>
         ) : (
           <>
-            <S.ContextBar>
-              <S.Row>
-                <Link to="/startup/inicio">
-                  <PlantIcon size={16} aria-hidden="true" /> Espaço da startup
-                </Link>
-                <span aria-hidden="true">/</span>
-                <strong>Meu perfil</strong>
-              </S.Row>
-              <S.Muted>
-                Alterações feitas aqui ficam apenas neste navegador.
-              </S.Muted>
-            </S.ContextBar>
             <S.ProfileColumns>
               <S.PrimaryColumn>
                 <S.IdentityCard>
@@ -279,7 +271,7 @@ export function StartupProfilePage() {
                       )}
                     </S.Avatar>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <h1>{name}</h1>
+                      <h2>{name}</h2>
                       <S.Row>
                         <S.Badge>
                           {catalogs.optionLabel(
@@ -454,7 +446,7 @@ export function StartupProfilePage() {
                             'Crescimento',
                             data.growthPercent === null
                               ? empty
-                              : `${data.growthPercent.toLocaleString('pt-BR')}% ${data.growthPeriod === 'monthly' ? 'ao mês' : 'ao ano'} · ${data.growthMetric === 'revenue' ? 'receita' : 'clientes'}`,
+                              : `${data.growthPercent.toLocaleString('pt-BR')}% · ${catalogs.growthLabel(data.growthPeriod, data.growthMetric)}`,
                           ],
                           [
                             'Equipe',

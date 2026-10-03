@@ -1,4 +1,3 @@
-import { apiRegions } from '@/features/auth/services/registration';
 import { FieldSync } from '@/shared/components/forms/RegistrationSync';
 import type { ReactNode } from 'react';
 import { PencilSimpleIcon } from '@phosphor-icons/react';
@@ -135,11 +134,8 @@ export function ReviewStep({
         <Item field="cityId" label="Localização">
           {data.cityName ? `${data.cityName} / ${data.state}` : ''}
         </Item>
-        <Item label="Região do cadastro">
-          {
-            apiRegions.find((item) => item.value === data.registrationRegion)
-              ?.label
-          }
+        <Item field="operatingRegions" label="Regiões de atuação">
+          {labels(catalogs.regions, data.operatingRegions)}
         </Item>
         <Item field="targetRegions" label="Mercados pretendidos">
           {labels(catalogs.regions, data.targetRegions)}
@@ -168,7 +164,7 @@ export function ReviewStep({
         </Item>
         <Item field="growthPercent" label="Crescimento">
           {data.growthPercent !== null
-            ? `${data.growthPercent.toLocaleString('pt-BR')}% ${data.growthPeriod === 'monthly' ? 'ao mês' : 'ao ano'} · ${data.growthMetric === 'revenue' ? 'Receita' : 'Clientes'}`
+            ? `${data.growthPercent.toLocaleString('pt-BR')}% · ${catalogs.growthLabel(data.growthPeriod, data.growthMetric)}`
             : ''}
         </Item>
         <Item field="growthNotes" label="Evolução do negócio">

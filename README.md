@@ -1,5 +1,13 @@
 # Juntaí! Frontend
 
+## Demonstração E2E com Cypress
+
+Execute `npm run cypress:demo` para o cenário headless ou
+`npm run cypress:demo:open` para acompanhar no navegador. O script inicia o Vite
+localmente. Consulte o [guia de execução](docs/cypress-e2e.md), o
+[roteiro de sete slides](docs/cypress-apresentacao.md) e os
+[resultados reais](docs/cypress-resultados.md).
+
 > **Cadastro integrado (13/09/2026):** startup e investidor/mentor enviam dados para a API na porta 3333. Login e edição online ainda dependem do backend; descrições de contas locais abaixo se referem à demonstração anterior. Consulte [contratos, campos pendentes e opções de simplificação](docs/integracao-cadastros.md).
 
 **Juntaí!**, uma solução de matchmaking desenvolvida para conectar startups, investidores anjo e mentores do ecossistema de inovação do Nordeste.

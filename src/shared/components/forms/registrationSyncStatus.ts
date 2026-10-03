@@ -22,6 +22,45 @@ export function registrationSyncNote(
   field: string,
 ): SyncNote | undefined {
   if (!scope) return;
+  const pendingFields =
+    scope.role === 'startup'
+      ? [
+          'description',
+          'website',
+          'linkedin',
+          'instagram',
+          'otherLinks',
+          'secondarySegments',
+          'state',
+          'cityId',
+          'operatingRegions',
+          'targetRegions',
+          'growthPeriod',
+          'growthMetric',
+          'growthPercent',
+          'growthNotes',
+          'needs',
+          'videoUrl',
+        ]
+      : [
+          'title',
+          'state',
+          'cityId',
+          'linkedin',
+          'expertise',
+          'history',
+          'experience',
+          'previousSectors',
+          'availability',
+          'exactInvestmentCount',
+        ];
+  if (
+    pendingFields.includes(field) ||
+    (scope.role === 'startup' && field.startsWith('link-'))
+  )
+    return partial(
+      'As opções compatíveis são enviadas à API, mas o serviço atual de cadastro ainda não grava estes novos campos. Opções sem equivalente permanecem no rascunho.',
+    );
   if (field === 'account-confirm')
     return local(
       'Usado apenas para conferir a senha; não é enviado nem salvo.',
@@ -94,7 +133,7 @@ export function registrationSyncNote(
       );
     if (field === 'seekingInvestment')
       return partial(
-        'A escolha não é enviada como campo separado. Sem busca de investimento ou em avaliação, o capital enviado é zero.',
+        'Sim ou não é enviado como buscaInvestimento, ainda ignorado pelo serviço atual. “Em avaliação” não tem equivalente no banco.',
       );
   } else if (
     [

@@ -126,7 +126,6 @@ export function StartupOnboardingPage() {
         password,
         {
           ownerName: form.data.ownerName,
-          region: form.data.registrationRegion,
           primaryModel: form.data.primaryModel,
           monthlyRevenue: form.data.monthlyRevenue,
           teamSize: form.data.exactTeamSize,

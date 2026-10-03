@@ -137,7 +137,11 @@ export function BusinessStep({ form }: { form: OnboardingController }) {
       {fields.multi(
         'secondarySegments',
         'Categorias secundárias',
-        segments.filter((segment) => segment.value !== form.data.segment),
+        segments.filter(
+          (segment) =>
+            segment.value !== form.data.segment &&
+            supportedSegment(segment.value),
+        ),
         false,
         'Se fizer sentido, escolha até 3 categorias complementares.',
       )}

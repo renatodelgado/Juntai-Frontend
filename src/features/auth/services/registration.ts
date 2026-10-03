@@ -6,18 +6,17 @@ import { investmentPurposes } from '@/features/startup-onboarding/data/catalogs'
 import {
   registrationSegments as segments,
   registrationModels as models,
+  registrationRegions,
+  registrationGrowthPeriods,
+  registrationNeeds,
+  registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
+import { normalizeUrl } from '@/features/startup-onboarding/model/validation';
 export {
   supportedSegment,
   supportedModel,
 } from '@/shared/config/registrationCatalogs';
 
-export const apiRegions = [
-  { value: 'recife', label: 'Recife' },
-  { value: 'porto_digital', label: 'Porto Digital' },
-  { value: 'nordeste', label: 'Nordeste' },
-  { value: 'nacional', label: 'Nacional' },
-];
 const stages: Record<string, string> = {
   ideation: 'ideacao',
   validation: 'validacao',
@@ -34,6 +33,24 @@ function map(value: string, catalog: Record<string, string>, label: string) {
     );
   return mapped;
 }
+function optionalText(value: string, limit: number) {
+  return value.trim() ? z.string().max(limit).parse(value.trim()) : undefined;
+}
+function optionalUrl(value: string, limit = 255) {
+  return value.trim()
+    ? z.string().max(limit).parse(normalizeUrl(value))
+    : undefined;
+}
+function mappedOptions(values: string[], catalog: Record<string, string>) {
+  // Opções sem equivalente continuam sinalizadas como locais no formulário.
+  return [
+    ...new Set(
+      values
+        .filter((value) => Object.hasOwn(catalog, value))
+        .map((value) => catalog[value]!),
+    ),
+  ];
+}
 const money = z.number().finite().min(0).max(999999999999.99);
 const credentials = z.object({
   nome: z.string().trim().min(1, 'Informe o nome completo.').max(150),
@@ -42,7 +59,6 @@ const credentials = z.object({
 });
 export interface RegistrationDetails {
   ownerName: string;
-  region: string;
   primaryModel: string;
   monthlyRevenue: number | null;
   teamSize: number | null;
@@ -75,11 +91,58 @@ export function startupPayload(
       .parse(data.publicName.trim() || data.name),
     segmento: map(data.segment, segments, 'Segmento principal'),
     estagio: map(data.stage, stages, 'Estágio'),
-    regiao: z
-      .enum(['recife', 'porto_digital', 'nordeste', 'nacional'], {
-        error: 'Escolha a região do cadastro.',
-      })
-      .parse(details.region),
+    descricaoCurta: optionalText(data.description, 300),
+    siteUrl: optionalUrl(data.website),
+    linksSociais: {
+      linkedin: optionalUrl(data.linkedin),
+      instagram: optionalUrl(data.instagram),
+      outros: data.otherLinks
+        .filter((link) => link.url.trim())
+        .map((link) => optionalUrl(link.url)!),
+    },
+    videoApresentacaoUrl: optionalUrl(data.videoUrl, 10000),
+    segmentosSecundarios: data.secondarySegments.map((value) =>
+      map(value, segments, 'Segmentos secundários'),
+    ),
+    estado: optionalText(data.state, 2),
+    cidade: optionalText(data.cityName, 100),
+    regioesAtuacao: data.operatingRegions.map((value) =>
+      map(value, registrationRegions, 'Regiões de atuação'),
+    ),
+    regioesCrescimento: data.targetRegions.map((value) =>
+      map(value, registrationRegions, 'Regiões de crescimento'),
+    ),
+    descricaoEvolucao: optionalText(data.growthNotes, 10000),
+    ...(data.growthPercent !== null &&
+    Object.hasOwn(registrationGrowthPeriods, data.growthPeriod) &&
+    data.growthMetric
+      ? {
+          taxaCrescimentoPct: z
+            .number()
+            .finite()
+            .min(-100)
+            .max(9999.99)
+            .parse(data.growthPercent),
+          metricaCrescimento: map(
+            data.growthMetric,
+            {
+              revenue: 'receita',
+              customers: 'clientes',
+              both: 'clientes_e_receita',
+            },
+            'Métrica de crescimento',
+          ),
+          periodoComparacaoCrescimento: map(
+            data.growthPeriod,
+            registrationGrowthPeriods,
+            'Período de crescimento',
+          ),
+        }
+      : {}),
+    ...(data.seekingInvestment !== 'evaluating'
+      ? { buscaInvestimento: data.seekingInvestment === 'yes' }
+      : {}),
+    necessidadesAdicionais: mappedOptions(data.needs, registrationNeeds),
     modeloNegocio: map(primaryModel, models, 'Modelo de negócio'),
     mercadoAlvo: z
       .string()
@@ -145,19 +208,6 @@ export function investorPayload(
     email: email.trim().toLowerCase(),
     senha,
   });
-  const allBrazil = [
-    'north',
-    'northeast',
-    'central_west',
-    'southeast',
-    'south',
-  ];
-  const national = allBrazil.every((value) => data.regions.includes(value));
-  const regions = national
-    ? data.regions
-        .filter((value) => !allBrazil.includes(value))
-        .concat('nacional')
-    : data.regions;
   const mentor = data.participation === 'mentor';
   const ticketMinimo = mentor ? undefined : money.parse(data.ticketMin);
   const ticketMaximo = mentor ? undefined : money.parse(data.ticketMax);
@@ -169,6 +219,45 @@ export function investorPayload(
     throw new Error('O ticket máximo deve ser igual ou maior que o mínimo.');
   return {
     ...identity,
+    tituloProfissional: optionalText(data.title, 150),
+    linkedinUrl: optionalUrl(data.linkedin),
+    estado: optionalText(data.state, 2),
+    cidade: optionalText(data.cityName, 100),
+    areasAjuda: mappedOptions(data.expertise, registrationHelpAreas),
+    ...(data.availability
+      ? {
+          disponibilidade: z
+            .enum([
+              'algumas_horas_mes',
+              'algumas_horas_semana',
+              'meio_periodo',
+              'dedicacao_integral',
+            ])
+            .parse(data.availability),
+        }
+      : {}),
+    ...(['yes', 'no'].includes(data.history)
+      ? { jaAtuouComStartups: data.history === 'yes' }
+      : {}),
+    ...(data.history === 'yes'
+      ? {
+          descricaoExperiencia: optionalText(data.experience, 10000),
+          setoresAtuacao: data.previousSectors.map((value) =>
+            map(value, segments, 'Setores de atuação'),
+          ),
+          ...(data.participation !== 'mentor' &&
+          (data.exactInvestmentCount !== null || data.investmentCount === 'one')
+            ? {
+                numeroAproximadoInvestimentos: z
+                  .number()
+                  .int()
+                  .min(0)
+                  .max(32767)
+                  .parse(data.exactInvestmentCount ?? 1),
+              }
+            : {}),
+        }
+      : {}),
     tipoInvestidor: map(
       data.participation,
       { investor: 'anjo', mentor: 'mentor', both: 'anjo_mentor' },
@@ -199,17 +288,8 @@ export function investorPayload(
     estagiosInteresse: data.stages.map((value) =>
       map(value, stages, 'Estágios de interesse'),
     ),
-    regioesInteresse: regions.map((value) =>
-      map(
-        value,
-        {
-          northeast: 'nordeste',
-          recife: 'recife',
-          porto_digital: 'porto_digital',
-          nacional: 'nacional',
-        },
-        'Regiões de interesse',
-      ),
+    regioesInteresse: data.regions.map((value) =>
+      map(value, registrationRegions, 'Regiões de interesse'),
     ),
     modelosInteresse: [
       ...new Set(

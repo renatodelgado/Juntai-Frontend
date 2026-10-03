@@ -23,3 +23,7 @@ npm-debug.log*
 !.vscode/extensions.json
 .DS_Store
 Thumbs.db
+
+# Cypress: evidence generated locally
+cypress/artifacts/
+cypress/e2e/falha-controlada.cy.ts

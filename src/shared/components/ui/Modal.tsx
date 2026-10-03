@@ -31,6 +31,7 @@ export function Modal({
   onClose,
   onConfirm,
   confirmLabel = 'Confirmar',
+  cancelLabel = 'Voltar',
   busy = false,
 }: {
   open: boolean;
@@ -39,6 +40,7 @@ export function Modal({
   onClose: () => void;
   onConfirm: () => void;
   confirmLabel?: string;
+  cancelLabel?: string;
   busy?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -67,7 +69,7 @@ export function Modal({
           disabled={busy}
           autoFocus
         >
-          Voltar
+          {cancelLabel}
         </Button>
         <Button type="button" onClick={onConfirm} disabled={busy}>
           {busy ? 'Aguarde…' : confirmLabel}

@@ -142,7 +142,11 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
             </div>
             <div>
               <dt>Região</dt>
-              <dd>{label(data.profile.regiao)}</dd>
+              <dd>
+                {data.profile.regioesAtuacao?.length
+                  ? labels(data.profile.regioesAtuacao)
+                  : label(data.profile.regiao ?? '')}
+              </dd>
             </div>
             <div>
               <dt>Modelo de negócio</dt>

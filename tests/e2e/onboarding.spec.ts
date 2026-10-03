@@ -84,7 +84,10 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page.getByLabel('Estado', { exact: true }).selectOption('PE');
   await expect(page.getByLabel('Cidade', { exact: true })).toBeEnabled();
   await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
-  await page.getByLabel('Região do cadastro').selectOption('recife');
+  await page
+    .getByRole('group', { name: 'Em quais regiões vocês já atuam?' })
+    .getByLabel('Nordeste')
+    .check();
   await page
     .getByRole('group', { name: 'Em quais regiões vocês pretendem crescer?' })
     .getByLabel('Nordeste')
@@ -217,7 +220,10 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
     expect(route.request().postDataJSON()).toMatchObject({
       nome: 'Ana Souza',
       nomeFantasia: 'Maré Conecta',
-      regiao: 'recife',
+      regioesAtuacao: ['nordeste'],
+      regioesCrescimento: ['nordeste'],
+      estado: 'PE',
+      cidade: 'Recife',
       capitalProcurado: 500000,
     });
     await route.fulfill({

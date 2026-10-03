@@ -67,6 +67,7 @@ export function TractionStep({ form }: { form: OnboardingController }) {
               [
                 { value: 'revenue', label: 'Receita' },
                 { value: 'customers', label: 'Clientes' },
+                { value: 'both', label: 'Clientes e receita' },
               ],
               false,
             )}
@@ -74,8 +75,10 @@ export function TractionStep({ form }: { form: OnboardingController }) {
               'growthPeriod',
               'Período de comparação',
               [
-                { value: 'monthly', label: 'Mensal' },
-                { value: 'yearly', label: 'Anual' },
+                { value: 'three_months', label: 'Últimos 3 meses' },
+                { value: 'six_months', label: 'Últimos 6 meses' },
+                { value: 'since_founding', label: 'Desde a fundação' },
+                { value: 'yearly', label: 'Último ano' },
               ],
               false,
             )}
@@ -84,7 +87,7 @@ export function TractionStep({ form }: { form: OnboardingController }) {
             id="growthPercent"
             label="Crescimento (%)"
             min={-100}
-            max={100000}
+            max={9999.99}
             step="0.01"
             value={form.data.growthPercent}
             onValueChange={(value) => form.update('growthPercent', value)}
@@ -118,23 +121,30 @@ export function InvestmentStep({ form }: { form: OnboardingController }) {
   const fields = bindFields(form);
   return (
     <Fields>
-      <SubCard>
-        <Fields>
-          <MoneyInput
-            id="capital"
-            label="Quanto pretendem captar?"
-            required
-            value={form.data.capital}
-            error={form.errors.capital}
-            onValueChange={(value) => form.update('capital', value)}
-          />
-          {fields.multi(
-            'investmentPurposes',
-            'Finalidade do investimento',
-            catalogs.investmentPurposes,
-          )}
-        </Fields>
-      </SubCard>
+      {fields.radio(
+        'seekingInvestment',
+        'Sua startup está buscando investimento?',
+        catalogs.seekingInvestment,
+      )}
+      {form.data.seekingInvestment === 'yes' && (
+        <SubCard>
+          <Fields>
+            <MoneyInput
+              id="capital"
+              label="Quanto pretendem captar?"
+              required
+              value={form.data.capital}
+              error={form.errors.capital}
+              onValueChange={(value) => form.update('capital', value)}
+            />
+            {fields.multi(
+              'investmentPurposes',
+              'Finalidade do investimento',
+              catalogs.investmentPurposes,
+            )}
+          </Fields>
+        </SubCard>
+      )}
       {fields.multi(
         'needs',
         'Além de capital, o que sua startup precisa neste momento?',
