@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import {
   ArrowUpRightIcon,
   BookmarkSimpleIcon,
@@ -11,7 +12,7 @@ import * as S from '../Explore.styles';
 
 export function CompatibilityIndicator({ value }: { value?: number }) {
   return (
-    <S.Compatibility>
+    <S.Compatibility title="Compatibilidade ilustrativa, gerada aleatoriamente">
       <SparkleIcon size={13} aria-hidden="true" />
       {value === undefined
         ? 'Compatibilidade indisponível'
@@ -20,9 +21,31 @@ export function CompatibilityIndicator({ value }: { value?: number }) {
   );
 }
 export function StartupIdentity({ startup }: { startup: Startup }) {
+  const [failedUrl, setFailedUrl] = useState<string>();
+  const initials = startup.name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
   return (
     <S.Logo $color={startup.color} aria-hidden="true">
-      {startup.id === 'solnexo' ? 'SN' : 'AP'}
+      {startup.logoUrl && failedUrl !== startup.logoUrl ? (
+        <img
+          src={startup.logoUrl}
+          alt=""
+          onError={() => setFailedUrl(startup.logoUrl)}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            borderRadius: 13,
+          }}
+        />
+      ) : (
+        initials
+      )}
     </S.Logo>
   );
 }
@@ -34,6 +57,7 @@ export function StartupCard({
   returnSearch,
   onSave,
   onInterest,
+  approved = true,
 }: {
   startup: Startup;
   saved: boolean;
@@ -42,6 +66,7 @@ export function StartupCard({
   returnSearch: string;
   onSave: () => void;
   onInterest: () => void;
+  approved?: boolean;
 }) {
   return (
     <S.Card $list={list}>
@@ -96,8 +121,12 @@ export function StartupCard({
           <Link to={`/startups/${startup.id}`} state={{ returnSearch }}>
             Ver startup <ArrowUpRightIcon size={17} aria-hidden="true" />
           </Link>
-          <button className="interest" disabled={sent} onClick={onInterest}>
-            {sent ? '✓ Interesse enviado' : 'Tenho interesse'}
+          <button
+            className="interest"
+            disabled={!approved}
+            onClick={onInterest}
+          >
+            {sent ? 'Iniciar conversa' : 'Tenho interesse'}
           </button>
         </div>
       </div>

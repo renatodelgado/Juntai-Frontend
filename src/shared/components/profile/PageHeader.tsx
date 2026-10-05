@@ -17,7 +17,7 @@ export function PageHeader({
 }) {
   const home = homePath(getSession()?.usuario.tipoPerfil ?? 'investidor');
   const crumbs =
-    breadcrumbs[0]?.label === 'Início'
+    breadcrumbs[0]?.label === 'Início' || breadcrumbs[0]?.label === 'Juntaí!'
       ? breadcrumbs
       : [{ label: 'Início', to: home }, ...breadcrumbs];
   return (

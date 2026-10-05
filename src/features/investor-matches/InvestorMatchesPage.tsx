@@ -7,7 +7,7 @@ import {
 } from '@phosphor-icons/react';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import { Button } from '@/shared/components/ui/Button';
-import { Modal } from '@/shared/components/ui/Modal';
+import { InterestConfirmationModal } from '@/features/explore-startups/components/ConnectionModals';
 import { useDiscovery } from '@/features/explore-startups/useDiscovery';
 import { DiscoveryLayout } from '@/features/explore-startups/components/DiscoveryLayout';
 import { StartupMasonryGrid } from '@/features/explore-startups/components/StartupMasonryGrid';
@@ -241,24 +241,11 @@ export function InvestorMatchesPage() {
           />
         </>
       )}
-      <Modal
-        open={!!interest}
-        title="Demonstrar interesse?"
-        cancelLabel="Cancelar"
-        confirmLabel="Confirmar interesse"
+      <InterestConfirmationModal
+        startup={interest}
+        data={data}
         onClose={() => setInterest(null)}
-        onConfirm={() => {
-          if (interest && data.interest(interest.id)) setInterest(null);
-        }}
-      >
-        <p>
-          Seu interesse será compartilhado com esta startup e registrado nos
-          seus matches.
-        </p>
-        <p>
-          <strong>{interest?.name}</strong>
-        </p>
-      </Modal>
+      />
       <MeetingRequestModal
         startup={meeting}
         data={data}

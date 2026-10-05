@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 import { useProfileApproval } from '@/features/auth/useProfileApproval';
 import type { AuthUser } from '@/features/auth/services/session';
-import {
-  demoMessagesRepository,
-  type Conversation,
-} from '@/features/messages/model';
-import { demoStartupRepository, type Startup } from './model';
+import type { Conversation } from '@/features/messages/model';
+import type { Startup } from './model';
+import { startupRepository, interestsApi } from './api';
 import { demoMeetingsRepository } from '@/features/meetings/repository';
 
 export type MeetingInvitation = {
@@ -58,7 +56,7 @@ export function useDiscovery() {
   const matchesUser = useRouteLoaderData<AuthUser>('investor-matches');
   const user = (listUser ?? profileUser ?? matchesUser)!;
   const [startups, setStartups] = useState<Startup[]>([]);
-  const [connections, setConnections] = useState<Conversation[]>([]);
+  const [connections] = useState<Conversation[]>([]);
   const [state, setState] = useState<DiscoveryState>(empty);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -66,16 +64,23 @@ export function useDiscovery() {
   const [notice, setNotice] = useState('');
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     Promise.all([
-      demoStartupRepository.list(user),
-      demoMessagesRepository.list(user),
+      startupRepository.list(user, controller.signal),
+      approved ? interestsApi.list(controller.signal) : Promise.resolve([]),
     ])
-      .then(([items, chats]) => {
+      .then(([items, interests]) => {
         const stored = readDiscovery(user.id);
         if (active) {
           setStartups(items);
-          setConnections(chats.filter((chat) => chat.status === 'active'));
-          setState(stored);
+          setFailed(false);
+          setState({
+            ...stored,
+            interests: interests.map((item) => ({
+              startupId: item.startupId,
+              createdAt: item.createdAt,
+            })),
+          });
         }
       })
       .catch(() => {
@@ -86,8 +91,9 @@ export function useDiscovery() {
       });
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [user, attempt]);
+  }, [user, attempt, approved]);
   function commit(next: DiscoveryState, message: string) {
     try {
       localStorage.setItem(`juntai:discovery:${user.id}`, JSON.stringify(next));
@@ -113,18 +119,21 @@ export function useDiscovery() {
         : 'Startup salva na demonstração.',
     );
   }
-  function interest(id: string) {
-    if (state.interests.some((item) => item.startupId === id)) return true;
-    return commit(
-      {
-        ...state,
-        interests: [
-          ...state.interests,
-          { startupId: id, createdAt: new Date().toISOString() },
-        ],
-      },
-      'Interesse enviado e registrado no histórico da demonstração.',
-    );
+  async function interest(id: string) {
+    if (!approved)
+      throw new Error(
+        'Aguarde a aprovação do seu perfil para confirmar interesse.',
+      );
+    const result = await interestsApi.confirm(id);
+    setState((current) => ({
+      ...current,
+      interests: [
+        ...current.interests.filter((item) => item.startupId !== id),
+        { startupId: id, createdAt: result.createdAt },
+      ],
+    }));
+    setNotice('Interesse confirmado. Você já pode iniciar a conversa.');
+    return result;
   }
   function meeting(value: Omit<MeetingInvitation, 'id' | 'status'>) {
     if (!approved) return false;

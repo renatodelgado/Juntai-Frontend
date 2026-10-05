@@ -73,7 +73,7 @@ export function PublicStartupProfile() {
             <header className="profile-header">
               <StartupIdentity startup={startup} />
               <div>
-                <small>{startup.segment} · Perfil público demonstrativo</small>
+                <small>{startup.segment} · Startup aprovada</small>
                 <strong className="startup-name">{startup.name}</strong>
                 <p>{startup.tagline}</p>
                 <div className="meta">
@@ -94,8 +94,11 @@ export function PublicStartupProfile() {
                 />
               </S.SaveButton>
               <div className="actions">
-                <Button onClick={() => setInterest(true)} disabled={sent}>
-                  {sent ? 'Interesse enviado' : 'Tenho interesse'}
+                <Button
+                  onClick={() => setInterest(true)}
+                  disabled={!data.approved}
+                >
+                  {sent ? 'Iniciar conversa' : 'Tenho interesse'}
                 </Button>
                 <Button
                   $variant="secondary"
@@ -188,21 +191,52 @@ export function PublicStartupProfile() {
                   <h3>Mercado de atuação</h3>
                   <p>{startup.targetMarket}</p>
                 </section>
-                {startup.traction && (
+                {(startup.traction ||
+                  Object.values(startup.metrics ?? {}).some(
+                    (value) => value !== undefined,
+                  )) && (
                   <section>
                     <h2>Tração e momento</h2>
                     <p>{startup.traction}</p>
-                    <small>
-                      Indicadores quantitativos não disponibilizados.
-                    </small>
+                    <dl>
+                      {startup.metrics?.clients !== undefined && (
+                        <div>
+                          <dt>Número de clientes</dt>
+                          <dd>
+                            {startup.metrics.clients.toLocaleString('pt-BR')}
+                          </dd>
+                        </div>
+                      )}
+                      {startup.metrics?.revenue !== undefined && (
+                        <div>
+                          <dt>Faturamento mensal</dt>
+                          <dd>
+                            {startup.metrics.revenue.toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            })}
+                          </dd>
+                        </div>
+                      )}
+                      {startup.metrics?.growth !== undefined && (
+                        <div>
+                          <dt>Crescimento</dt>
+                          <dd>
+                            {startup.metrics.growth.toLocaleString('pt-BR')}%
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
                   </section>
                 )}
                 <section>
                   <h2>Investimento e necessidades</h2>
                   <p>
-                    {startup.seekingInvestment
-                      ? 'A empresa está buscando investimento.'
-                      : 'Situação de investimento não divulgada.'}
+                    {startup.seekingInvestment === undefined
+                      ? 'Situação de investimento não divulgada.'
+                      : startup.seekingInvestment
+                        ? 'A empresa está buscando investimento.'
+                        : 'A empresa não está buscando investimento.'}
                   </p>
                   {startup.investmentAmount !== undefined ? (
                     <p>
@@ -221,7 +255,7 @@ export function PublicStartupProfile() {
                       <p>{startup.investmentPurpose}</p>
                     </>
                   )}
-                  <h3>Parcerias e apoio procurados</h3>
+                  <h3>Além de capital, o que a startup precisa</h3>
                   <div className="needs">
                     {startup.needs.map((need) => (
                       <span key={need}>{need}</span>
@@ -241,10 +275,71 @@ export function PublicStartupProfile() {
                         {startup.businessModel.join(' · ')} para{' '}
                         {startup.targetMarket.toLowerCase()}.
                       </p>
-                      <small>
-                        Canvas e materiais externos não disponibilizados.
-                      </small>
                     </details>
+                  </section>
+                )}
+                {(startup.presentationUrl ||
+                  startup.siteUrl ||
+                  Object.keys(startup.canvas ?? {}).length > 0) && (
+                  <section>
+                    <h2>Materiais e modelo de negócio</h2>
+                    {startup.presentationUrl &&
+                      /^https?:\/\//i.test(startup.presentationUrl) && (
+                        <p>
+                          <a
+                            href={startup.presentationUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Abrir apresentação
+                          </a>
+                        </p>
+                      )}
+                    {startup.siteUrl &&
+                      /^https?:\/\//i.test(startup.siteUrl) && (
+                        <p>
+                          <a
+                            href={startup.siteUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Visitar site
+                          </a>
+                        </p>
+                      )}
+                    {Object.keys(startup.canvas ?? {}).length > 0 && (
+                      <details>
+                        <summary>Canvas</summary>
+                        <dl>
+                          {Object.entries(startup.canvas ?? {})
+                            .filter(
+                              ([key]) =>
+                                key !== 'problema' && key !== 'solucao',
+                            )
+                            .map(([key, value]) => (
+                              <div key={key}>
+                                <dt>
+                                  {(
+                                    {
+                                      value: 'Proposta de valor',
+                                      customers: 'Segmentos de clientes',
+                                      channels: 'Canais',
+                                      relationships:
+                                        'Relacionamento com clientes',
+                                      revenue: 'Fontes de receita',
+                                      resources: 'Recursos principais',
+                                      activities: 'Atividades principais',
+                                      partners: 'Parcerias principais',
+                                      costs: 'Estrutura de custos',
+                                    } as Record<string, string>
+                                  )[key] || key}
+                                </dt>
+                                <dd>{String(value)}</dd>
+                              </div>
+                            ))}
+                        </dl>
+                      </details>
+                    )}
                   </section>
                 )}
                 {startup.team && (
@@ -257,7 +352,7 @@ export function PublicStartupProfile() {
               </div>
               <aside>
                 <section className="affinity">
-                  <h2>Por que esta startup pode combinar com você?</h2>
+                  <h2>Compatibilidade demonstrativa</h2>
                   <CompatibilityIndicator value={startup.compatibility} />
                   {startup.compatibilityFactors?.length ? (
                     <ul>
@@ -271,7 +366,7 @@ export function PublicStartupProfile() {
                     </p>
                   )}
                   <small>
-                    Regra demonstrativa de afinidade. Não representa garantia de
+                    Pontuação aleatória de afinidade. Não representa garantia de
                     sucesso, retorno ou investimento.
                   </small>
                 </section>

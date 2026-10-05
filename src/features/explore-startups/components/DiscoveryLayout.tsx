@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { SignOutIcon } from '@phosphor-icons/react';
@@ -78,7 +78,7 @@ export function DiscoveryLayout({
           {dialog === 'history' && (
             <>
               <p>
-                Histórico local da demonstração. Demonstrar interesse não
+                Interesses registrados na sua conta. Demonstrar interesse não
                 confirma um investimento.
               </p>
               {data.state.interests.length === 0 && (
@@ -91,25 +91,6 @@ export function DiscoveryLayout({
                   </Link>{' '}
                   · Interesse enviado ·{' '}
                   {new Date(item.createdAt).toLocaleDateString('pt-BR')}
-                </p>
-              ))}
-              <h3>Conexões habilitadas na demonstração</h3>
-              {data.connections.map((chat) => (
-                <p key={chat.id}>
-                  {data.approved ? (
-                    <Link
-                      to={`/investidor/mensagens?startup=${chat.participant.id}`}
-                    >
-                      {chat.participant.name} — Abrir conversa
-                    </Link>
-                  ) : (
-                    <Button
-                      disabled
-                      title="Disponível após aprovação do perfil"
-                    >
-                      {chat.participant.name} — Abrir conversa
-                    </Button>
-                  )}
                 </p>
               ))}
             </>

@@ -88,9 +88,11 @@ export function LocalizedEditor({
       };
       onSaved(await saveProfile(next));
       onClose();
-    } catch {
+    } catch (cause) {
       setError(
-        'Não conseguimos salvar. Suas alterações continuam aqui para tentar novamente.',
+        cause instanceof Error
+          ? cause.message
+          : 'Não conseguimos salvar. Suas alterações continuam aqui para tentar novamente.',
       );
     } finally {
       setBusy(false);
@@ -187,7 +189,7 @@ export function LocalizedEditor({
             />
           )}
           {error && <p role="alert">{error}</p>}
-          <p>Esta alteração será salva apenas neste navegador.</p>
+          <p>Esta alteração será salva na sua conta.</p>
           <Button type="submit">
             {busy ? 'Salvando…' : 'Salvar alterações'}
           </Button>

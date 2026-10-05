@@ -72,6 +72,7 @@ export function logout() {
 }
 
 export function homePath(role: AuthUser['tipoPerfil']) {
+  if (role === 'admin') return '/admin';
   if (role === 'startup') return '/startup/inicio';
   if (role === 'investidor') return '/investidor/inicio';
   return '/login';

@@ -3,6 +3,7 @@ import {
   loadProfile,
   loadInvestorProfile,
   saveProfile,
+  saveInvestorProfile,
   startupSchema,
 } from './profiles';
 import { createDraft } from '@/features/startup-onboarding/model/types';
@@ -39,22 +40,41 @@ describe('uploads na edição do perfil', () => {
     attachment: null,
     previewCompletedAt: null,
   });
+  let remote: Record<string, unknown>;
   beforeEach(() => {
     mocks.session.mockReturnValue({
       token: 'sessao-ficticia',
       usuario: { id: 'usuario', nome: 'Teste', tipoPerfil: 'startup' },
     });
-    mocks.request.mockResolvedValue(new Response('{}'));
+    remote = {
+      id: 'startup-id',
+      atualizadoEm: '2026-10-05T12:00:00Z',
+      statusModeracao: 'pendente',
+      nomeFantasia: 'Startup Teste',
+      segmento: 'fintech',
+      estagio: 'mvp',
+      modeloNegocio: 'b2b',
+    };
+    mocks.request.mockImplementation(async (_path, options) => {
+      if (options?.method === 'PATCH')
+        Object.assign(remote, JSON.parse(options.body));
+      return new Response(JSON.stringify(remote));
+    });
+    mocks.upload.mockImplementation(async (kind) => {
+      const uploaded =
+        kind === 'logo'
+          ? 'https://example.com/logo.png'
+          : 'https://example.com/pitch.pdf';
+      remote[kind === 'logo' ? 'logoUrl' : 'apresentacaoUrl'] = uploaded;
+      return uploaded;
+    });
   });
   it('salva URLs dos dois uploads e não reenvia arquivos ao salvar outra seção', async () => {
-    const draft = profile();
+    const draft = (await loadProfile())!;
     draft.data.logo = 'data:image/png;base64,dGVzdGU=';
     draft.attachment = new File(['%PDF-teste'], 'teste.pdf', {
       type: 'application/pdf',
     });
-    mocks.upload
-      .mockResolvedValueOnce('https://example.com/logo.png')
-      .mockResolvedValueOnce('https://example.com/pitch.pdf');
     const saved = await saveProfile(draft);
     expect(saved.data).toMatchObject({
       logo: '',
@@ -83,6 +103,29 @@ describe('uploads na edição do perfil', () => {
     expect(mocks.upload).not.toHaveBeenCalled();
     expect(mocks.set).not.toHaveBeenCalled();
   });
+  it('envia apenas as alterações e recarrega os dados persistidos', async () => {
+    const draft = (await loadProfile())!;
+    draft.data.description = 'Descrição alterada';
+    const saved = await saveProfile(draft);
+    const call = mocks.request.mock.calls.find((c) => c[1]?.method === 'PATCH');
+    expect(call?.[0]).toBe('startups/startup-id');
+    expect(JSON.parse(call![1].body)).toEqual({
+      descricaoCurta: 'Descrição alterada',
+    });
+    expect(saved.data.description).toBe('Descrição alterada');
+  });
+  it('não confirma nem armazena uma edição rejeitada pelo servidor', async () => {
+    const draft = (await loadProfile())!;
+    draft.data.description = 'Alterada';
+    mocks.request.mockImplementation(async (_path, opts) => {
+      if (opts?.method === 'PATCH') throw new Error('Não foi possível editar.');
+      return new Response(JSON.stringify(remote));
+    });
+    await expect(saveProfile(draft)).rejects.toThrow(
+      'Não foi possível editar.',
+    );
+    expect(mocks.set).not.toHaveBeenCalled();
+  });
 });
 const base = {
   id: 'perfil-ficticio',
@@ -90,6 +133,34 @@ const base = {
   statusModeracao: 'pendente',
 };
 describe('perfil com as novas colunas', () => {
+  it('persiste edição de investidor via PATCH e lê o resultado remoto', async () => {
+    mocks.session.mockReturnValue({
+      token: 'teste',
+      usuario: { id: 'investor-user', tipoPerfil: 'investidor' },
+    });
+    const remote = {
+      ...base,
+      nome: 'Investidor Teste',
+      tipoInvestidor: 'anjo',
+      segmentosInteresse: ['fintech'],
+      estagiosInteresse: ['mvp'],
+      modelosInteresse: ['b2b'],
+      regioesInteresse: ['nordeste'],
+      bio: 'Bio anterior',
+    };
+    mocks.request.mockImplementation(async (_path, opts) => {
+      if (opts?.method === 'PATCH')
+        Object.assign(remote, JSON.parse(opts.body));
+      return new Response(JSON.stringify(remote));
+    });
+    const profile = (await loadInvestorProfile())!;
+    profile.data.bio = 'Bio atualizada';
+    await saveInvestorProfile(profile);
+    const call = mocks.request.mock.calls.find((c) => c[1]?.method === 'PATCH');
+    expect(call?.[0]).toBe('investidores/perfil-ficticio');
+    expect(JSON.parse(call![1].body)).toEqual({ bio: 'Bio atualizada' });
+    expect((await loadInvestorProfile())?.data.bio).toBe('Bio atualizada');
+  });
   it('lê startup sem a antiga região e preserva apresentação e crescimento', async () => {
     mocks.session.mockReturnValue({
       token: 'sessao-ficticia',

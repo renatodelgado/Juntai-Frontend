@@ -554,8 +554,8 @@ export function InvestorProfilePage() {
           {dialog === 'settings' && (
             <>
               <p>
-                Seu perfil está vinculado à sua conta local neste navegador. As
-                alterações são feitas aqui, sem voltar ao cadastro.
+                As alterações do perfil são salvas na sua conta, sem voltar ao
+                cadastro.
               </p>
               <Button $variant="secondary" onClick={() => edit('consent')}>
                 Revisar consentimentos

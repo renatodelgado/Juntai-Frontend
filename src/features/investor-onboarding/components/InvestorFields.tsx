@@ -40,6 +40,7 @@ export interface InvestorFieldProps {
     value: model.InvestorDraft[K],
   ) => void;
   edit?: (step: model.InvestorStep) => void;
+  accountEdit?: boolean;
 }
 export function InvestorFields({
   data,
@@ -47,6 +48,7 @@ export function InvestorFields({
   errors,
   update,
   edit,
+  accountEdit = false,
 }: InvestorFieldProps) {
   const [legal, setLegal] = useState<'terms' | 'privacy' | null>(null);
   type Lists =
@@ -114,12 +116,14 @@ export function InvestorFields({
   const sections = {
     about: (
       <>
-        <ImageUpload
-          id="investor-photo"
-          label="Foto de perfil"
-          value={data.photo}
-          onChange={(value) => update('photo', value)}
-        />
+        {!accountEdit && (
+          <ImageUpload
+            id="investor-photo"
+            label="Foto de perfil"
+            value={data.photo}
+            onChange={(value) => update('photo', value)}
+          />
+        )}
         <Input
           id="name"
           label="Nome completo"
@@ -286,57 +290,64 @@ export function InvestorFields({
           options={model.availabilityOptions}
           onChange={(event) => update('availability', event.target.value)}
         />
-        {radio(
-          'frequency',
-          'Com que frequência você gostaria de interagir com startups?',
-          model.frequencies,
+        {!accountEdit && (
+          <>
+            {radio(
+              'frequency',
+              'Com que frequência você gostaria de interagir com startups?',
+              model.frequencies,
+            )}
+            {multi(
+              'interactions',
+              'Que tipo de interação você prefere?',
+              model.interactions,
+            )}
+            <RadioGroup
+              id="acceptsMentoring"
+              label="Você aceita mentorias?"
+              required
+              value={
+                data.acceptsMentoring === null
+                  ? ''
+                  : data.acceptsMentoring
+                    ? 'yes'
+                    : 'no'
+              }
+              error={errors.acceptsMentoring}
+              options={[
+                { value: 'yes', label: 'Sim' },
+                { value: 'no', label: 'Não' },
+              ]}
+              onChange={(value) => update('acceptsMentoring', value === 'yes')}
+            />
+            {data.participation !== 'mentor' &&
+              radio(
+                'openInvestment',
+                'Você está aberto a novos investimentos neste momento?',
+                model.openness,
+              )}
+          </>
         )}
-        {multi(
-          'interactions',
-          'Que tipo de interação você prefere?',
-          model.interactions,
-        )}
-        <RadioGroup
-          id="acceptsMentoring"
-          label="Você aceita mentorias?"
-          required
-          value={
-            data.acceptsMentoring === null
-              ? ''
-              : data.acceptsMentoring
-                ? 'yes'
-                : 'no'
-          }
-          error={errors.acceptsMentoring}
-          options={[
-            { value: 'yes', label: 'Sim' },
-            { value: 'no', label: 'Não' },
-          ]}
-          onChange={(value) => update('acceptsMentoring', value === 'yes')}
-        />
-        {data.participation !== 'mentor' &&
-          radio(
-            'openInvestment',
-            'Você está aberto a novos investimentos neste momento?',
-            model.openness,
-          )}
       </>
     ),
-    offers: multi(
-      'offers',
-      'O que você pode oferecer?',
-      data.participation === 'mentor'
-        ? model.offers.filter((option) => option.value !== 'capital')
-        : model.offers,
-    ),
+    offers: accountEdit
+      ? multi('expertise', 'Como você pode ajudar?', model.expertise)
+      : multi(
+          'offers',
+          'O que você pode oferecer?',
+          data.participation === 'mentor'
+            ? model.offers.filter((option) => option.value !== 'capital')
+            : model.offers,
+        ),
     preferences: (
       <>
         <InvestorSummary data={data} onlyPreferences onEdit={edit} />
-        {text(
-          'preferences',
-          'Preferências adicionais',
-          'Algo mais sobre as startups que você gostaria de conhecer?',
-        )}
+        {!accountEdit &&
+          text(
+            'preferences',
+            'Preferências adicionais',
+            'Algo mais sobre as startups que você gostaria de conhecer?',
+          )}
         <p>Nesta etapa não há pontuação ou recomendação automática.</p>
       </>
     ),

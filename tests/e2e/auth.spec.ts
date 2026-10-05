@@ -18,6 +18,15 @@ async function mockAccount(page: Page, role: 'startup' | 'investidor') {
     expect(route.request().headers().authorization).toBe('Bearer test-token');
     await route.fulfill({ json: usuario });
   });
+  let edits: Record<string, unknown> = {};
+  await page.route(
+    `**/${role === 'startup' ? 'startups' : 'investidores'}/profile-id`,
+    async (route) => {
+      expect(route.request().method()).toBe('PATCH');
+      edits = { ...edits, ...route.request().postDataJSON() };
+      await route.fulfill({ json: { id: 'profile-id', ...edits } });
+    },
+  );
   await page.route('**/auth/profile', async (route) => {
     expect(route.request().headers().authorization).toBe('Bearer test-token');
     await route.fulfill({
@@ -59,6 +68,7 @@ async function mockAccount(page: Page, role: 'startup' | 'investidor') {
               modelosInteresse: ['b2b'],
               disponibilidade: 'algumas_horas_semana',
             }),
+        ...edits,
       },
     });
   });
@@ -79,6 +89,40 @@ async function signIn(page: Page) {
   await page.getByLabel('Senha', { exact: true }).fill('Senha-teste-123');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 }
+
+test('edição de disponibilidade do investidor persiste na conta', async ({
+  page,
+}) => {
+  await mockAccount(page, 'investidor');
+  await signIn(page);
+  await page.getByRole('link', { name: 'Meu perfil', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Editar Disponibilidade', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog');
+  await dialog
+    .getByLabel('Quanto tempo você pode dedicar?')
+    .selectOption('meio_periodo');
+  await expect(
+    dialog.getByText(
+      'Com que frequência você gostaria de interagir com startups?',
+    ),
+  ).toHaveCount(0);
+  const patch = page.waitForResponse(
+    (r) =>
+      r.url().endsWith('/investidores/profile-id') &&
+      r.request().method() === 'PATCH',
+  );
+  await dialog
+    .getByRole('button', { name: 'Salvar alterações', exact: true })
+    .click();
+  expect((await patch).request().postDataJSON()).toEqual({
+    disponibilidade: 'meio_periodo',
+  });
+  await expect(dialog).toBeHidden();
+  await page.reload();
+  await expect(page.getByText('Meio período', { exact: true })).toBeVisible();
+});
 
 test('home, perfil e prévia refletem os campos do cadastro atual', async ({
   page,

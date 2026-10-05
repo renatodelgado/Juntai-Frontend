@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
-import { saveInvestorProfile } from '@/features/auth/services/profiles';
+import {
+  saveInvestorProfile,
+  loadInvestorProfile,
+} from '@/features/auth/services/profiles';
 import { InvestorFields } from './InvestorFields';
 import {
   investorSteps,
@@ -20,7 +23,7 @@ export function InvestorEditor({
   onClose: () => void;
   onSaved: (value: SavedInvestor) => void;
 }) {
-  const form = useInvestor(saved, saveInvestorProfile, false);
+  const form = useInvestor(saved, saveInvestorProfile, false, true);
   const [cancel, setCancel] = useState(false);
   const [activeStep, setActiveStep] = useState(step);
   const ref = useRef<HTMLFormElement>(null);
@@ -34,7 +37,8 @@ export function InvestorEditor({
       return;
     }
     if (await form.save()) {
-      onSaved(form.snapshot());
+      const latest = await loadInvestorProfile();
+      onSaved(latest ?? form.snapshot());
       onClose();
     }
   }
@@ -62,13 +66,18 @@ export function InvestorEditor({
           style={{ border: 0, padding: 0, minWidth: 0 }}
         >
           <InvestorFields
+            accountEdit
             data={form.data}
             step={activeStep}
             errors={form.errors}
             update={form.update}
             edit={setActiveStep}
           />
-          <Button type="submit" style={{ marginTop: '1.5rem' }}>
+          <Button
+            type="submit"
+            disabled={activeStep === 'consent' || activeStep === 'preferences'}
+            style={{ marginTop: '1.5rem' }}
+          >
             Salvar alterações
           </Button>
         </fieldset>

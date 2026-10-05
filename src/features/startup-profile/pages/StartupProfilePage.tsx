@@ -226,10 +226,7 @@ export function StartupProfilePage() {
             title: 'Configurações do perfil',
             content: (
               <>
-                <p>
-                  Alterações no perfil ficam salvas neste navegador e ainda não
-                  são enviadas para sua conta.
-                </p>
+                <p>As alterações do perfil são salvas na sua conta.</p>
                 <Button onClick={() => edit('consent')}>
                   Revisar consentimentos
                 </Button>
@@ -346,7 +343,7 @@ export function StartupProfilePage() {
                     />
                     <S.Muted>
                       Seções preenchidas no seu perfil, incluindo o que você
-                      salvou neste navegador.
+                      salvou na sua conta.
                     </S.Muted>
                     <S.CompletionActions>
                       {completeness?.missing.map((item) => (

@@ -12,6 +12,7 @@ import {
   segments,
   stages,
   type Filters,
+  type Startup,
 } from '../model';
 import * as S from '../Explore.styles';
 
@@ -19,10 +20,12 @@ export function StartupFilters({
   filters,
   onChange,
   onClear,
+  startups = [],
 }: {
   filters: Filters;
   onChange: (key: keyof Filters, value: string) => void;
   onClear: () => void;
+  startups?: Startup[];
 }) {
   const [advanced, setAdvanced] = useState(false);
   const quick = [
@@ -37,10 +40,14 @@ export function StartupFilters({
         'Centro-Oeste',
         'Sudeste',
         'Sul',
-        'Fortaleza',
-        'Recife',
-        'CE',
-        'PE',
+        ...new Set(
+          startups
+            .flatMap((startup) => [
+              startup.location.city,
+              startup.location.state,
+            ])
+            .filter((value) => value && value !== 'Cidade não informada'),
+        ),
       ],
     },
     { key: 'model', label: 'Modelo de negócio', options: models },

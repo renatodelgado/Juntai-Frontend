@@ -14,6 +14,7 @@ export function useInvestor(
   initial?: SavedInvestor,
   persist = saveInvestorDraft,
   autoSave = false,
+  accountEdit = false,
 ) {
   const [data, setData] = useState(initial?.data ?? createInvestorDraft);
   const [step, setStep] = useState<InvestorStep>(initial?.step ?? 'about');
@@ -87,17 +88,21 @@ export function useInvestor(
     try {
       await persist(snapshot());
       if (revision.current === version) setDirty(false);
-      setMessage('Salvo neste navegador.');
-      return true;
-    } catch {
       setMessage(
-        'Não conseguimos salvar. Seus dados continuam nesta tela. Tente novamente.',
+        accountEdit ? 'Salvo na sua conta.' : 'Salvo neste navegador.',
+      );
+      return true;
+    } catch (cause) {
+      setMessage(
+        cause instanceof Error
+          ? cause.message
+          : 'Não conseguimos salvar. Seus dados continuam nesta tela. Tente novamente.',
       );
       return false;
     } finally {
       setBusy(false);
     }
-  }, [persist, snapshot]);
+  }, [persist, snapshot, accountEdit]);
   useEffect(() => {
     if (!autoSave || loading || loadError || !dirty) return;
     const timer = window.setTimeout(() => {
@@ -146,7 +151,7 @@ export function useInvestor(
     setDirty(true);
   }
   function validate(target = step) {
-    const next = validateInvestor(target, data);
+    const next = validateInvestor(target, data, accountEdit);
     setErrors(next);
     return !Object.keys(next).length;
   }

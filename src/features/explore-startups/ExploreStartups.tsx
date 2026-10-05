@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   BookmarkSimpleIcon,
   SquaresFourIcon,
@@ -58,6 +58,9 @@ export function ExploreStartups() {
   const personalized = data.startups.some(
     (item) => item.compatibility !== undefined,
   );
+  const savedCount = data.startups.filter((startup) =>
+    data.state.saved.includes(startup.id),
+  ).length;
   const visible = selectStartups(
     data.startups,
     {
@@ -77,14 +80,14 @@ export function ExploreStartups() {
             $variant="secondary"
             aria-pressed={!!filters.saved}
             onClick={() => change('saved', filters.saved ? '' : 'yes')}
-            aria-label={`Startups salvas (${data.state.saved.length})`}
+            aria-label={`Startups salvas (${savedCount})`}
           >
             <BookmarkSimpleIcon
               size={19}
               weight={filters.saved ? 'fill' : 'regular'}
             />
             <span className="saved-label">Salvas</span>
-            <span>{data.state.saved.length}</span>
+            <span>{savedCount}</span>
           </Button>
         }
       />
@@ -121,19 +124,12 @@ export function ExploreStartups() {
           aria-hidden="true"
         />
       </S.Hero>
-      {!data.loading && !data.failed && !personalized && (
-        <div className="personalize">
-          <h3>Personalize suas recomendações</h3>
-          <p>
-            Complete seus interesses e preferências no perfil para receber
-            recomendações mais alinhadas.
-          </p>
-          <Button as={Link} to="/investidor/perfil" $variant="quiet">
-            Completar perfil
-          </Button>
-        </div>
-      )}
-      <StartupFilters filters={filters} onChange={change} onClear={clear} />
+      <StartupFilters
+        filters={filters}
+        onChange={change}
+        onClear={clear}
+        startups={data.startups}
+      />
       <div className="results">
         <div>
           <h2>Startups encontradas</h2>
@@ -211,6 +207,7 @@ export function ExploreStartups() {
               <StartupCard
                 key={startup.id}
                 startup={startup}
+                approved={data.approved}
                 saved={data.state.saved.includes(startup.id)}
                 sent={data.state.interests.some(
                   (item) => item.startupId === startup.id,

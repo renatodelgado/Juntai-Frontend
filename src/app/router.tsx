@@ -11,6 +11,40 @@ import {
 } from '@/features/auth/services/requireRole';
 
 export const router = createBrowserRouter([
+  {
+    path: '/admin',
+    element: <ProtectedRoute />,
+    loader: requireRole('admin'),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        lazy: async () => {
+          const { AdminLayout } = await import('@/features/admin/AdminLayout');
+          return { Component: AdminLayout };
+        },
+        children: [
+          '',
+          'cadastros',
+          'usuarios',
+          'startups',
+          'investidores',
+          'auditoria',
+          'reunioes',
+        ].map((path) => ({
+          ...(path ? { path } : { index: true }),
+          lazy: async () => {
+            if (path === 'reunioes') {
+              const { AdminMeetingsPage } =
+                await import('@/features/admin/AdminMeetingsPage');
+              return { Component: AdminMeetingsPage };
+            }
+            const { AdminPage } = await import('@/features/admin/AdminPage');
+            return { Component: AdminPage };
+          },
+        })),
+      },
+    ],
+  },
   ...(['startup', 'investidor'] as const).map((role) => ({
     id: `${role}-meetings`,
     path: `/${role}/reunioes`,

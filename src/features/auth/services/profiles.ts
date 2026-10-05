@@ -18,6 +18,11 @@ import {
 import { getSession } from './session';
 import { logoFile, uploadStartupFile } from './startupUploads';
 import { investmentPurposes } from '@/features/startup-onboarding/data/catalogs';
+import {
+  changedFields,
+  startupUpdatePayload,
+  investorUpdatePayload,
+} from './profileUpdates';
 export { logout } from './session';
 
 const stages: Record<string, string> = {
@@ -117,16 +122,6 @@ export async function loadProfile(
     );
   if (getSession()?.token !== session.token) return null;
   const local = await get<SavedDraft>(key(session.usuario.id, 'startup'));
-  if (local)
-    return {
-      ...local,
-      statusModeracao: remote.statusModeracao,
-      data: {
-        ...local.data,
-        logoUrl: remote.logoUrl ?? '',
-        apresentacaoUrl: remote.apresentacaoUrl ?? '',
-      },
-    };
   const data = createDraft();
   data.name = remote.nomeFantasia;
   data.ownerName = session.usuario.nome;
@@ -201,6 +196,7 @@ export async function loadProfile(
   data.problem = typeof canvas.problema === 'string' ? canvas.problema : '';
   data.solution = typeof canvas.solucao === 'string' ? canvas.solucao : '';
   return {
+    ...(local ?? {}),
     version: 1,
     statusModeracao: remote.statusModeracao,
     data,
@@ -213,12 +209,16 @@ export async function loadProfile(
   };
 }
 
-export async function loadInvestorProfile(): Promise<SavedInvestor | null> {
+export async function loadInvestorProfile(
+  remoteProfile?: z.infer<typeof investorSchema>,
+): Promise<SavedInvestor | null> {
   const session = getSession();
   if (session?.usuario.tipoPerfil !== 'investidor') return null;
-  const remote = investorSchema.parse(
-    await (await apiRequest('auth/profile', { authenticated: true })).json(),
-  );
+  const remote =
+    remoteProfile ??
+    investorSchema.parse(
+      await (await apiRequest('auth/profile', { authenticated: true })).json(),
+    );
   if (getSession()?.token !== session.token) return null;
   const local = await get<SavedInvestor>(key(session.usuario.id, 'investidor'));
   const status =
@@ -227,7 +227,6 @@ export async function loadInvestorProfile(): Promise<SavedInvestor | null> {
       : remote.statusModeracao === 'rejeitado'
         ? 'rejected'
         : 'in_review';
-  if (local) return { ...local, status };
   const data = createInvestorDraft();
   data.name = remote.nome;
   data.bio = remote.bio ?? '';
@@ -279,6 +278,7 @@ export async function loadInvestorProfile(): Promise<SavedInvestor | null> {
       : [reverse(registrationRegions, value)],
   );
   return {
+    ...(local ?? {}),
     version: 1,
     data,
     step: 'about',
@@ -305,7 +305,33 @@ export async function saveProfile(profile: SavedDraft) {
   if (!session || session.usuario.tipoPerfil !== 'startup')
     throw new Error('Entre novamente para salvar seu perfil.');
   const data = { ...profile.data };
-  await apiRequest('auth/me', { authenticated: true });
+  const remote = startupSchema.parse(
+    await (await apiRequest('auth/profile', { authenticated: true })).json(),
+  );
+  const current = await loadProfile(remote);
+  if (!current) throw new Error('Sua sessão mudou. Entre novamente.');
+  const patch = changedFields(
+    startupUpdatePayload(current.data),
+    startupUpdatePayload(data),
+  );
+  if (patch.canvasJson)
+    patch.canvasJson = {
+      ...remote.canvasJson,
+      ...(patch.canvasJson as Record<string, unknown>),
+    };
+  for (const field of ['regioesAtuacao', 'regioesCrescimento']) {
+    if (Array.isArray(patch[field]) && !patch[field].length)
+      throw new Error(
+        'O servidor ainda não permite remover todas as regiões. Mantenha uma região até essa correção.',
+      );
+  }
+  if (Object.keys(patch).length)
+    await apiRequest(`startups/${remote.id}`, {
+      authenticated: true,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
   if (data.logo) {
     data.logoUrl = await uploadStartupFile(
       'logo',
@@ -323,14 +349,45 @@ export async function saveProfile(profile: SavedDraft) {
       profile.attachment.name,
     );
   }
+  const latest = await loadProfile();
+  if (!latest) throw new Error('Sua sessão mudou. Entre novamente.');
   const next = {
     ...profile,
-    data,
+    data: latest.data,
+    statusModeracao: latest.statusModeracao,
     attachment: null,
-    savedAt: new Date().toISOString(),
+    savedAt: latest.savedAt,
   };
   await saveLocalProfile('startup', next);
   return next;
 }
-export const saveInvestorProfile = (profile: SavedInvestor) =>
-  saveLocalProfile('investidor', profile);
+export async function saveInvestorProfile(profile: SavedInvestor) {
+  const remote = investorSchema.parse(
+    await (await apiRequest('auth/profile', { authenticated: true })).json(),
+  );
+  const current = await loadInvestorProfile(remote);
+  if (!current) throw new Error('Entre novamente para salvar seu perfil.');
+  const patch = changedFields(
+    investorUpdatePayload(current.data),
+    investorUpdatePayload(profile.data),
+  );
+  if (Array.isArray(patch.regioesInteresse) && !patch.regioesInteresse.length)
+    throw new Error(
+      'O servidor ainda não permite remover todas as regiões. Mantenha uma região até essa correção.',
+    );
+  if (Object.keys(patch).length)
+    await apiRequest(`investidores/${remote.id}`, {
+      authenticated: true,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+  const latest = await loadInvestorProfile();
+  if (!latest) throw new Error('Sua sessão mudou. Entre novamente.');
+  await saveLocalProfile('investidor', {
+    ...profile,
+    data: latest.data,
+    status: latest.status,
+    savedAt: latest.savedAt,
+  });
+}

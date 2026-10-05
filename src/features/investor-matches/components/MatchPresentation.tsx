@@ -97,8 +97,12 @@ export function HighlightedMatch({
             Conhecer startup
             <ArrowUpRightIcon size={16} />
           </Button>
-          <Button $variant="secondary" disabled={sent} onClick={onInterest}>
-            {sent ? 'Interesse enviado' : 'Tenho interesse'}
+          <Button
+            $variant="secondary"
+            disabled={!data.approved}
+            onClick={onInterest}
+          >
+            {sent ? 'Iniciar conversa' : 'Tenho interesse'}
           </Button>
         </div>
       </div>
@@ -175,8 +179,12 @@ export function MatchCard({
             Conhecer startup
             <ArrowUpRightIcon size={17} />
           </Link>
-          <button className="interest" disabled={sent} onClick={onInterest}>
-            {sent ? '✓ Interesse enviado' : 'Tenho interesse'}
+          <button
+            className="interest"
+            disabled={!data.approved}
+            onClick={onInterest}
+          >
+            {sent ? 'Iniciar conversa' : 'Tenho interesse'}
           </button>
         </div>
         {match.canMessage && (

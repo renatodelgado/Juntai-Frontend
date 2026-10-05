@@ -1,7 +1,6 @@
 import { apiRequest } from '@/shared/services/api';
 import {
   getSession,
-  logout,
   homePath,
   saveSession,
   sessionSchema,
@@ -15,10 +14,6 @@ export async function login(email: string, senha: string) {
     body: JSON.stringify({ email: email.trim().toLowerCase(), senha }),
   });
   const session = sessionSchema.parse(await response.json());
-  if (session.usuario.tipoPerfil === 'admin') {
-    logout();
-    throw new Error('A área administrativa ainda não está disponível.');
-  }
   saveSession(session);
   return homePath(session.usuario.tipoPerfil);
 }

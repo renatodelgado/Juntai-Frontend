@@ -42,7 +42,7 @@ export function ProfileEditor({
   const form = useOnboarding(saved, persist);
   const ref = useRef<HTMLFormElement>(null);
   const sections = {
-    about: <AboutStep form={form} />,
+    about: <AboutStep form={form} accountEdit />,
     business: <BusinessStep form={form} />,
     market: <MarketStep form={form} />,
     location: <LocationStep form={form} />,

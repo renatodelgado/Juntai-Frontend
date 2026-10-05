@@ -22,7 +22,13 @@ import {
 } from '../pages/Onboarding.styles';
 import { segments, stages, businessModels } from '../data/catalogs';
 
-export function AboutStep({ form }: { form: OnboardingController }) {
+export function AboutStep({
+  form,
+  accountEdit = false,
+}: {
+  form: OnboardingController;
+  accountEdit?: boolean;
+}) {
   const fields = bindFields(form);
   return (
     <Fields>
@@ -30,6 +36,7 @@ export function AboutStep({ form }: { form: OnboardingController }) {
         required: true,
         maxLength: 150,
         autoComplete: 'name',
+        readOnly: accountEdit,
       })}
       <LogoUpload form={form} />
       {fields.input('name', 'Nome da startup', {

@@ -3,6 +3,11 @@ import type { AuthUser } from '@/features/auth/services/session';
 export type Startup = {
   id: string;
   name: string;
+  logoUrl?: string;
+  presentationUrl?: string;
+  siteUrl?: string;
+  metrics?: { clients?: number; revenue?: number; growth?: number };
+  canvas?: Record<string, unknown>;
   tagline: string;
   description: string;
   segment: string;
@@ -82,16 +87,14 @@ export const demoStartups: Startup[] = [
 ];
 
 export const segments = [
-  'Tecnologia',
-  'Educação',
-  'Saúde',
-  'Finanças',
-  'Agronegócio',
-  'Clima e sustentabilidade',
-  'Comércio',
-  'Indústria',
+  'Fintech',
+  'Healthtech',
+  'Edtech',
+  'Agtech',
+  'SaaS B2B',
+  'Marketplace',
+  'E-commerce',
   'Economia criativa',
-  'Outros',
 ];
 export const stages = [
   'Ideação',

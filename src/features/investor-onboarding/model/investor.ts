@@ -310,6 +310,7 @@ export type InvestorErrors = Partial<Record<keyof InvestorDraft, string>>;
 export function validateInvestor(
   step: InvestorStep,
   data: InvestorDraft,
+  accountEdit = false,
 ): InvestorErrors {
   const errors: InvestorErrors = {};
   function required(...keys: (keyof InvestorDraft)[]) {
@@ -391,13 +392,17 @@ export function validateInvestor(
         errors.exactInvestmentCount = 'Informe um inteiro entre 0 e 32.767.';
       break;
     case 'availability':
+      if (accountEdit) {
+        required('availability');
+        break;
+      }
       required('frequency', 'interactions');
       if (data.acceptsMentoring === null)
         errors.acceptsMentoring = 'Escolha uma opção';
       if (data.participation !== 'mentor') required('openInvestment');
       break;
     case 'offers':
-      required('offers');
+      required(accountEdit ? 'expertise' : 'offers');
       break;
     case 'consent':
       required('termsAccepted', 'privacyAcknowledged');

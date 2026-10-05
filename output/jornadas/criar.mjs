@@ -1,3 +1,4 @@
+﻿/* global URL, console */
 import fs from 'node:fs/promises';
 import { Workbook, SpreadsheetFile } from '@oai/artifact-tool';
 
