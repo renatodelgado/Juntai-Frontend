@@ -29,7 +29,7 @@ export function ConnectionSummary() {
     </QuietSection>
   );
 }
-export function MessagesCard() {
+export function MessagesCard({ approved }: { approved: boolean }) {
   return (
     <Card>
       <Row>
@@ -37,17 +37,27 @@ export function MessagesCard() {
         <h2>Mensagens</h2>
       </Row>
       <p>Converse com suas conexões e avance suas oportunidades.</p>
-      <Button
-        as={Link}
-        to={`/${getSession()?.usuario.tipoPerfil === 'investidor' ? 'investidor' : 'startup'}/mensagens`}
-        $variant="secondary"
-      >
-        Abrir mensagens
-      </Button>
+      {approved ? (
+        <Button
+          as={Link}
+          to={`/${getSession()?.usuario.tipoPerfil === 'investidor' ? 'investidor' : 'startup'}/mensagens`}
+          $variant="secondary"
+        >
+          Abrir mensagens
+        </Button>
+      ) : (
+        <Button
+          disabled
+          $variant="secondary"
+          title="Disponível após aprovação do perfil"
+        >
+          Abrir mensagens
+        </Button>
+      )}
     </Card>
   );
 }
-export function MeetingCard() {
+export function MeetingCard({ approved }: { approved: boolean }) {
   return (
     <Card>
       <Row>
@@ -55,15 +65,31 @@ export function MeetingCard() {
         <h2>Próximas reuniões</h2>
       </Row>
       <p>Acompanhe os próximos encontros.</p>
-      <Muted>O agendamento de reuniões ainda não está disponível.</Muted>
+      {approved ? (
+        <Button
+          as={Link}
+          to={`/${getSession()?.usuario.tipoPerfil === 'investidor' ? 'investidor' : 'startup'}/reunioes`}
+          $variant="secondary"
+        >
+          Abrir reuniões
+        </Button>
+      ) : (
+        <Button
+          disabled
+          $variant="secondary"
+          title="Disponível após aprovação do perfil"
+        >
+          Abrir reuniões
+        </Button>
+      )}
     </Card>
   );
 }
-export function CommunicationCards() {
+export function CommunicationCards({ approved }: { approved: boolean }) {
   return (
     <Grid>
-      <MessagesCard />
-      <MeetingCard />
+      <MessagesCard approved={approved} />
+      <MeetingCard approved={approved} />
     </Grid>
   );
 }

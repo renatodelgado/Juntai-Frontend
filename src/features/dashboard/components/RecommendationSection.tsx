@@ -71,8 +71,8 @@ export function RecommendationSection({
           </h3>
           <p>
             Depois que seu perfil for aprovado, o Juntaí! poderá usar seus
-            interesses, estágio, região e modelo de negócio para encontrar
-            conexões compatíveis.
+            {investor ? 'interesses' : 'necessidades'}, estágio, regiões e
+            modelo de negócio para encontrar conexões compatíveis.
           </p>
           <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
             Consultar meu perfil
@@ -87,7 +87,7 @@ export function RecommendationSection({
             disponível. Suas conexões aparecerão aqui quando ele for liberado.
           </p>
           <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
-            Revisar preferências
+            {investor ? 'Revisar preferências' : 'Revisar objetivos'}
           </Button>
         </Empty>
       ) : recommendations.length === 0 ? (
@@ -95,11 +95,12 @@ export function RecommendationSection({
           <CompassIcon size={32} aria-hidden="true" />
           <h3>Ainda estamos procurando conexões para você</h3>
           <p>
-            Revise seus interesses, estágios, regiões e faixa de investimento
-            para representar suas preferências atuais.
+            {investor
+              ? 'Revise seus interesses, estágios, regiões e faixa de investimento para representar suas preferências atuais.'
+              : 'Revise seu segmento, estágio, regiões de atuação, capital e necessidades para representar o momento atual da startup.'}
           </p>
           <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
-            Atualizar preferências
+            {investor ? 'Atualizar preferências' : 'Atualizar objetivos'}
           </Button>
         </Empty>
       ) : (

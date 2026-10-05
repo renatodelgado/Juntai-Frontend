@@ -95,6 +95,7 @@ export function InvestorProfilePage() {
       <S.Layout $audience="investor">
         <ProfileSidebar
           profilePath="/investidor/perfil"
+          approved={saved?.status === 'approved'}
           name={data?.name}
           subtitle={mentor ? 'Mentor' : 'Investidor'}
           status={saved ? statusLabels[saved.status] : 'Meu perfil'}
@@ -415,6 +416,15 @@ export function InvestorProfilePage() {
                     'availability',
                     <>
                       <S.Metrics>
+                        <div>
+                          Tempo disponível
+                          <strong>
+                            {catalogs.optionLabel(
+                              model.availabilityOptions,
+                              data.availability,
+                            )}
+                          </strong>
+                        </div>
                         <div>
                           Frequência
                           <strong>

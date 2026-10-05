@@ -76,12 +76,17 @@ export function DashboardPage() {
   const profile = `/${role}/perfil`;
   const name = data
     ? dashboardName(data)
-    : session?.usuario.nome || 'Seu perfil';
+    : role === 'startup'
+      ? 'Sua startup'
+      : session?.usuario.nome || 'Seu perfil';
   return (
     <ThemeProvider theme={role === 'investidor' ? investorTheme : theme}>
       <DashboardLayout>
         <ProfileSidebar
           profilePath={profile}
+          approved={
+            data ? moderation(data.profile.statusModeracao).approved : false
+          }
           status={
             data
               ? moderation(data.profile.statusModeracao).badge
@@ -101,7 +106,7 @@ export function DashboardPage() {
         />
         <Main>
           <PageHeader
-            title={`Olá, ${name}!`}
+            title={role === 'startup' && !data ? 'Olá!' : `Olá, ${name}!`}
             breadcrumbs={[{ label: 'Início' }]}
             subtitle={
               role === 'startup'
@@ -152,7 +157,9 @@ export function DashboardPage() {
                     <ProfileCompletionCard data={data} />
                   </Overview>
                   <RecommendationSection data={data} />
-                  <CommunicationCards />
+                  <CommunicationCards
+                    approved={moderation(data.profile.statusModeracao).approved}
+                  />
                   <ActivityList updatedAt={data.profile.atualizadoEm} />
                 </div>
                 <div>

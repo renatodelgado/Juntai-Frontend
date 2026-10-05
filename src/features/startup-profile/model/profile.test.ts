@@ -28,16 +28,19 @@ describe('perfil provisório', () => {
   it('não inventa completude para um perfil vazio', () => {
     const result = profileCompleteness(createDraft(), null);
     expect(result.percent).toBe(0);
-    expect(result.missing).toHaveLength(10);
+    expect(result.missing).toHaveLength(9);
   });
 
-  it('respeita a escolha de não divulgar clientes', () => {
+  it('reconhece faturamento zero informado sem exigir campos antigos de parceiro', () => {
     const data = createDraft();
-    data.hideCustomers = true;
+    data.monthlyRevenue = 0;
     const result = profileCompleteness(data, null);
     expect(result.missing.some((section) => section.label === 'Tração')).toBe(
       false,
     );
+    expect(
+      result.sections.some((section) => section.label === 'Parceiros'),
+    ).toBe(false);
   });
 
   it('permite apenas links web e normaliza endereços sem protocolo', () => {

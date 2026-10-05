@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { PlusIcon, TrashIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { Input, Textarea } from '@/shared/components/forms/Fields';
-import { ErrorText } from '@/shared/components/forms/styles';
 import { Upload } from '@/shared/components/forms/Upload';
+import { ErrorText } from '@/shared/components/forms/styles';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import type { OnboardingController } from '../hooks/useOnboarding';
@@ -42,7 +42,7 @@ export function PitchStep({ form }: { form: OnboardingController }) {
       {fields.input('videoUrl', 'Link do vídeo de apresentação', {
         type: 'url',
         placeholder: 'https://youtube.com/…',
-        hint: 'Use um link acessível. O vídeo não será enviado ao Juntaí! nesta etapa.',
+        hint: 'Use um link acessível. O endereço será salvo; o arquivo do vídeo não é enviado.',
       })}
       <section aria-labelledby="canvas-title">
         <h2 id="canvas-title">Seu modelo de negócio, em um Canvas</h2>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
+import { useProfileApproval } from '@/features/auth/useProfileApproval';
 import type { AuthUser } from '@/features/auth/services/session';
 import {
   demoMessagesRepository,
@@ -51,6 +52,7 @@ export function readDiscovery(userId: string): DiscoveryState {
   };
 }
 export function useDiscovery() {
+  const approved = useProfileApproval();
   const listUser = useRouteLoaderData<AuthUser>('discovery-list');
   const profileUser = useRouteLoaderData<AuthUser>('discovery-profile');
   const matchesUser = useRouteLoaderData<AuthUser>('investor-matches');
@@ -125,6 +127,7 @@ export function useDiscovery() {
     );
   }
   function meeting(value: Omit<MeetingInvitation, 'id' | 'status'>) {
+    if (!approved) return false;
     if (!connections.some((chat) => chat.participant.id === value.startupId))
       return false;
     try {
@@ -176,6 +179,7 @@ export function useDiscovery() {
     );
   }
   return {
+    approved,
     user,
     startups,
     connections,

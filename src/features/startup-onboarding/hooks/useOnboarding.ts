@@ -75,6 +75,8 @@ export function useOnboarding(initial?: SavedDraft, persist = saveDraft) {
   function update<K extends FieldName>(field: K, value: StartupDraft[K]) {
     setData((previous) => {
       const next = { ...previous, [field]: value };
+      if (field === 'primaryModel')
+        next.businessModels = value ? [String(value)] : [];
       if (field === 'segment')
         next.secondarySegments = next.secondarySegments.filter(
           (segment) => segment !== value,

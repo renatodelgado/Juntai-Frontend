@@ -91,6 +91,8 @@ export function startupPayload(
       .parse(data.publicName.trim() || data.name),
     segmento: map(data.segment, segments, 'Segmento principal'),
     estagio: map(data.stage, stages, 'Estágio'),
+    logoUrl: optionalUrl(data.logoUrl, 10000),
+    apresentacaoUrl: optionalUrl(data.apresentacaoUrl, 10000),
     descricaoCurta: optionalText(data.description, 300),
     siteUrl: optionalUrl(data.website),
     linksSociais: {
@@ -148,7 +150,7 @@ export function startupPayload(
       .string()
       .max(200, 'Descreva o mercado-alvo em até 200 caracteres.')
       .parse(data.targetMarket.trim()),
-    ...(!data.hideCustomers && data.customers !== null
+    ...(data.customers !== null
       ? {
           numeroClientes: z
             .number()
@@ -158,12 +160,9 @@ export function startupPayload(
             .parse(data.customers),
         }
       : {}),
-    ...(data.revenue !== 'undisclosed' && details.monthlyRevenue !== null
+    ...(details.monthlyRevenue !== null
       ? { faturamentoMensal: money.parse(details.monthlyRevenue) }
-      : data.revenue === 'none'
-        ? { faturamentoMensal: 0 }
-        : {}),
-    // O contrato não define a métrica nem o período da taxa. Não enviar uma taxa ambígua.
+      : {}),
     capitalProcurado: money.parse(
       data.seekingInvestment === 'yes' ? data.capital : 0,
     ),

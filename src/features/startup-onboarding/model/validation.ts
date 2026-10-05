@@ -44,7 +44,9 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
     if (typeof value === 'string' && value.length > max)
       errors[field] = `Use até ${max} caracteres.`;
   }
-  function checkUrl(field: 'website' | 'linkedin' | 'instagram' | 'videoUrl') {
+  function checkUrl(
+    field: 'website' | 'linkedin' | 'instagram' | 'videoUrl' | 'logoUrl',
+  ) {
     try {
       normalizeUrl(data[field]);
     } catch {
@@ -59,6 +61,7 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('name', 120);
       maxLength('publicName', 120);
       maxLength('description', 280);
+      checkUrl('logoUrl');
       checkUrl('website');
       checkUrl('linkedin');
       checkUrl('instagram');
@@ -84,15 +87,9 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
         errors.secondarySegments = 'Escolha até 3 categorias secundárias.';
       break;
     case 'market':
-      requireFields('businessModels', 'targetMarket', 'problem', 'solution');
-      if (
-        data.businessModels.length > 1 &&
-        !data.businessModels.includes(data.primaryModel)
-      )
-        errors.primaryModel = 'Escolha o modelo principal.';
-      if (data.businessModels.some((value) => !supportedModel(value)))
-        errors.businessModels =
-          'Remova os modelos ainda não aceitos pelo servidor.';
+      requireFields('primaryModel', 'targetMarket', 'problem', 'solution');
+      if (data.primaryModel && !supportedModel(data.primaryModel))
+        errors.primaryModel = 'Escolha um modelo aceito pelo servidor.';
       ['targetMarket', 'problem', 'solution'].forEach((key) =>
         maxLength(key as FieldName, 1500),
       );
@@ -104,7 +101,7 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
         errors.cityId = 'Selecione uma cidade da lista.';
       break;
     case 'traction':
-      requireFields('revenue', 'exactTeamSize');
+      requireFields('exactTeamSize');
       if (
         data.exactTeamSize !== null &&
         (!Number.isInteger(data.exactTeamSize) ||
@@ -118,7 +115,6 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       )
         errors.monthlyRevenue = 'Informe um faturamento válido.';
       if (
-        !data.hideCustomers &&
         data.customers !== null &&
         (!Number.isSafeInteger(data.customers) || data.customers < 0)
       )
@@ -135,14 +131,12 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       break;
     case 'investment':
       requireFields('needs');
-      if (data.seekingInvestment === 'yes') {
+      {
         requireFields('capital', 'investmentPurposes');
         if (data.capital !== null && (data.capital <= 0 || data.capital > 1e12))
           errors.capital =
             'Informe um valor maior que zero e de até R$ 1 trilhão.';
       }
-      requireFields('partnerType', 'expertise');
-      maxLength('preferences', 1500);
       break;
     case 'pitch':
       checkUrl('videoUrl');

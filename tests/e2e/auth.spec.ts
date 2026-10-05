@@ -30,7 +30,21 @@ async function mockAccount(page: Page, role: 'startup' | 'investidor') {
               nomeFantasia: 'Startup de teste',
               segmento: 'fintech',
               estagio: 'mvp',
-              regiao: 'recife',
+              regiao: null,
+              estado: 'PE',
+              cidade: 'Recife',
+              regioesAtuacao: ['nordeste'],
+              regioesCrescimento: ['sudeste'],
+              descricaoCurta: 'Descrição da startup fictícia de teste.',
+              logoUrl: 'https://example.com/startup-logo.png',
+              apresentacaoUrl: 'https://example.com/startup-pitch.pdf',
+              faturamentoMensal: '35000.00',
+              numeroClientes: 0,
+              tamanhoEquipe: 5,
+              necessidadesAdicionais: [
+                'conexoes_mercado',
+                'parcerias_estrategicas',
+              ],
               modeloNegocio: 'b2b',
               capitalProcurado: '250000.00',
             }
@@ -43,10 +57,20 @@ async function mockAccount(page: Page, role: 'startup' | 'investidor') {
               estagiosInteresse: ['mvp'],
               regioesInteresse: ['nordeste'],
               modelosInteresse: ['b2b'],
+              disponibilidade: 'algumas_horas_semana',
             }),
       },
     });
   });
+  await page.route('https://example.com/startup-logo.png', (route) =>
+    route.fulfill({
+      contentType: 'image/png',
+      body: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jf1sAAAAASUVORK5CYII=',
+        'base64',
+      ),
+    }),
+  );
 }
 
 async function signIn(page: Page) {
@@ -56,7 +80,71 @@ async function signIn(page: Page) {
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 }
 
-test('edição localizada salva apenas o parceiro ou um bloco do Canvas', async ({
+test('home, perfil e prévia refletem os campos do cadastro atual', async ({
+  page,
+}) => {
+  await mockAccount(page, 'startup');
+  await signIn(page);
+  await expect(
+    page.getByRole('img', { name: 'Logo de Startup de teste' }),
+  ).toBeVisible();
+  await expect(page.getByText('Recife, PE', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Conexões de mercado · Parcerias estratégicas', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Baixar apresentação', exact: true }),
+  ).toHaveAttribute('href', 'https://example.com/startup-pitch.pdf');
+  await expect(page.getByText(/Outras necessidades aparecerão/)).toHaveCount(0);
+  await page.getByRole('link', { name: 'Meu perfil', exact: true }).click();
+  for (const name of [
+    'Parceiros que queremos encontrar',
+    'Tipo de parceiro',
+    'Experiência do parceiro',
+    'Regiões de interesse',
+    'Estágios apoiados',
+    'Preferências adicionais',
+  ]) {
+    await expect(page.getByRole('heading', { name, exact: true })).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole('button', { name: `Editar ${name}`, exact: true }),
+    ).toHaveCount(0);
+  }
+  await expect(page.getByText('R$ 35.000,00', { exact: true })).toBeVisible();
+  await expect(page.getByText('5 pessoas', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Conexões de mercado', { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Visualizar perfil público', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog');
+  await expect(
+    dialog.getByRole('img', { name: 'Logo de Startup de teste' }),
+  ).toBeVisible();
+  await expect(dialog.getByText('5 pessoas', { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole('link', { name: 'Baixar apresentação', exact: true }),
+  ).toHaveAttribute('href', 'https://example.com/startup-pitch.pdf');
+  await page.keyboard.press('Escape');
+  await page
+    .getByRole('button', {
+      name: 'Editar Tração e momento do negócio',
+      exact: true,
+    })
+    .click();
+  await expect(dialog.getByLabel(/^Faturamento mensal/)).toHaveValue('35000');
+  await expect(
+    dialog.getByLabel('Tamanho da equipe', { exact: true }),
+  ).toHaveValue('5');
+  await expect(dialog.getByLabel(/Prefiro não informar/)).toHaveCount(0);
+});
+
+test('edição localizada salva apenas a necessidade ou um bloco do Canvas', async ({
   page,
 }) => {
   await mockAccount(page, 'startup');
@@ -66,40 +154,55 @@ test('edição localizada salva apenas o parceiro ou um bloco do Canvas', async 
   ).toBeVisible();
   await page.getByRole('link', { name: 'Meu perfil', exact: true }).click();
   await page
-    .getByRole('button', { name: 'Editar Tipo de parceiro', exact: true })
+    .getByRole('button', { name: 'Editar O que estamos buscando', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Necessidades da startup', exact: true })
     .click();
   const dialog = page.getByRole('dialog');
   await expect(
     dialog.getByRole('heading', {
-      name: 'Editar Tipo de parceiro',
+      name: 'Editar Necessidades da startup',
       exact: true,
     }),
   ).toBeVisible();
   await expect(dialog.getByLabel('Quanto pretendem captar?')).toHaveCount(0);
-  await dialog.getByRole('radio', { name: 'Mentor', exact: true }).check();
+  await dialog.getByRole('checkbox', { name: 'Mentoria', exact: true }).check();
   await dialog
     .getByRole('button', { name: 'Salvar alterações', exact: true })
     .click();
   await expect(dialog).toBeHidden();
   await page.reload();
   await page
-    .getByRole('button', { name: 'Editar Tipo de parceiro', exact: true })
+    .getByRole('button', { name: 'Editar O que estamos buscando', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Necessidades da startup', exact: true })
     .click();
   await expect(
-    dialog.getByRole('radio', { name: 'Mentor', exact: true }),
+    dialog.getByRole('checkbox', { name: 'Mentoria', exact: true }),
   ).toBeChecked();
   await dialog
-    .getByRole('radio', { name: 'Investidor anjo', exact: true })
+    .getByRole('checkbox', { name: 'Contratação de talentos', exact: true })
     .check();
   await dialog
     .getByRole('button', { name: 'Cancelar / fechar', exact: true })
     .click();
   await page
-    .getByRole('button', { name: 'Editar Tipo de parceiro', exact: true })
+    .getByRole('button', { name: 'Editar O que estamos buscando', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Necessidades da startup', exact: true })
     .click();
   await expect(
-    dialog.getByRole('radio', { name: 'Mentor', exact: true }),
+    dialog.getByRole('checkbox', { name: 'Mentoria', exact: true }),
   ).toBeChecked();
+  await expect(
+    dialog.getByRole('checkbox', {
+      name: 'Contratação de talentos',
+      exact: true,
+    }),
+  ).not.toBeChecked();
   await dialog
     .getByRole('button', { name: 'Cancelar / fechar', exact: true })
     .click();

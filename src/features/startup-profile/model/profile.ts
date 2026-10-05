@@ -25,14 +25,17 @@ export function profileCompleteness(
     {
       label: 'Tração',
       step: 'traction',
-      filled: data.customers !== null || data.hideCustomers || !!data.revenue,
+      filled: data.customers !== null || data.monthlyRevenue !== null,
     },
     { label: 'Necessidades', step: 'investment', filled: !!data.needs.length },
-    { label: 'Parceiros', step: 'investment', filled: !!data.partnerType },
     {
       label: 'Pitch',
       step: 'pitch',
-      filled: !!data.pitchText.trim() || !!attachment || !!data.videoUrl,
+      filled:
+        !!data.pitchText.trim() ||
+        !!attachment ||
+        !!data.apresentacaoUrl ||
+        !!data.videoUrl,
     },
     {
       label: 'Canvas',

@@ -45,6 +45,15 @@ const names: Record<string, string> = {
   anjo: 'Investidor anjo',
   mentor: 'Mentor',
   anjo_mentor: 'Investidor · Mentor',
+  mentoria: 'Mentoria',
+  conexoes_mercado: 'Conexões de mercado',
+  contratacao_talentos: 'Contratação de talentos',
+  parcerias_estrategicas: 'Parcerias estratégicas',
+  outro: 'Outro',
+  algumas_horas_mes: 'Algumas horas por mês',
+  algumas_horas_semana: 'Algumas horas por semana',
+  meio_periodo: 'Meio período',
+  dedicacao_integral: 'Dedicação integral',
 };
 export const label = (value: string) => names[value] ?? value;
 export const labels = (values: string[]) =>
@@ -118,7 +127,11 @@ export function completionItems(data: Dashboard): CompletionItem[] {
     return [
       {
         label: 'Informações da startup',
-        filled: !!p.nomeFantasia.trim() && !!p.regiao,
+        filled:
+          !!p.nomeFantasia.trim() &&
+          !!p.estado &&
+          !!p.cidade &&
+          !!p.regioesAtuacao?.length,
       },
       { label: 'Segmento e estágio', filled: !!p.segmento && !!p.estagio },
       { label: 'Modelo de negócio', filled: !!p.modeloNegocio },

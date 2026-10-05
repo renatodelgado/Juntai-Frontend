@@ -38,10 +38,6 @@ export function AboutStep({ form }: { form: OnboardingController }) {
         autoComplete: 'organization',
         placeholder: 'Como sua startup se chama?',
       })}
-      {fields.input('publicName', 'Nome fantasia / nome público', {
-        maxLength: 120,
-        hint: 'Preencha somente se for diferente do nome oficial.',
-      })}
       {fields.textarea('description', 'Descrição curta', {
         required: true,
         maxLength: 280,
@@ -154,25 +150,13 @@ export function MarketStep({ form }: { form: OnboardingController }) {
   const fields = bindFields(form);
   return (
     <Fields>
-      {fields.multi(
-        'businessModels',
+      {fields.select(
+        'primaryModel',
         'Modelo de negócio',
         businessModels.filter(
-          (item) =>
-            supportedModel(item.value) ||
-            form.data.businessModels.includes(item.value),
+          (item) => supportedModel(item.value) && item.value !== 'subscription',
         ),
-        true,
-        'Você pode combinar o público atendido e a forma de gerar receita.',
       )}
-      {form.data.businessModels.length > 1 &&
-        fields.select(
-          'primaryModel',
-          'Modelo de negócio principal',
-          businessModels.filter((item) =>
-            form.data.businessModels.includes(item.value),
-          ),
-        )}
       {fields.textarea('targetMarket', 'Quem é o cliente da sua startup?', {
         required: true,
         maxLength: 200,

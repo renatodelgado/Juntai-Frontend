@@ -81,10 +81,11 @@ export function ReviewStep({
     <Fields>
       <SummaryCard title="Sobre a startup" step="about" onEdit={onEdit}>
         <Item label="Responsável">{data.ownerName}</Item>
+        <Item label="Link do logo">{data.logoUrl}</Item>
         <Item field="name" label="Nome">
           {data.name}
         </Item>
-        <Item label="Nome público">{data.publicName}</Item>
+
         <Item field="description" label="Descrição">
           {data.description}
         </Item>
@@ -113,9 +114,6 @@ export function ReviewStep({
         </Item>
       </SummaryCard>
       <SummaryCard title="Mercado" step="market" onEdit={onEdit}>
-        <Item field="businessModels" label="Modelo de negócio">
-          {labels(catalogs.businessModels, data.businessModels)}
-        </Item>
         <Item label="Modelo principal">
           {catalogs.optionLabel(
             catalogs.businessModels,
@@ -143,24 +141,15 @@ export function ReviewStep({
       </SummaryCard>
       <SummaryCard title="Tração" step="traction" onEdit={onEdit}>
         <Item field="customers" label="Clientes">
-          {data.hideCustomers
-            ? 'Prefiro não informar'
-            : data.customers?.toLocaleString('pt-BR')}
+          {data.customers?.toLocaleString('pt-BR')}
         </Item>
-        <Item field="revenue" label="Faturamento">
-          {data.revenue === 'undisclosed'
-            ? 'Prefiro não informar'
-            : catalogs.optionLabel(catalogs.revenueRanges, data.revenue)}
-        </Item>
-        <Item label="Faturamento mensal exato">
-          {data.revenue === 'none'
-            ? 'R$ 0,00'
-            : data.revenue !== 'undisclosed' && data.monthlyRevenue !== null
-              ? new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                }).format(data.monthlyRevenue)
-              : 'Não informado'}
+        <Item label="Faturamento mensal">
+          {data.monthlyRevenue !== null
+            ? new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }).format(data.monthlyRevenue)
+            : ''}
         </Item>
         <Item field="growthPercent" label="Crescimento">
           {data.growthPercent !== null
@@ -179,7 +168,7 @@ export function ReviewStep({
         step="investment"
         onEdit={onEdit}
       >
-        {data.seekingInvestment === 'yes' && (
+        {
           <>
             <Item label="Capital procurado">
               {data.capital === null
@@ -193,25 +182,15 @@ export function ReviewStep({
               {labels(catalogs.investmentPurposes, data.investmentPurposes)}
             </Item>
           </>
-        )}
+        }
         <Item field="needs" label="Necessidades">
           {labels(catalogs.needs, data.needs)}
-        </Item>
-
-        <Item field="partnerType" label="Tipo de parceiro">
-          {catalogs.optionLabel(catalogs.partnerTypes, data.partnerType)}
-        </Item>
-        <Item field="expertise" label="Experiência desejada">
-          {labels(catalogs.expertise, data.expertise)}
-        </Item>
-        <Item field="preferences" label="Preferências adicionais">
-          {data.preferences}
         </Item>
       </SummaryCard>
       <SummaryCard title="Pitch e Canvas" step="pitch" onEdit={onEdit}>
         <Item label="Pitch">{data.pitchText}</Item>
-        <Item field="attachment" label="Apresentação">
-          {attachment?.name}
+        <Item label="Apresentação">
+          {attachment?.name || data.apresentacaoUrl}
         </Item>
         <Item field="videoUrl" label="Vídeo">
           {data.videoUrl}

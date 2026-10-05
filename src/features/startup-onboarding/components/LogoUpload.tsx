@@ -6,8 +6,11 @@ export function LogoUpload({ form }: { form: OnboardingController }) {
     <ImageUpload
       id="startup-logo"
       label="Logo da startup"
-      value={form.data.logo}
-      onChange={(value) => form.update('logo', value)}
+      value={form.data.logo || form.data.logoUrl}
+      onChange={(value) => {
+        form.update('logo', value);
+        form.update('logoUrl', '');
+      }}
     />
   );
 }

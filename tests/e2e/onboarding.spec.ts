@@ -46,19 +46,13 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
     buffer: Buffer.from(
       await page.evaluate(() => {
         const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 32;
-        const context = canvas.getContext('2d')!;
-        context.fillStyle = '#E6655E';
-        context.fillRect(0, 0, 32, 32);
+        canvas.width = 8;
+        canvas.height = 8;
         return canvas.toDataURL('image/png').split(',')[1]!;
       }),
       'base64',
     ),
   });
-  await expect(
-    page.getByAltText('Logo da startup', { exact: true }),
-  ).toBeVisible();
   await page
     .getByLabel('Nome da startup', { exact: true })
     .fill('Maré Criativa');
@@ -70,7 +64,9 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page.getByLabel('Segmento principal').selectOption('creative_economy');
   await page.getByRole('radio', { name: /^MVP/ }).check();
   await continueStep(page);
-  await page.getByRole('checkbox', { name: 'B2B', exact: true }).check();
+  await page
+    .getByLabel('Modelo de negócio', { exact: true })
+    .selectOption('b2b');
   await page
     .getByLabel('Quem é o cliente da sua startup?')
     .fill('Pequenos negócios e artistas de Pernambuco.');
@@ -94,32 +90,16 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
     .check();
   await continueStep(page);
   await page.getByLabel(/^Número de clientes/).fill('0');
-  await page
-    .getByLabel('Qual é o faturamento atual da startup?', { exact: true })
-    .selectOption('none');
+  await page.getByLabel(/^Faturamento mensal/).fill('0');
   await page.getByLabel('Tamanho da equipe').fill('5');
   await continueStep(page);
   await page.getByLabel('Quanto pretendem captar?').fill('500000');
   await page.getByLabel('Desenvolvimento de produto', { exact: true }).check();
   await page.getByLabel('Mentoria', { exact: true }).check();
-  await page
-    .getByRole('radio', { name: 'Investidor + mentor', exact: true })
-    .check();
-  await page
-    .getByRole('group', {
-      name: 'Que tipo de experiência seria mais valiosa para sua startup?',
-    })
-    .getByLabel('Tecnologia', { exact: true })
-    .check();
   await continueStep(page);
   await page
     .getByLabel(/^Seu pitch/)
     .fill('Criatividade local, conexões que transformam.');
-  await page.locator('#attachment').setInputFiles({
-    name: 'pitch.pdf',
-    mimeType: 'application/pdf',
-    buffer: Buffer.from('%PDF-1.4\nPitch da Maré Criativa'),
-  });
   await page
     .getByRole('button', { name: 'Preencher Proposta de valor' })
     .click();
@@ -165,7 +145,11 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
       name: 'Agora conte a história da sua startup',
     }),
   ).toBeVisible();
-  await expect(page.getByText(/pitch.pdf/)).toBeVisible();
+  await page.locator('#attachment').setInputFiles({
+    name: 'pitch.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\nTest'),
+  });
   await page.getByRole('button', { name: 'Editar Proposta de valor' }).click();
   await expect(
     page.getByRole('dialog').getByLabel(/^Proposta de valor/),
@@ -214,6 +198,29 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
   await page.locator('#termsAccepted').check();
   await page.locator('#privacyAcknowledged').check();
   let requests = 0;
+  const uploads: string[] = [];
+  let presentationFailed = false;
+  await page.route('**/auth/login', (route) =>
+    route.fulfill({ json: { token: 'upload-token' } }),
+  );
+  await page.route('**/uploads/startup/*', async (route) => {
+    expect(route.request().headers().authorization).toBe('Bearer upload-token');
+    expect(route.request().postDataBuffer()?.length).toBeGreaterThan(0);
+    const kind = route.request().url().split('/').pop()!;
+    uploads.push(kind);
+    if (kind === 'apresentacao' && !presentationFailed) {
+      presentationFailed = true;
+      await route.fulfill({
+        status: 502,
+        json: { message: 'Falha temporária de upload' },
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 201,
+      json: { url: `https://res.cloudinary.com/demo/${kind}` },
+    });
+  });
   await page.route('**/startups', async (route) => {
     requests++;
     expect(route.request().method()).toBe('POST');
@@ -225,6 +232,9 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
       estado: 'PE',
       cidade: 'Recife',
       capitalProcurado: 500000,
+      faturamentoMensal: 0,
+      modeloNegocio: 'b2b',
+      necessidadesAdicionais: ['mentoria'],
     });
     await route.fulfill({
       status: 201,
@@ -238,9 +248,16 @@ test('cadastro completo, revisão editável, anexo, consentimento e recuperaçã
     .getByRole('button', { name: 'Enviar cadastro', exact: true })
     .click();
   await expect(
+    page.getByText(/Sua conta foi criada, mas o envio dos arquivos/),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Enviar cadastro', exact: true })
+    .click();
+  await expect(
     page.getByRole('heading', { name: 'Startup cadastrada!' }),
   ).toBeVisible();
   expect(requests).toBe(1);
+  expect(uploads).toEqual(['logo', 'apresentacao', 'apresentacao']);
   await page.getByRole('link', { name: 'Entrar na minha conta' }).click();
   await expect(page).toHaveURL('/login');
   expect(browserErrors).toEqual([]);

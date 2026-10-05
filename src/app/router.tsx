@@ -15,7 +15,7 @@ export const router = createBrowserRouter([
     id: `${role}-meetings`,
     path: `/${role}/reunioes`,
     element: <ProtectedRoute />,
-    loader: requireRole(role),
+    loader: requireRole(role, { approvedOnly: true }),
     errorElement: <AuthRouteError />,
     children: [
       {
@@ -32,7 +32,7 @@ export const router = createBrowserRouter([
     id: 'investor-matches',
     path: '/investidor/matches',
     element: <ProtectedRoute />,
-    loader: requireRole('investidor'),
+    loader: requireRole('investidor', { approvedOnly: true }),
     errorElement: <AuthRouteError />,
     children: [
       {
@@ -72,7 +72,7 @@ export const router = createBrowserRouter([
     id: `${role}-messages`,
     path: `/${role}/mensagens`,
     element: <ProtectedRoute />,
-    loader: requireRole(role),
+    loader: requireRole(role, { approvedOnly: true }),
     errorElement: <AuthRouteError />,
     children: [
       {

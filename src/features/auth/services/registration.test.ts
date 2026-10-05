@@ -50,6 +50,7 @@ describe('cadastro na API', () => {
       {
         ...startup,
         description: 'Gestão financeira',
+        logoUrl: 'https://techflow.example.com/logo.png',
         website: 'techflow.example.com',
         linkedin: 'https://linkedin.com/company/techflow',
         state: 'PE',
@@ -69,6 +70,7 @@ describe('cadastro na API', () => {
     );
     expect(payload).toMatchObject({
       descricaoCurta: 'Gestão financeira',
+      logoUrl: 'https://techflow.example.com/logo.png',
       siteUrl: 'https://techflow.example.com/',
       estado: 'PE',
       cidade: 'Recife',
@@ -154,7 +156,7 @@ describe('cadastro na API', () => {
   });
   it('não inventa valores a partir de faixas nem envia métricas sem contexto', () => {
     const payload = startupPayload(
-      { ...startup, hideCustomers: true, growthPercent: 15 },
+      { ...startup, customers: null, growthPercent: 15 },
       'joao@teste.com',
       '123456',
       { ...details, monthlyRevenue: null, teamSize: null },
@@ -167,18 +169,18 @@ describe('cadastro na API', () => {
   it('respeita não divulgação e valores zero', () => {
     expect(
       startupPayload(
-        { ...startup, revenue: 'undisclosed', seekingInvestment: 'no' },
+        { ...startup, monthlyRevenue: null, seekingInvestment: 'no' },
         'joao@teste.com',
         '123456',
         details,
       ),
-    ).not.toHaveProperty('faturamentoMensal');
+    ).toHaveProperty('faturamentoMensal', 8000);
     expect(
       startupPayload(
         { ...startup, customers: 0, revenue: 'none', seekingInvestment: 'no' },
         'joao@teste.com',
         '123456',
-        { ...details, monthlyRevenue: null },
+        { ...details, monthlyRevenue: 0 },
       ),
     ).toMatchObject({
       numeroClientes: 0,

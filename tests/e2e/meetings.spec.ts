@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/auth/profile', (route) =>
+    route.fulfill({ json: { statusModeracao: 'aprovado' } }),
+  );
+});
+
 test('agenda supports filters, calendar, accepting, rescheduling and confirmed cancellation', async ({
   page,
 }) => {

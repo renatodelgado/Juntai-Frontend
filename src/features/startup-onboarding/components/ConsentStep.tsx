@@ -65,12 +65,6 @@ export function ConsentStep({ form }: { form: OnboardingController }) {
           compartilhamento desses dados nesta prévia.
         </p>
       </Notice>
-      <Checkbox
-        id="matchingConsent"
-        checked={form.data.matchingConsent}
-        onChange={(value) => form.update('matchingConsent', value)}
-        label="Quero permitir o uso dos dados do perfil para sugestões de investidores e mentores quando esse recurso estiver disponível. Nesta prévia, essa escolha é opcional e será confirmada novamente no lançamento."
-      />
       <ContentDialog
         open={document !== null}
         title={

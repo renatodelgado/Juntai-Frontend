@@ -61,5 +61,18 @@ describe('dados reais do painel', () => {
     expect(
       items.find((item) => item.label === 'Tamanho da equipe')?.filled,
     ).toBe(false);
+    expect(
+      items.find((item) => item.label === 'Informações da startup')?.filled,
+    ).toBe(false);
+    Object.assign(data.profile, {
+      estado: 'PE',
+      cidade: 'Recife',
+      regioesAtuacao: ['nordeste'],
+    });
+    expect(
+      completionItems(data).find(
+        (item) => item.label === 'Informações da startup',
+      )?.filled,
+    ).toBe(true);
   });
 });

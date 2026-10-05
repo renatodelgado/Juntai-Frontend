@@ -16,6 +16,8 @@ import {
   registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 import { getSession } from './session';
+import { logoFile, uploadStartupFile } from './startupUploads';
+import { investmentPurposes } from '@/features/startup-onboarding/data/catalogs';
 export { logout } from './session';
 
 const stages: Record<string, string> = {
@@ -41,9 +43,11 @@ const base = {
 export const startupSchema = z.object({
   ...base,
   nomeFantasia: z.string(),
+  logoUrl: z.string().nullish(),
+  apresentacaoUrl: z.string().nullish(),
   segmento: z.string(),
   estagio: z.string(),
-  regiao: z.string().optional(),
+  regiao: z.string().nullish(),
   descricaoCurta: z.string().nullish(),
   siteUrl: z.string().nullish(),
   videoApresentacaoUrl: z.string().nullish(),
@@ -67,6 +71,7 @@ export const startupSchema = z.object({
   modeloNegocio: z.string(),
   mercadoAlvo: z.string().nullish(),
   numeroClientes: numeric,
+  faturamentoMensal: numeric,
   capitalProcurado: numeric,
   taxaCrescimentoPct: numeric,
   descricaoPitch: z.string().nullish(),
@@ -112,13 +117,37 @@ export async function loadProfile(
     );
   if (getSession()?.token !== session.token) return null;
   const local = await get<SavedDraft>(key(session.usuario.id, 'startup'));
-  if (local) return { ...local, statusModeracao: remote.statusModeracao };
+  if (local)
+    return {
+      ...local,
+      statusModeracao: remote.statusModeracao,
+      data: {
+        ...local.data,
+        logoUrl: remote.logoUrl ?? '',
+        apresentacaoUrl: remote.apresentacaoUrl ?? '',
+      },
+    };
   const data = createDraft();
   data.name = remote.nomeFantasia;
+  data.ownerName = session.usuario.nome;
   data.publicName = remote.nomeFantasia;
+  data.logoUrl = remote.logoUrl ?? '';
+  data.apresentacaoUrl = remote.apresentacaoUrl ?? '';
   data.segment = reverse(registrationSegments, remote.segmento);
   data.stage = stages[remote.estagio] ?? remote.estagio;
   data.businessModels = [reverse(registrationModels, remote.modeloNegocio)];
+  data.primaryModel = data.businessModels[0] ?? '';
+  data.monthlyRevenue = remote.faturamentoMensal ?? null;
+  data.investmentPurposes = (remote.finalidadeInvestimento ?? '')
+    .split(';')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .map(
+      (value) =>
+        investmentPurposes.find((option) => option.label === value)?.value ??
+        '',
+    )
+    .filter(Boolean);
   data.targetMarket = remote.mercadoAlvo ?? '';
   data.customers = remote.numeroClientes ?? null;
   data.capital = remote.capitalProcurado ?? null;
@@ -158,7 +187,9 @@ export async function loadProfile(
   if (remote.buscaInvestimento !== undefined)
     data.seekingInvestment = remote.buscaInvestimento ? 'yes' : 'no';
   data.needs = (remote.necessidadesAdicionais ?? []).map((value) =>
-    reverse(registrationNeeds, value),
+    value === 'conexoes_mercado'
+      ? 'market_access'
+      : reverse(registrationNeeds, value),
   );
   data.exactTeamSize = remote.tamanhoEquipe ?? null;
   const canvas = remote.canvasJson ?? {};
@@ -269,7 +300,37 @@ async function saveLocalProfile(
     throw new Error('Sua sessão mudou. Entre novamente.');
   await set(key(session.usuario.id, role), profile);
 }
-export const saveProfile = (profile: SavedDraft) =>
-  saveLocalProfile('startup', profile);
+export async function saveProfile(profile: SavedDraft) {
+  const session = getSession();
+  if (!session || session.usuario.tipoPerfil !== 'startup')
+    throw new Error('Entre novamente para salvar seu perfil.');
+  const data = { ...profile.data };
+  await apiRequest('auth/me', { authenticated: true });
+  if (data.logo) {
+    data.logoUrl = await uploadStartupFile(
+      'logo',
+      logoFile(data.logo),
+      session.token,
+      'logo',
+    );
+    data.logo = '';
+  }
+  if (profile.attachment) {
+    data.apresentacaoUrl = await uploadStartupFile(
+      'apresentacao',
+      profile.attachment,
+      session.token,
+      profile.attachment.name,
+    );
+  }
+  const next = {
+    ...profile,
+    data,
+    attachment: null,
+    savedAt: new Date().toISOString(),
+  };
+  await saveLocalProfile('startup', next);
+  return next;
+}
 export const saveInvestorProfile = (profile: SavedInvestor) =>
   saveLocalProfile('investidor', profile);

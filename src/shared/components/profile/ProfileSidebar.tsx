@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react';
 import logo from '@/shared/assets/images/logo-txt.svg';
 import { getSession } from '@/features/auth/services/session';
+import { useProfileApproval } from '@/features/auth/useProfileApproval';
 
 const Header = styled.header`
   background: ${({ theme }) => theme.colors.white};
@@ -155,6 +156,7 @@ export function ProfileSidebar({
   subtitle,
   unreadMessages = 0,
   onMatches,
+  approved: knownApproval,
 }: {
   profilePath: string;
   status: string;
@@ -164,7 +166,9 @@ export function ProfileSidebar({
   subtitle?: string;
   unreadMessages?: number;
   onMatches?: () => void;
+  approved?: boolean;
 }) {
+  const approved = useProfileApproval(knownApproval);
   const [open, setOpen] = useState(false);
   const id = useId();
   const { pathname, state } = useLocation();
@@ -234,7 +238,7 @@ export function ProfileSidebar({
               Explorar
             </Link>
           )}
-          {profilePath.startsWith('/investidor') ? (
+          {profilePath.startsWith('/investidor') && approved ? (
             <Link
               to="/investidor/matches"
               aria-current={
@@ -256,59 +260,77 @@ export function ProfileSidebar({
             </Link>
           ) : (
             <button
-              disabled={!onMatches}
+              disabled={!approved || !onMatches}
               onClick={onMatches}
               title={
-                onMatches ? undefined : 'Disponível após aprovação e integração'
+                !approved
+                  ? 'Disponível após aprovação do perfil'
+                  : onMatches
+                    ? undefined
+                    : 'Área de matches ainda indisponível'
               }
             >
               <HeartIcon size={17} aria-hidden="true" />
               Matches
             </button>
           )}
-          <Link
-            to={profilePath.replace('/perfil', '/mensagens')}
-            aria-current={
-              pathname === profilePath.replace('/perfil', '/mensagens')
-                ? 'page'
-                : undefined
-            }
-          >
-            <ChatCircleIcon
-              size={17}
-              weight={
+          {approved ? (
+            <Link
+              to={profilePath.replace('/perfil', '/mensagens')}
+              aria-current={
                 pathname === profilePath.replace('/perfil', '/mensagens')
-                  ? 'fill'
-                  : 'regular'
+                  ? 'page'
+                  : undefined
               }
-              aria-hidden="true"
-            />
-            Mensagens
-            {unreadMessages > 0 && (
-              <span aria-label={`${unreadMessages} mensagens não lidas`}>
-                ({unreadMessages})
-              </span>
-            )}
-          </Link>
-          <Link
-            to={profilePath.replace('/perfil', '/reunioes')}
-            aria-current={
-              pathname === profilePath.replace('/perfil', '/reunioes')
-                ? 'page'
-                : undefined
-            }
-          >
-            <CalendarIcon
-              size={17}
-              weight={
+            >
+              <ChatCircleIcon
+                size={17}
+                weight={
+                  pathname === profilePath.replace('/perfil', '/mensagens')
+                    ? 'fill'
+                    : 'regular'
+                }
+                aria-hidden="true"
+              />
+              Mensagens
+              {unreadMessages > 0 && (
+                <span aria-label={`${unreadMessages} mensagens não lidas`}>
+                  ({unreadMessages})
+                </span>
+              )}
+            </Link>
+          ) : (
+            <button disabled title="Disponível após aprovação do perfil">
+              <ChatCircleIcon size={17} aria-hidden="true" />
+              Mensagens
+            </button>
+          )}
+          {approved ? (
+            <Link
+              to={profilePath.replace('/perfil', '/reunioes')}
+              aria-current={
                 pathname === profilePath.replace('/perfil', '/reunioes')
-                  ? 'fill'
-                  : 'regular'
+                  ? 'page'
+                  : undefined
               }
-              aria-hidden="true"
-            />
-            Reuniões
-          </Link>
+            >
+              <CalendarIcon
+                size={17}
+                weight={
+                  pathname === profilePath.replace('/perfil', '/reunioes')
+                    ? 'fill'
+                    : 'regular'
+                }
+                aria-hidden="true"
+              />
+              Reuniões
+            </Link>
+          ) : (
+            <button disabled title="Disponível após aprovação do perfil">
+              <CalendarIcon size={17} aria-hidden="true" />
+              Reuniões
+            </button>
+          )}
         </nav>
         <button
           className="account"

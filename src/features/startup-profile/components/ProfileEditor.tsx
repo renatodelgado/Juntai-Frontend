@@ -37,8 +37,7 @@ export function ProfileEditor({
       previewCompletedAt: saved.previewCompletedAt,
       statusModeracao: saved.statusModeracao,
     };
-    await saveProfile(next);
-    snapshot.current = next;
+    snapshot.current = await saveProfile(next);
   }
   const form = useOnboarding(saved, persist);
   const ref = useRef<HTMLFormElement>(null);

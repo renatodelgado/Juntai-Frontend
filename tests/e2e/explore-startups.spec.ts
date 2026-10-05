@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/auth/profile', (route) =>
+    route.fulfill({ json: { statusModeracao: 'aprovado' } }),
+  );
+});
+
 test('discovery, saved state, interest, meetings and contextual messaging', async ({
   page,
 }) => {
@@ -44,6 +50,7 @@ test('discovery, saved state, interest, meetings and contextual messaging', asyn
     page.getByRole('heading', { name: 'AgroPonte Digital', exact: true }),
   ).toHaveCount(0);
   await page.getByRole('link', { name: 'Ver startup' }).click();
+  await expect(page).toHaveURL(/\/startups\/solnexo$/);
   await expect(
     page.getByRole('heading', { name: 'SolNexo Energia', exact: true }),
   ).toBeVisible();

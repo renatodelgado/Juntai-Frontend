@@ -157,16 +157,9 @@ export const investmentPurposes: Option[] = [
 
 export const needs: Option[] = [
   { value: 'hiring', label: 'Contratação de talentos' },
-  { value: 'investment', label: 'Investimento' },
   { value: 'mentoring', label: 'Mentoria' },
-  { value: 'networking', label: 'Networking' },
-  { value: 'technology', label: 'Tecnologia' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'sales', label: 'Vendas' },
-  { value: 'management', label: 'Gestão' },
-  { value: 'strategy', label: 'Estratégia' },
-  { value: 'market_access', label: 'Acesso a mercado' },
-  { value: 'partnerships', label: 'Parcerias' },
+  { value: 'market_access', label: 'Conexões de mercado' },
+  { value: 'partnerships', label: 'Parcerias estratégicas' },
   { value: 'other', label: 'Outro' },
 ];
 
@@ -177,11 +170,11 @@ export const partnerTypes: Option[] = [
 ];
 
 export const expertise: Option[] = [
-  ...needs.filter((option) =>
-    ['technology', 'sales', 'marketing', 'management', 'strategy'].includes(
-      option.value,
-    ),
-  ),
+  { value: 'technology', label: 'Tecnologia' },
+  { value: 'sales', label: 'Vendas' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'management', label: 'Gestão' },
+  { value: 'strategy', label: 'Estratégia' },
   { value: 'finance', label: 'Finanças' },
   { value: 'expansion', label: 'Expansão' },
   { value: 'internationalization', label: 'Internacionalização' },

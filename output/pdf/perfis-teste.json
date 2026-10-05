@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "rotaclara",
+    "name": "RotaClara Logística Teste",
+    "initials": "RC",
+    "color": "#087C88",
+    "owner": "Marina Costa - Teste",
+    "segment": "saas_b2b",
+    "secondary": "marketplace",
+    "customers": 28,
+    "revenue": 42000,
+    "team": 6,
+    "capital": 600000,
+    "growth": 32.5,
+    "description": "Perfil fictício de teste: software para planejar entregas urbanas e acompanhar pequenas frotas.",
+    "market": "Distribuidores, transportadoras locais e lojas com entregas próprias no Nordeste.",
+    "problem": "Pequenas frotas usam planilhas e têm pouca visibilidade sobre rotas, atrasos e custos por entrega.",
+    "solution": "SaaS com planejamento de rotas, painel de entregas e alertas de ocorrência para equipes de operação.",
+    "pitch": "Perfil fictício para teste. A RotaClara organiza entregas de pequenas frotas em uma plataforma acessível. O piloto simulado possui 28 clientes, receita mensal de R$ 42 mil e equipe de 6 pessoas. Buscamos R$ 600 mil para produto, vendas e expansão regional.",
+    "canvas": {
+      "partners": "Transportadoras locais, associações comerciais e provedores de mapas.",
+      "activities": "Desenvolvimento do software, integração de pedidos e suporte às operações.",
+      "value": "Menos trabalho manual e maior visibilidade sobre entregas e custos.",
+      "relationships": "Onboarding assistido, suporte digital e reuniões mensais de acompanhamento.",
+      "customers": "Distribuidores regionais, pequenas transportadoras e varejistas com frota.",
+      "resources": "Plataforma SaaS, integrações, equipe técnica e conhecimento de logística.",
+      "channels": "Vendas consultivas, indicação de parceiros e demonstrações online.",
+      "costs": "Equipe técnica, hospedagem, APIs de mapas e aquisição de clientes.",
+      "revenue": "Assinaturas mensais por faixa de veículos e implantação opcional."
+    }
+  },
+  {
+    "slug": "aprendemar",
+    "name": "AprendeMar Educação Teste",
+    "initials": "AM",
+    "color": "#6246C0",
+    "owner": "Rafael Lima - Teste",
+    "segment": "edtech",
+    "secondary": "saas_b2b",
+    "customers": 18,
+    "revenue": 27000,
+    "team": 5,
+    "capital": 450000,
+    "growth": 24,
+    "description": "Perfil fictício de teste: plataforma de reforço escolar com trilhas de aprendizagem para escolas.",
+    "market": "Escolas privadas de pequeno porte e redes locais de reforço escolar no Nordeste.",
+    "problem": "Escolas pequenas têm dificuldade em identificar lacunas de aprendizagem e personalizar o reforço.",
+    "solution": "Diagnósticos curtos, trilhas digitais e painel pedagógico para professores acompanharem o progresso.",
+    "pitch": "Perfil fictício para teste. A AprendeMar ajuda escolas a personalizar o reforço escolar com diagnósticos e trilhas digitais. O piloto simulado atende 18 escolas, gera R$ 27 mil por mês e conta com 5 pessoas. Buscamos R$ 450 mil para conteúdo, produto e vendas.",
+    "canvas": {
+      "partners": "Escolas piloto, educadores independentes e editoras de conteúdo.",
+      "activities": "Produção de trilhas, desenvolvimento da plataforma e formação docente.",
+      "value": "Reforço escolar personalizado com acompanhamento simples para professores.",
+      "relationships": "Formação inicial, suporte pedagógico e relatórios de uso e progresso.",
+      "customers": "Escolas privadas pequenas e redes regionais de reforço escolar.",
+      "resources": "Conteúdo pedagógico, plataforma digital e equipe de educação e tecnologia.",
+      "channels": "Parcerias escolares, demonstrações para diretores e eventos educacionais.",
+      "costs": "Equipe, produção de conteúdo, hospedagem e aquisição de escolas.",
+      "revenue": "Licença mensal por escola e quantidade de estudantes ativos."
+    }
+  }
+]

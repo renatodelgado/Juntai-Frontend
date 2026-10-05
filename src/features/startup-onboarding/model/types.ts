@@ -54,6 +54,8 @@ export const draftSchema = z.object({
   exactTeamSize: number.default(null),
   name: text,
   publicName: text,
+  logoUrl: text.default(''),
+  apresentacaoUrl: text.default(''),
   description: text,
   website: text,
   linkedin: text,
@@ -101,7 +103,21 @@ export const draftSchema = z.object({
   seekingInvestment: choice(catalogs.seekingInvestment),
   capital: number,
   investmentPurposes: choices(catalogs.investmentPurposes),
-  needs: choices(catalogs.needs),
+  needs: z.preprocess(
+    (value) =>
+      Array.isArray(value)
+        ? [
+            ...new Set(
+              value
+                .map((item) => (item === 'networking' ? 'market_access' : item))
+                .filter((item) =>
+                  catalogs.needs.some((option) => option.value === item),
+                ),
+            ),
+          ]
+        : value,
+    choices(catalogs.needs),
+  ),
   partnerType: choice(catalogs.partnerTypes),
   expertise: choices(catalogs.expertise),
   partnerRegions: z.preprocess(
@@ -139,6 +155,8 @@ export function createDraft(): StartupDraft {
     logo: '',
     name: '',
     publicName: '',
+    logoUrl: '',
+    apresentacaoUrl: '',
     description: '',
     website: '',
     linkedin: '',

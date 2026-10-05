@@ -25,6 +25,7 @@ export function DiscoveryLayout({
     <ThemeProvider theme={investorTheme}>
       <S.Shell>
         <ProfileSidebar
+          approved={data.approved}
           profilePath="/investidor/perfil"
           name={data.user.nome}
           subtitle="Investidor"
@@ -95,11 +96,20 @@ export function DiscoveryLayout({
               <h3>Conexões habilitadas na demonstração</h3>
               {data.connections.map((chat) => (
                 <p key={chat.id}>
-                  <Link
-                    to={`/investidor/mensagens?startup=${chat.participant.id}`}
-                  >
-                    {chat.participant.name} — Abrir conversa
-                  </Link>
+                  {data.approved ? (
+                    <Link
+                      to={`/investidor/mensagens?startup=${chat.participant.id}`}
+                    >
+                      {chat.participant.name} — Abrir conversa
+                    </Link>
+                  ) : (
+                    <Button
+                      disabled
+                      title="Disponível após aprovação do perfil"
+                    >
+                      {chat.participant.name} — Abrir conversa
+                    </Button>
+                  )}
                 </p>
               ))}
             </>

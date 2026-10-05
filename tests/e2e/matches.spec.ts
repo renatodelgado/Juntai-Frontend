@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/auth/profile', (route) =>
+    route.fulfill({ json: { statusModeracao: 'aprovado' } }),
+  );
+});
+
 test('matches show only investor interests and filters toggle on desktop and mobile', async ({
   page,
 }) => {

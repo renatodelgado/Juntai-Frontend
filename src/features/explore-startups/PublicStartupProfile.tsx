@@ -99,22 +99,37 @@ export function PublicStartupProfile() {
                 </Button>
                 <Button
                   $variant="secondary"
-                  disabled={!connected}
+                  disabled={!connected || !data.approved}
+                  title={
+                    !data.approved
+                      ? 'Disponível após aprovação do perfil'
+                      : undefined
+                  }
                   onClick={() => setMeeting(true)}
                 >
                   <CalendarIcon size={18} />
                   Agendar reunião
                 </Button>
-                {connected && (
-                  <Button
-                    as={Link}
-                    to={`/investidor/mensagens?startup=${startup.id}`}
-                    $variant="secondary"
-                  >
-                    <ChatCircleIcon size={18} />
-                    Enviar mensagem
-                  </Button>
-                )}
+                {connected &&
+                  (data.approved ? (
+                    <Button
+                      as={Link}
+                      to={`/investidor/mensagens?startup=${startup.id}`}
+                      $variant="secondary"
+                    >
+                      <ChatCircleIcon size={18} />
+                      Enviar mensagem
+                    </Button>
+                  ) : (
+                    <Button
+                      $variant="secondary"
+                      disabled
+                      title="Disponível após aprovação do perfil"
+                    >
+                      <ChatCircleIcon size={18} />
+                      Enviar mensagem
+                    </Button>
+                  ))}
               </div>
             </header>
             {!connected && (

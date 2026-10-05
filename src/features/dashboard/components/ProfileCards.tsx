@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CheckCircleIcon, CircleIcon } from '@phosphor-icons/react';
 import { Button } from '@/shared/components/ui/Button';
+import { safeLink } from '@/features/startup-profile/model/profile';
 import {
   Card,
   Badge,
@@ -122,7 +123,13 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
         </h2>
       </header>
       <Row>
-        <Avatar aria-hidden="true">{initials(name)}</Avatar>
+        <Avatar>
+          {data.role === 'startup' && data.profile.logoUrl ? (
+            <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
+          ) : (
+            <span aria-hidden="true">{initials(name)}</span>
+          )}
+        </Avatar>
         <div>
           <strong>{name}</strong>
           <br />
@@ -141,12 +148,24 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
               <dd>{label(data.profile.estagio)}</dd>
             </div>
             <div>
-              <dt>Região</dt>
+              <dt>Localização</dt>
+              <dd>
+                {data.profile.cidade && data.profile.estado
+                  ? `${data.profile.cidade}, ${data.profile.estado}`
+                  : 'Ainda não informada'}
+              </dd>
+            </div>
+            <div>
+              <dt>Atuação atual</dt>
               <dd>
                 {data.profile.regioesAtuacao?.length
                   ? labels(data.profile.regioesAtuacao)
-                  : label(data.profile.regiao ?? '')}
+                  : 'Ainda não informada'}
               </dd>
+            </div>
+            <div>
+              <dt>Onde queremos crescer</dt>
+              <dd>{labels(data.profile.regioesCrescimento ?? [])}</dd>
             </div>
             <div>
               <dt>Modelo de negócio</dt>
@@ -188,7 +207,11 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
             )}
             <div>
               <dt>Disponibilidade</dt>
-              <dd>Ainda não disponível nesta área</dd>
+              <dd>
+                {data.profile.disponibilidade
+                  ? label(data.profile.disponibilidade)
+                  : 'Ainda não informada'}
+              </dd>
             </div>
           </>
         )}
@@ -207,6 +230,7 @@ export function SeekingCard({
 }: {
   data: Extract<Dashboard, { role: 'startup' }>;
 }) {
+  const presentationUrl = safeLink(data.profile.apresentacaoUrl ?? '');
   return (
     <Card>
       <h2>O que sua startup está buscando?</h2>
@@ -223,10 +247,17 @@ export function SeekingCard({
           </dd>
         </div>
       </Details>
-      <Muted>
-        Outras necessidades aparecerão aqui quando estiverem disponíveis na sua
-        conta.
-      </Muted>
+      <Details>
+        <div>
+          <dt>Além de capital, o que sua startup precisa neste momento?</dt>
+          <dd>{labels(data.profile.necessidadesAdicionais ?? [])}</dd>
+        </div>
+      </Details>
+      {presentationUrl && (
+        <a href={presentationUrl} target="_blank" rel="noopener noreferrer">
+          Baixar apresentação
+        </a>
+      )}
       <Button as={Link} to="/startup/perfil" $variant="quiet">
         Revisar objetivos
       </Button>
@@ -250,8 +281,8 @@ export function ProfileTips({ data }: { data: Dashboard }) {
         </>
       ) : (
         <p>
-          Mantenha seus objetivos e interesses atualizados para representar seu
-          momento atual.
+          Mantenha seus objetivos e necessidades atualizados para representar
+          seu momento atual.
         </p>
       )}
       <Muted>

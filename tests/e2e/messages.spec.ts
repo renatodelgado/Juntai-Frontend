@@ -1,5 +1,11 @@
 ﻿import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/auth/profile', (route) =>
+    route.fulfill({ json: { statusModeracao: 'aprovado' } }),
+  );
+});
+
 for (const role of ['startup', 'investidor'] as const) {
   test(`${role}: conversa, reunião e navegação mobile`, async ({ page }) => {
     const usuario = {

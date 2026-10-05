@@ -1,7 +1,6 @@
 ﻿import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  LockSimpleIcon,
   PencilSimpleIcon,
   MapPinIcon,
   CheckCircleIcon,
@@ -121,13 +120,6 @@ export function StartupProfilePage() {
   }
   function editSection(title: string, step: StepId) {
     const groups: Record<string, (keyof typeof localizedLabels)[]> = {
-      'Parceiros que queremos encontrar': [
-        'partnerType',
-        'expertise',
-        'partnerRegions',
-        'partnerStages',
-        'preferences',
-      ],
       'Sobre a startup': ['problem', 'solution'],
       'O que estamos buscando': ['capital', 'investmentPurposes', 'needs'],
       'Nosso pitch': ['pitchText'],
@@ -178,7 +170,8 @@ export function StartupProfilePage() {
   const completeness = data
     ? profileCompleteness(data, saved.attachment)
     : null;
-  const name = data?.publicName || data?.name || 'Sua startup';
+  const name = data?.name || 'Sua startup';
+  const businessModel = data?.primaryModel || data?.businessModels[0] || '';
   const status = moderation(saved?.statusModeracao ?? '');
   const initials = name
     .trim()
@@ -190,6 +183,11 @@ export function StartupProfilePage() {
   const publicPreview = data && (
     <>
       <h2>{name}</h2>
+      {(data.logoUrl || data.logo) && (
+        <S.Avatar>
+          <img src={data.logoUrl || data.logo} alt={`Logo de ${name}`} />
+        </S.Avatar>
+      )}
       <p>{data.description}</p>
       <h3>O que fazemos</h3>
       <p>{data.solution || empty}</p>
@@ -197,16 +195,17 @@ export function StartupProfilePage() {
       <p>{data.targetMarket || empty}</p>
       <h3>Pitch</h3>
       <p>{data.pitchText || empty}</p>
+      {data.apresentacaoUrl ? (
+        <ExternalLink url={data.apresentacaoUrl}>
+          Baixar apresentação
+        </ExternalLink>
+      ) : saved?.attachment ? (
+        <PresentationLink file={saved.attachment} />
+      ) : null}
       <h3>Equipe</h3>
-      {data.members.map((member) => (
-        <p key={member.id}>
-          <strong>
-            {member.name} · {member.role}
-          </strong>
-          <br />
-          {member.bio}
-        </p>
-      ))}
+      <p>
+        {data.exactTeamSize !== null ? `${data.exactTeamSize} pessoas` : empty}
+      </p>
       <S.Muted>Prévia de apresentação. Este perfil não está publicado.</S.Muted>
     </>
   );
@@ -214,6 +213,7 @@ export function StartupProfilePage() {
     <S.Layout>
       <ProfileSidebar
         profilePath="/startup/perfil"
+        approved={status.approved}
         name={name}
         subtitle="Startup"
         status={status.badge}
@@ -264,8 +264,11 @@ export function StartupProfilePage() {
                 <S.IdentityCard>
                   <S.Row>
                     <S.Avatar>
-                      {data.logo ? (
-                        <img src={data.logo} alt={`Logo de ${name}`} />
+                      {data.logoUrl || data.logo ? (
+                        <img
+                          src={data.logoUrl || data.logo}
+                          alt={`Logo de ${name}`}
+                        />
                       ) : (
                         <span aria-hidden="true">{initials}</span>
                       )}
@@ -282,14 +285,14 @@ export function StartupProfilePage() {
                         <S.Badge>
                           {catalogs.optionLabel(catalogs.stages, data.stage)}
                         </S.Badge>
-                        {data.businessModels.map((value) => (
-                          <S.Badge key={value}>
+                        {businessModel && (
+                          <S.Badge>
                             {catalogs.optionLabel(
                               catalogs.businessModels,
-                              value,
+                              businessModel,
                             )}
                           </S.Badge>
-                        ))}
+                        )}
                       </S.Row>
                       <S.Muted>
                         <MapPinIcon size={14} aria-hidden="true" />{' '}
@@ -370,7 +373,11 @@ export function StartupProfilePage() {
                         'Conte em poucas palavras o que torna sua startup relevante.'}
                     </S.PitchQuote>
                     <S.Row>
-                      {saved.attachment ? (
+                      {data.apresentacaoUrl ? (
+                        <ExternalLink url={data.apresentacaoUrl}>
+                          Baixar apresentação
+                        </ExternalLink>
+                      ) : saved.attachment ? (
                         <PresentationLink file={saved.attachment} />
                       ) : (
                         <S.Muted>Apresentação ainda não adicionada.</S.Muted>
@@ -405,7 +412,10 @@ export function StartupProfilePage() {
                     <>
                       <h3>Como o negócio funciona</h3>
                       <p>
-                        {labels(catalogs.businessModels, data.businessModels)}
+                        {catalogs.optionLabel(
+                          catalogs.businessModels,
+                          businessModel,
+                        )}
                       </p>
                       {localLabel('targetMarket')}
                       <p>{data.targetMarket || empty}</p>
@@ -428,19 +438,16 @@ export function StartupProfilePage() {
                         {[
                           [
                             'Clientes',
-                            data.hideCustomers
-                              ? 'Não divulgado'
-                              : (data.customers?.toLocaleString('pt-BR') ??
-                                empty),
+                            data.customers?.toLocaleString('pt-BR') ?? empty,
                           ],
                           [
                             'Faturamento mensal',
-                            data.revenue === 'undisclosed'
-                              ? 'Não divulgado'
-                              : catalogs.optionLabel(
-                                  catalogs.revenueRanges,
-                                  data.revenue,
-                                ) || empty,
+                            data.monthlyRevenue === null
+                              ? empty
+                              : data.monthlyRevenue.toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                }),
                           ],
                           [
                             'Crescimento',
@@ -452,10 +459,7 @@ export function StartupProfilePage() {
                             'Equipe',
                             data.exactTeamSize != null
                               ? `${data.exactTeamSize} pessoas`
-                              : catalogs.optionLabel(
-                                  catalogs.teamSizes,
-                                  data.teamSize,
-                                ) || empty,
+                              : empty,
                           ],
                         ].map(([title, value]) => (
                           <div key={title}>
@@ -480,28 +484,22 @@ export function StartupProfilePage() {
                       </S.Row>
                       {localLabel('capital')}
                       <p style={{ fontSize: '1.5rem', fontWeight: 700 }}>
-                        {data.seekingInvestment === 'yes' &&
-                        data.capital !== null
+                        {data.capital !== null
                           ? data.capital.toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
                             })
-                          : catalogs.optionLabel(
-                              catalogs.seekingInvestment,
-                              data.seekingInvestment,
-                            ) || empty}
+                          : empty}
                       </p>
-                      {data.seekingInvestment === 'yes' && (
-                        <>
-                          {localLabel('investmentPurposes')}
-                          <p>
-                            {labels(
-                              catalogs.investmentPurposes,
-                              data.investmentPurposes,
-                            )}
-                          </p>
-                        </>
-                      )}
+                      <>
+                        {localLabel('investmentPurposes')}
+                        <p>
+                          {labels(
+                            catalogs.investmentPurposes,
+                            data.investmentPurposes,
+                          )}
+                        </p>
+                      </>
                     </>,
                   )}
                 </S.Grid>
@@ -520,7 +518,7 @@ export function StartupProfilePage() {
                   <h2>Dados para conexões</h2>
                   <p>
                     Segmento, estágio, capital procurado, modelo de negócio e
-                    interesses ajudam a apresentar sua startup aos parceiros
+                    necessidades ajudam a apresentar sua startup aos parceiros
                     certos.
                   </p>
                   <S.Muted>
@@ -528,35 +526,6 @@ export function StartupProfilePage() {
                     integração da plataforma.
                   </S.Muted>
                 </S.FeatureCard>
-                {section(
-                  'Parceiros que queremos encontrar',
-                  'investment',
-                  <>
-                    {localLabel('partnerType')}
-                    <p>
-                      {catalogs.optionLabel(
-                        catalogs.partnerTypes,
-                        data.partnerType,
-                      ) || empty}
-                    </p>
-                    {localLabel('expertise')}
-                    <p>{labels(catalogs.expertise, data.expertise)}</p>
-                    {localLabel('partnerRegions')}
-                    <p>{labels(catalogs.regions, data.partnerRegions)}</p>
-                    {data.partnerType !== 'mentor' && (
-                      <>
-                        {localLabel('partnerStages')}
-                        <p>{labels(catalogs.stages, data.partnerStages)}</p>
-                      </>
-                    )}
-                    {localLabel('preferences')}
-                    <p>{data.preferences || empty}</p>
-                    <S.Muted>
-                      <LockSimpleIcon size={14} aria-hidden="true" /> A
-                      aprovação é necessária para liberar o matchmaking.
-                    </S.Muted>
-                  </>,
-                )}
                 {section(
                   'Links e apresentação',
                   'about',

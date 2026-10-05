@@ -1,9 +1,4 @@
-import {
-  Checkbox,
-  MoneyInput,
-  NumberInput,
-  Slider,
-} from '@/shared/components/forms/Fields';
+import { MoneyInput, NumberInput } from '@/shared/components/forms/Fields';
 import type { OnboardingController } from '../hooks/useOnboarding';
 import { bindFields } from './fields';
 import * as catalogs from '../data/catalogs';
@@ -20,39 +15,19 @@ export function TractionStep({ form }: { form: OnboardingController }) {
           min={0}
           step={1}
           value={form.data.customers}
-          disabled={form.data.hideCustomers}
           onValueChange={(value) => form.update('customers', value)}
           error={form.errors.customers}
         />
-        <Checkbox
-          id="hideCustomers"
-          label="Prefiro não informar o número de clientes"
-          checked={form.data.hideCustomers}
-          onChange={(value) => form.update('hideCustomers', value)}
-        />
       </Fields>
-      <Slider
-        id="revenue"
-        label="Qual é o faturamento atual da startup?"
-        options={[
-          ...catalogs.revenueRanges,
-          { value: 'undisclosed', label: 'Prefiro não informar' },
-        ]}
-        value={form.data.revenue}
-        error={form.errors.revenue}
-        onChange={(value) => form.update('revenue', value)}
+      <NumberInput
+        id="monthlyRevenue"
+        label="Faturamento mensal (R$)"
+        min={0}
+        step="0.01"
+        value={form.data.monthlyRevenue}
+        error={form.errors.monthlyRevenue}
+        onValueChange={(value) => form.update('monthlyRevenue', value)}
       />
-      {form.data.revenue !== 'undisclosed' && form.data.revenue !== 'none' && (
-        <NumberInput
-          id="monthlyRevenue"
-          label="Faturamento mensal exato (R$)"
-          min={0}
-          step="0.01"
-          value={form.data.monthlyRevenue}
-          error={form.errors.monthlyRevenue}
-          onValueChange={(value) => form.update('monthlyRevenue', value)}
-        />
-      )}
       <SubCard>
         <h2>Como o negócio tem evoluído?</h2>
         <Fields>
@@ -121,58 +96,28 @@ export function InvestmentStep({ form }: { form: OnboardingController }) {
   const fields = bindFields(form);
   return (
     <Fields>
-      {fields.radio(
-        'seekingInvestment',
-        'Sua startup está buscando investimento?',
-        catalogs.seekingInvestment,
-      )}
-      {form.data.seekingInvestment === 'yes' && (
-        <SubCard>
-          <Fields>
-            <MoneyInput
-              id="capital"
-              label="Quanto pretendem captar?"
-              required
-              value={form.data.capital}
-              error={form.errors.capital}
-              onValueChange={(value) => form.update('capital', value)}
-            />
-            {fields.multi(
-              'investmentPurposes',
-              'Finalidade do investimento',
-              catalogs.investmentPurposes,
-            )}
-          </Fields>
-        </SubCard>
-      )}
+      <SubCard>
+        <Fields>
+          <MoneyInput
+            id="capital"
+            label="Quanto pretendem captar?"
+            required
+            value={form.data.capital}
+            error={form.errors.capital}
+            onValueChange={(value) => form.update('capital', value)}
+          />
+          {fields.multi(
+            'investmentPurposes',
+            'Finalidade do investimento',
+            catalogs.investmentPurposes,
+          )}
+        </Fields>
+      </SubCard>
       {fields.multi(
         'needs',
         'Além de capital, o que sua startup precisa neste momento?',
         catalogs.needs,
       )}
-      <MatchingStep form={form} />
-    </Fields>
-  );
-}
-
-export function MatchingStep({ form }: { form: OnboardingController }) {
-  const fields = bindFields(form);
-  return (
-    <Fields>
-      {fields.radio(
-        'partnerType',
-        'Tipo de parceiro desejado',
-        catalogs.partnerTypes,
-      )}
-      {fields.multi(
-        'expertise',
-        'Que tipo de experiência seria mais valiosa para sua startup?',
-        catalogs.expertise,
-      )}
-      {fields.textarea('preferences', 'Preferências adicionais', {
-        maxLength: 1500,
-        placeholder: 'Algo mais que ajudaria a encontrar o parceiro certo?',
-      })}
     </Fields>
   );
 }

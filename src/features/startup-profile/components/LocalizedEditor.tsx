@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
 import {
-  RadioGroup,
   MultiSelect,
   Textarea,
   NumberInput,
@@ -45,10 +44,6 @@ export function LocalizedEditor({
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
-    if (target === 'partnerType' && !data.partnerType) {
-      setError('Escolha um tipo de parceiro.');
-      return;
-    }
     if (
       target === 'exactTeamSize' &&
       (data.exactTeamSize === null ||
@@ -91,8 +86,7 @@ export function LocalizedEditor({
         savedAt: new Date().toISOString(),
         previewCompletedAt: null,
       };
-      await saveProfile(next);
-      onSaved(next);
+      onSaved(await saveProfile(next));
       onClose();
     } catch {
       setError(
@@ -103,17 +97,11 @@ export function LocalizedEditor({
     }
   }
   const options =
-    target === 'expertise'
-      ? catalogs.expertise
-      : target === 'partnerRegions'
-        ? catalogs.regions
-        : target === 'partnerStages'
-          ? catalogs.stages
-          : target === 'investmentPurposes'
-            ? catalogs.investmentPurposes
-            : target === 'needs'
-              ? catalogs.needs
-              : null;
+    target === 'investmentPurposes'
+      ? catalogs.investmentPurposes
+      : target === 'needs'
+        ? catalogs.needs
+        : null;
   return (
     <ContentDialog
       open
@@ -142,40 +130,14 @@ export function LocalizedEditor({
                 })
               }
             />
-          ) : target === 'partnerType' ? (
-            <RadioGroup
-              id="localized-partner"
-              label={title}
-              required
-              options={catalogs.partnerTypes}
-              value={data.partnerType}
-              onChange={(value) => update('partnerType', value)}
-            />
           ) : options ? (
             <MultiSelect
               id="localized-options"
               label={title}
               options={options}
-              value={
-                data[
-                  target as
-                    | 'expertise'
-                    | 'partnerRegions'
-                    | 'partnerStages'
-                    | 'investmentPurposes'
-                    | 'needs'
-                ]
-              }
+              value={data[target as 'investmentPurposes' | 'needs']}
               onChange={(value) =>
-                update(
-                  target as
-                    | 'expertise'
-                    | 'partnerRegions'
-                    | 'partnerStages'
-                    | 'investmentPurposes'
-                    | 'needs',
-                  value,
-                )
+                update(target as 'investmentPurposes' | 'needs', value)
               }
             />
           ) : target === 'exactTeamSize' ? (
@@ -212,21 +174,13 @@ export function LocalizedEditor({
               value={
                 data[
                   target as
-                    | 'pitchText'
-                    | 'problem'
-                    | 'solution'
-                    | 'targetMarket'
-                    | 'preferences'
+                    'pitchText' | 'problem' | 'solution' | 'targetMarket'
                 ]
               }
               onChange={(event) =>
                 update(
                   target as
-                    | 'pitchText'
-                    | 'problem'
-                    | 'solution'
-                    | 'targetMarket'
-                    | 'preferences',
+                    'pitchText' | 'problem' | 'solution' | 'targetMarket',
                   event.target.value,
                 )
               }

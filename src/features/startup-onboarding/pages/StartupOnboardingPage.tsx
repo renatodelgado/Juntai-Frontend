@@ -1,7 +1,4 @@
-import {
-  RegistrationSyncScope,
-  SyncLegend,
-} from '@/shared/components/forms/RegistrationSync';
+import { RegistrationSyncScope } from '@/shared/components/forms/RegistrationSync';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useBlocker, useSearchParams } from 'react-router-dom';
 import {
@@ -12,6 +9,11 @@ import {
   TrashIcon,
 } from '@phosphor-icons/react';
 import logo from '@/shared/assets/images/logo-txt.svg';
+import {
+  authenticateUploads,
+  logoFile,
+  uploadStartupFile,
+} from '@/features/auth/services/startupUploads';
 import { Button } from '@/shared/components/ui/Button';
 import { Modal } from '@/shared/components/ui/Modal';
 import { Input } from '@/shared/components/forms/Fields';
@@ -50,6 +52,11 @@ import {
 
 export function StartupOnboardingPage() {
   const form = useOnboarding();
+  const createdAccount = useRef('');
+  const uploadedLogo = useRef<{ source: string; url: string } | null>(null);
+  const uploadedPresentation = useRef<{ source: File; url: string } | null>(
+    null,
+  );
   const [params] = useSearchParams();
   const initialStep = useRef(false);
   const [modal, setModal] = useState<'reset' | null>(null);
@@ -121,7 +128,12 @@ export function StartupOnboardingPage() {
     setAccountBusy(true);
     try {
       const payload = startupPayload(
-        { ...form.data, seekingInvestment: 'yes' },
+        {
+          ...form.data,
+          seekingInvestment: 'yes',
+          publicName: '',
+          businessModels: [form.data.primaryModel],
+        },
         email,
         password,
         {
@@ -131,12 +143,48 @@ export function StartupOnboardingPage() {
           teamSize: form.data.exactTeamSize,
         },
       );
-      await registerRemote('startups', payload);
+      if (createdAccount.current !== payload.email) {
+        await registerRemote('startups', payload);
+        createdAccount.current = payload.email;
+        uploadedLogo.current = null;
+        uploadedPresentation.current = null;
+      }
+      if (form.data.logo || form.attachment) {
+        const token = await authenticateUploads(email, password);
+        if (form.data.logo) {
+          if (uploadedLogo.current?.source !== form.data.logo) {
+            const url = await uploadStartupFile(
+              'logo',
+              logoFile(form.data.logo),
+              token,
+              'logo',
+            );
+            uploadedLogo.current = { source: form.data.logo, url };
+          }
+          form.update('logoUrl', uploadedLogo.current.url);
+        }
+        if (form.attachment) {
+          if (uploadedPresentation.current?.source !== form.attachment) {
+            const url = await uploadStartupFile(
+              'apresentacao',
+              form.attachment,
+              token,
+              form.attachment.name,
+            );
+            uploadedPresentation.current = { source: form.attachment, url };
+          }
+          form.update('apresentacaoUrl', uploadedPresentation.current.url);
+        }
+      }
       setPassword('');
       setConfirmPassword('');
       setFinished(true);
     } catch (cause) {
-      setAccountError(registrationError(cause));
+      setAccountError(
+        createdAccount.current === email.trim().toLowerCase()
+          ? `Sua conta foi criada, mas o envio dos arquivos não terminou. Tente novamente nesta tela. ${registrationError(cause)}`
+          : registrationError(cause),
+      );
     } finally {
       setAccountBusy(false);
     }
@@ -243,7 +291,6 @@ export function StartupOnboardingPage() {
                   </h1>
                   <p>{current.description}</p>
                 </Intro>
-                <SyncLegend />
                 {form.storageError && (
                   <Notice role="alert">
                     {form.storageError}

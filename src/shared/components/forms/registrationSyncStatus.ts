@@ -22,44 +22,16 @@ export function registrationSyncNote(
   field: string,
 ): SyncNote | undefined {
   if (!scope) return;
-  const pendingFields =
-    scope.role === 'startup'
-      ? [
-          'description',
-          'website',
-          'linkedin',
-          'instagram',
-          'otherLinks',
-          'secondarySegments',
-          'state',
-          'cityId',
-          'operatingRegions',
-          'targetRegions',
-          'growthPeriod',
-          'growthMetric',
-          'growthPercent',
-          'growthNotes',
-          'needs',
-          'videoUrl',
-        ]
-      : [
-          'title',
-          'state',
-          'cityId',
-          'linkedin',
-          'expertise',
-          'history',
-          'experience',
-          'previousSectors',
-          'availability',
-          'exactInvestmentCount',
-        ];
-  if (
-    pendingFields.includes(field) ||
-    (scope.role === 'startup' && field.startsWith('link-'))
-  )
+  // Confirmações da interface não são campos do perfil no banco.
+  // O cadastro de startup informa a ausência de persistência no texto dos termos.
+  if (scope.role === 'startup') return;
+  if (scope.role === 'investor' && field === 'expertise')
     return partial(
-      'As opções compatíveis são enviadas à API, mas o serviço atual de cadastro ainda não grava estes novos campos. Opções sem equivalente permanecem no rascunho.',
+      'Somente opções com equivalente no servidor são enviadas; as demais permanecem no rascunho.',
+    );
+  if (scope.role === 'investor' && field === 'history')
+    return partial(
+      'Sim ou não é registrado. “Prefiro não informar” é omitido, mas o servidor usa não como padrão.',
     );
   if (field === 'account-confirm')
     return local(
@@ -71,90 +43,17 @@ export function registrationSyncNote(
     return local(
       'O aceite fica neste navegador; o backend ainda não registra esta escolha.',
     );
-  if (scope.role === 'startup') {
-    if (field === 'hideCustomers')
-      return partial(
-        'Esta escolha controla o envio do número de clientes; não é registrada como campo separado.',
-      );
-    if (/^(member-|role-|bio-|linkedin-|link-)/.test(field)) return local();
-    if (
-      [
-        'startup-logo',
-        'description',
-        'website',
-        'linkedin',
-        'instagram',
-        'otherLinks',
-        'secondarySegments',
-        'state',
-        'cityId',
-        'operatingRegions',
-        'targetRegions',
-        'growthPeriod',
-        'growthMetric',
-        'growthPercent',
-        'growthNotes',
-        'needs',
-        'partnerType',
-        'expertise',
-        'partnerRegions',
-        'partnerStages',
-        'preferences',
-        'attachment',
-        'videoUrl',
-        'members',
-      ].includes(field)
-    )
-      return local();
-    if (field === 'name' && scope.data.publicName?.trim())
-      return local(
-        'O cadastro envia o nome público como nome fantasia. Este nome fica apenas no rascunho.',
-      );
-    if (
-      field === 'businessModels' &&
-      (scope.data.businessModels?.length ?? 0) > 1
-    )
-      return partial(
-        'Somente o modelo principal escolhido em Mercado será enviado.',
-      );
-    if (field === 'revenue' && scope.data.revenue !== 'none')
-      return local(
-        scope.data.revenue === 'undisclosed'
-          ? 'Nenhum faturamento será enviado, conforme sua escolha.'
-          : 'Esta faixa não é enviada. Você pode informar o valor exato em Tração.',
-      );
-    if (field === 'teamSize' && scope.data.teamSize !== '1')
-      return local(
-        'Esta faixa não é enviada. Você pode informar a quantidade exata na conclusão.',
-      );
-    if (field === 'customers' && scope.data.hideCustomers)
-      return local(
-        'O número de clientes não será enviado, conforme sua escolha.',
-      );
-    if (field === 'seekingInvestment')
-      return partial(
-        'Sim ou não é enviado como buscaInvestimento, ainda ignorado pelo serviço atual. “Em avaliação” não tem equivalente no banco.',
-      );
-  } else if (
+  if (
     [
       'investor-photo',
       'photo',
-      'title',
-      'state',
-      'cityId',
-      'linkedin',
-      'expertise',
-      'history',
       'investmentCount',
-      'experience',
-      'previousSectors',
       'frequency',
       'interactions',
       'acceptsMentoring',
       'openInvestment',
       'offers',
       'preferences',
-      'availability',
     ].includes(field)
   )
     return local();

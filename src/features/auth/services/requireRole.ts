@@ -1,9 +1,12 @@
 import { redirect } from 'react-router-dom';
-import { ApiError } from '@/shared/services/api';
+import { ApiError, apiRequest } from '@/shared/services/api';
 import { validateSession } from './auth';
 import { getSession, logout, homePath, type AuthUser } from './session';
 
-export function requireRole(role: AuthUser['tipoPerfil']) {
+export function requireRole(
+  role: AuthUser['tipoPerfil'],
+  { approvedOnly = false } = {},
+) {
   return async () => {
     try {
       const user = await validateSession();
@@ -13,6 +16,20 @@ export function requireRole(role: AuthUser['tipoPerfil']) {
         return redirect('/login');
       }
       if (user.tipoPerfil !== role) return redirect(homePath(user.tipoPerfil));
+      if (approvedOnly) {
+        const token = getSession()?.token;
+        const profile: unknown = await (
+          await apiRequest('auth/profile', { authenticated: true })
+        ).json();
+        if (!token || getSession()?.token !== token) return redirect('/login');
+        if (
+          !profile ||
+          typeof profile !== 'object' ||
+          !('statusModeracao' in profile) ||
+          profile.statusModeracao !== 'aprovado'
+        )
+          return redirect(homePath(user.tipoPerfil));
+      }
       return user;
     } catch (error) {
       if (error instanceof ApiError && error.status === 401)
