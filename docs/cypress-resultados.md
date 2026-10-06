@@ -1,3 +1,5 @@
+> Histórico de 03/10/2026: este material descreve a demonstração anterior com sessão simulada. Para o cenário atual com API real, consulte [cypress-plataforma-real.md](cypress-plataforma-real.md). Os resultados abaixo não aprovam o novo teste.
+
 # Resultados reais — Cypress no Juntaí!
 
 Executado em 03/10/2026, Windows, Node 22.14.0, Cypress 16.1.1 e Electron 146

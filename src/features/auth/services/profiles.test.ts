@@ -133,6 +133,50 @@ const base = {
   statusModeracao: 'pendente',
 };
 describe('perfil com as novas colunas', () => {
+  it('envia foto, recarrega a URL remota e remove a foto sem reenviar base64 no PATCH', async () => {
+    mocks.session.mockReturnValue({
+      token: 'teste',
+      usuario: { id: 'investor-user', tipoPerfil: 'investidor' },
+    });
+    const remote: Record<string, unknown> = {
+      ...base,
+      nome: 'Investidor Teste',
+      tipoInvestidor: 'mentor',
+      segmentosInteresse: [],
+      estagiosInteresse: [],
+      modelosInteresse: [],
+      regioesInteresse: [],
+      avatarUrl: null,
+    };
+    mocks.request.mockImplementation(async (path, opts) => {
+      if (path === 'uploads/investidor/avatar') {
+        if (opts.method === 'DELETE') {
+          remote.avatarUrl = null;
+          return new Response(null, { status: 204 });
+        }
+        remote.avatarUrl =
+          'https://res.cloudinary.com/demo/image/upload/avatar.png';
+        return new Response(JSON.stringify({ url: remote.avatarUrl }));
+      }
+      return new Response(JSON.stringify(remote));
+    });
+    const draft = (await loadInvestorProfile())!;
+    draft.data.photo = 'data:image/png;base64,dGVzdGU=';
+    await saveInvestorProfile(draft);
+    expect((await loadInvestorProfile())!.data.photo).toBe(remote.avatarUrl);
+    expect(
+      mocks.request.mock.calls.find(
+        (c) => c[0] === 'uploads/investidor/avatar',
+      )?.[1].body,
+    ).toBeInstanceOf(Blob);
+    expect(mocks.request.mock.calls.some((c) => c[1]?.method === 'PATCH')).toBe(
+      false,
+    );
+    const saved = (await loadInvestorProfile())!;
+    saved.data.photo = '';
+    await saveInvestorProfile(saved);
+    expect((await loadInvestorProfile())!.data.photo).toBe('');
+  });
   it('persiste edição de investidor via PATCH e lê o resultado remoto', async () => {
     mocks.session.mockReturnValue({
       token: 'teste',

@@ -1,3 +1,5 @@
+> Histórico de 03/10/2026: este material descreve a demonstração anterior com sessão simulada. Para o cenário atual com API real, consulte [cypress-plataforma-real.md](cypress-plataforma-real.md). Os resultados abaixo não aprovam o novo teste.
+
 # Demonstração E2E do Juntaí! com Cypress
 
 ## O que foi encontrado no projeto

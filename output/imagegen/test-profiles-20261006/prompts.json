@@ -1,0 +1,36 @@
+{
+  "generator": "image_gen built-in",
+  "portraits": "Retratos inteiramente fictícios para perfis locais de teste, sem inferência da aparência de pessoas reais.",
+  "assets": [
+    {
+      "key": "solnexo",
+      "prompt": "Use case: logo-brand. Create a polished, credible startup logo for 'SolNexo Energia', a fictional solar energy technology business. Modern distinctive sun interconnected with solar-panel geometry, warm solar yellow and deep navy, restrained crisp flat mark and excellent readable wordmark exact text 'SolNexo Energia'. Square centered lockup with generous margins, suitable for website cards. No mockup, no gradients, no shadows, no extra text. Transparent background.",
+      "file": "solnexo.png"
+    },
+    {
+      "key": "agroponte",
+      "prompt": "Use case: logo-brand. Create a polished, credible startup logo for 'AgroPonte Digital', a fictional agricultural marketplace connecting farmers with buyers. Distinctive bridge and sprout integrated in a simple memorable symbol, forest green and earthy gold, refined readable typography exact text 'AgroPonte Digital'. Square centered lockup with generous margins, suitable for website cards. Professional real brand identity, no mockup, no shadows, no extra text. Transparent background.",
+      "file": "agroponte.png"
+    },
+    {
+      "key": "rotaclara",
+      "prompt": "Use case: logo-brand. Create a polished, credible startup logo for 'RotaClara Logística', a fictional urban fleet routing software business. Distinctive route connecting points forming a clean forward arrow, deep teal and orange accents, elegant modern readable wordmark exact text 'RotaClara Logística'. Square centered lockup with generous margins. Professional real brand identity, flat colors, no mockup, no shadows, no extra text. Transparent background.",
+      "file": "rotaclara.png"
+    },
+    {
+      "key": "aprendemar",
+      "prompt": "Use case: logo-brand. Create a polished, credible startup logo for 'AprendeMar Educação', a fictional learning platform for schools. Distinctive open book integrating a soft ocean wave, deep ocean blue and turquoise accents, approachable refined readable wordmark exact text 'AprendeMar Educação'. Square centered lockup with generous margins. Professional real brand identity, flat colors, no mockup, no shadows, no extra text. Transparent background.",
+      "file": "aprendemar.png"
+    },
+    {
+      "key": "investidor-avatar-01",
+      "prompt": "Use case: photorealistic-natural. Asset type: fictional investor test-account avatar. Generate an entirely invented adult professional, not a likeness of any actual account holder and not based on personal data. Woman around 40, medium brown skin, shoulder-length curly dark hair, brown eyes, relaxed friendly expression, navy blazer over cream blouse. Head and shoulders centered square crop with generous top margin, subtle neutral studio background, soft natural lighting, believable skin texture, professional approachable portrait, no text, no watermark.",
+      "file": "investidor-avatar-01.png"
+    },
+    {
+      "key": "investidor-avatar-02",
+      "prompt": "Use case: photorealistic-natural. Asset type: fictional investor test-account avatar. Generate an entirely invented adult professional, not a likeness of any actual account holder and not based on personal data. Man around 45, light tan skin, short dark hair with a few gray strands, neat short beard, brown eyes, relaxed friendly expression, charcoal jacket over light blue open-collar shirt. Head and shoulders centered square crop with generous top margin, subtle neutral studio background, soft natural lighting, believable skin texture, professional approachable portrait, no text, no watermark.",
+      "file": "investidor-avatar-02.png"
+    }
+  ]
+}

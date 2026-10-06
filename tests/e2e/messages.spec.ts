@@ -12,6 +12,18 @@ for (const role of ['startup', 'investidor'] as const) {
     };
     const other = '22222222-2222-4222-8222-222222222222';
     const name = role === 'startup' ? 'Investidora Teste' : 'Startup Teste';
+    const imageUrl = 'https://example.com/participant.png';
+    let brokenImage = false;
+    await page.route(imageUrl, (r) =>
+      brokenImage
+        ? r.abort()
+        : r.fulfill({
+            path:
+              role === 'startup'
+                ? 'output/imagegen/test-profiles-20261006/investidor-avatar-01.png'
+                : 'output/imagegen/test-profiles-20261006/rotaclara.png',
+          }),
+    );
     await page.addInitScript(
       (usuario) =>
         localStorage.setItem(
@@ -42,6 +54,14 @@ for (const role of ['startup', 'investidor'] as const) {
             usuarioId: other,
             nome: name,
             tipoPerfil: role === 'startup' ? 'investidor' : 'startup',
+            avatarUrl:
+              role === 'startup'
+                ? imageUrl
+                : 'https://example.com/wrong-avatar.png',
+            logoUrl:
+              role === 'investidor'
+                ? imageUrl
+                : 'https://example.com/wrong-logo.png',
             ultimaMensagem: history.at(-1)?.conteudo,
             ultimaMensagemEm: history.at(-1)?.enviadoEm,
             enviadaPorMim: history.at(-1)?.remetenteId === user.id,
@@ -89,6 +109,12 @@ for (const role of ['startup', 'investidor'] as const) {
     await page
       .getByRole('button', { name: `Conversa com ${name}`, exact: true })
       .click();
+    const participantImage = page.getByRole('img', {
+      name: `${role === 'startup' ? 'Foto' : 'Logo'} de ${name}`,
+      exact: true,
+    });
+    await expect(participantImage).toHaveCount(2);
+    await expect(participantImage.first()).toHaveAttribute('src', imageUrl);
     await expect(
       page.getByText('Olá, vamos conversar?', { exact: true }),
     ).toHaveCount(2);
@@ -134,6 +160,16 @@ for (const role of ['startup', 'investidor'] as const) {
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    brokenImage = true;
+    await page.reload();
+    await page
+      .getByRole('button', { name: `Conversa com ${name}`, exact: true })
+      .click();
+    await expect(participantImage).toHaveCount(0);
+    await page.getByRole('button', { name: 'Voltar às conversas' }).click();
+    await expect(
+      page.getByRole('button', { name: `Conversa com ${name}`, exact: true }),
+    ).toContainText(role === 'startup' ? 'IT' : 'ST');
   });
 }
 

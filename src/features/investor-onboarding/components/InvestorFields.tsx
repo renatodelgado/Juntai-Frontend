@@ -116,14 +116,12 @@ export function InvestorFields({
   const sections = {
     about: (
       <>
-        {!accountEdit && (
-          <ImageUpload
-            id="investor-photo"
-            label="Foto de perfil"
-            value={data.photo}
-            onChange={(value) => update('photo', value)}
-          />
-        )}
+        <ImageUpload
+          id="investor-photo"
+          label="Foto de perfil (opcional)"
+          value={data.photo}
+          onChange={(value) => update('photo', value)}
+        />
         <Input
           id="name"
           label="Nome completo"

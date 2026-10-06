@@ -33,14 +33,34 @@ const dateTime = (date: string) =>
     dateStyle: 'short',
     timeStyle: 'short',
   });
-function Avatar({ name }: { name: string }) {
+function Avatar({ person }: { person: ConversationSummary }) {
+  const url =
+    person.tipoPerfil === 'investidor' ? person.avatarUrl : person.logoUrl;
+  const [failed, setFailed] = useState<string | null>(null);
+  const name = person.nome;
   return (
-    <S.Avatar aria-hidden="true">
-      {name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join('')}
+    <S.Avatar>
+      {url && /^https?:\/\//i.test(url) && failed !== url ? (
+        <img
+          src={url}
+          alt={`${person.tipoPerfil === 'investidor' ? 'Foto' : 'Logo'} de ${name}`}
+          onError={() => setFailed(url)}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 'inherit',
+            objectFit: person.tipoPerfil === 'startup' ? 'contain' : 'cover',
+          }}
+        />
+      ) : (
+        <span aria-hidden="true">
+          {name
+            .split(' ')
+            .slice(0, 2)
+            .map((w) => w[0])
+            .join('')}
+        </span>
+      )}
     </S.Avatar>
   );
 }
@@ -116,6 +136,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
             usuarioId: recipient.usuarioId,
             nome: recipient.startupName,
             tipoPerfil: 'startup',
+            logoUrl: recipient.logoUrl,
             ultimaMensagem: null,
             ultimaMensagemEm: null,
             enviadaPorMim: null,
@@ -350,7 +371,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                       aria-label={`Conversa com ${c.nome}`}
                       onClick={() => choose(c.usuarioId)}
                     >
-                      <Avatar name={c.nome} />
+                      <Avatar person={c} />
                       <div>
                         <header>
                           <strong>{c.nome}</strong>
@@ -397,7 +418,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                     >
                       <ArrowLeftIcon size={20} />
                     </button>
-                    <Avatar name={conversation.nome} />
+                    <Avatar person={conversation} />
                     <div>
                       <h2>{conversation.nome}</h2>
                       <small>

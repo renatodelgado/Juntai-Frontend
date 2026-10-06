@@ -1,3 +1,5 @@
+> Histórico de 03/10/2026: este material descreve a demonstração anterior com sessão simulada. Para o cenário atual com API real, consulte [cypress-plataforma-real.md](cypress-plataforma-real.md). Os resultados abaixo não aprovam o novo teste.
+
 # Roteiro de apresentação — E2E com Cypress no Juntaí!
 
 Material para sete slides. Na tela, use apenas os tópicos curtos; as notas abaixo

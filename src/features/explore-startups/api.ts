@@ -137,6 +137,7 @@ export const startupRepository = {
 };
 
 export const interestSchema = z.object({
+  logoUrl: z.string().nullish(),
   startupId: z.string(),
   startupName: z.string(),
   usuarioId: z.string(),

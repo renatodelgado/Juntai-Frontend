@@ -126,6 +126,8 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
         <Avatar>
           {data.role === 'startup' && data.profile.logoUrl ? (
             <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
+          ) : data.role === 'investidor' && data.profile.avatarUrl ? (
+            <img src={data.profile.avatarUrl} alt={`Foto de ${name}`} />
           ) : (
             <span aria-hidden="true">{initials(name)}</span>
           )}

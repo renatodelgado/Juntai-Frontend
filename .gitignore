@@ -27,3 +27,4 @@ Thumbs.db
 # Cypress: evidence generated locally
 cypress/artifacts/
 cypress/e2e/falha-controlada.cy.ts
+cypress.env.json

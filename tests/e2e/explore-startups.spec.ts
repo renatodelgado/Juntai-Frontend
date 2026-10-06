@@ -167,6 +167,7 @@ test('interesse persistido abre primeira conversa e mantém o match após recarr
   await account(page);
   const recipient = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
   const interest = {
+    logoUrl: approved.logoUrl,
     startupId: approved.id,
     startupName: approved.nomeFantasia,
     usuarioId: recipient,
@@ -256,6 +257,12 @@ test('interesse persistido abre primeira conversa e mantém o match após recarr
   await expect(
     page.getByText('Envie a primeira mensagem para iniciar a conversa.'),
   ).toBeVisible();
+  await expect(
+    page.getByRole('img', {
+      name: 'Logo de ' + approved.nomeFantasia,
+      exact: true,
+    }),
+  ).toHaveCount(2);
   await page
     .getByRole('textbox', { name: 'Mensagem', exact: true })
     .fill('Quero conhecer sua startup');

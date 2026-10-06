@@ -2,6 +2,96 @@ import { test, expect, type Page } from '@playwright/test';
 
 const next = async (page: Page) =>
   page.getByRole('button', { name: 'Continuar', exact: true }).click();
+
+test('foto do investidor pode ser enviada, recarregada e removida na edição', async ({
+  page,
+}) => {
+  const user = {
+    id: 'avatar-user',
+    nome: 'Ana Teste',
+    email: 'avatar@example.com',
+    tipoPerfil: 'investidor',
+  };
+  const remote = {
+    id: 'avatar-profile',
+    nome: user.nome,
+    tipoInvestidor: 'mentor',
+    statusModeracao: 'pendente',
+    atualizadoEm: '2026-10-06T12:00:00Z',
+    estado: 'PE',
+    cidade: 'Recife',
+    segmentosInteresse: [],
+    estagiosInteresse: [],
+    regioesInteresse: [],
+    modelosInteresse: [],
+    avatarUrl: null as string | null,
+  };
+  const url = 'https://example.com/avatar.png';
+  await page.addInitScript(
+    (usuario) =>
+      localStorage.setItem(
+        'juntai:auth-session',
+        JSON.stringify({ token: 'test-token', usuario }),
+      ),
+    user,
+  );
+  await page.route('**/auth/me', (r) => r.fulfill({ json: user }));
+  await page.route('**/auth/profile', (r) => r.fulfill({ json: remote }));
+  await page.route(url, (r) =>
+    r.fulfill({
+      path: 'output/imagegen/test-profiles-20261006/investidor-avatar-01.png',
+    }),
+  );
+  await page.route('**/uploads/investidor/avatar', (r) => {
+    expect(r.request().headers().authorization).toBe('Bearer test-token');
+    if (r.request().method() === 'DELETE') {
+      remote.avatarUrl = null;
+      return r.fulfill({ status: 204 });
+    }
+    remote.avatarUrl = url;
+    return r.fulfill({ status: 201, json: { url } });
+  });
+  await page.goto('/investidor/perfil');
+  await page
+    .getByRole('button', { name: 'Editar Sobre você', exact: true })
+    .click();
+  await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
+  await page
+    .locator('#investor-photo')
+    .setInputFiles(
+      'output/imagegen/test-profiles-20261006/investidor-avatar-01.png',
+    );
+  await expect(
+    page
+      .getByRole('dialog')
+      .getByRole('img', { name: 'Foto de perfil (opcional)', exact: true }),
+  ).toHaveAttribute('src', /^data:image\/png/);
+  await page
+    .getByRole('button', { name: 'Salvar alterações', exact: true })
+    .click();
+  await expect(
+    page.getByRole('img', { name: 'Foto de Ana Teste', exact: true }),
+  ).toHaveAttribute('src', url);
+  await page.reload();
+  await expect(
+    page.getByRole('img', { name: 'Foto de Ana Teste', exact: true }),
+  ).toHaveAttribute('src', url);
+  await page
+    .getByRole('button', { name: 'Editar Sobre você', exact: true })
+    .click();
+  await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
+  await page
+    .getByRole('button', { name: 'Remover imagem', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Salvar alterações', exact: true })
+    .click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.getByRole('img', { name: 'Foto de Ana Teste', exact: true }),
+  ).toHaveCount(0);
+});
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/v1/localidades/estados/PE/municipios?*', (route) =>
     route.fulfill({ json: [{ id: 2611606, nome: 'Recife' }] }),
@@ -12,6 +102,26 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
   test(`cadastro na API de ${role}`, async ({ page }) => {
     const mentor = role === 'Mentor';
     let requests = 0;
+    let uploads = 0;
+    await page.route('**/auth/login', (r) =>
+      r.fulfill({ json: { token: 'upload-token' } }),
+    );
+    await page.route('**/uploads/investidor/avatar', async (r) => {
+      uploads++;
+      expect(r.request().headers().authorization).toBe('Bearer upload-token');
+      expect(r.request().headers()['content-type']).toBe('image/png');
+      if (uploads === 1)
+        return r.fulfill({
+          status: 502,
+          json: { message: 'Falha de upload de teste' },
+        });
+      return r.fulfill({
+        status: 201,
+        json: {
+          url: 'https://res.cloudinary.com/demo/image/upload/avatar.png',
+        },
+      });
+    });
     await page.route('**/investidores', async (route) => {
       requests++;
       expect(route.request().method()).toBe('POST');
@@ -42,6 +152,12 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
     await page
       .getByLabel('Nome completo', { exact: true })
       .fill('Ana do Recife');
+    if (mentor)
+      await page
+        .locator('#investor-photo')
+        .setInputFiles(
+          'output/imagegen/test-profiles-20261006/investidor-avatar-01.png',
+        );
     await page.getByLabel('Estado', { exact: true }).selectOption('PE');
     await page.getByLabel('Cidade', { exact: true }).selectOption('2611606');
     await page
@@ -149,9 +265,19 @@ for (const role of ['Mentor', 'Investidor + mentor']) {
     await page
       .getByRole('button', { name: 'Finalizar cadastro', exact: true })
       .click();
+    if (mentor) {
+      await expect(page.getByRole('alert')).toContainText(
+        'Sua conta foi criada, mas a foto',
+      );
+      expect(requests).toBe(2);
+      await page
+        .getByRole('button', { name: 'Finalizar cadastro', exact: true })
+        .click();
+    }
     await expect(
       page.getByRole('heading', { name: 'Perfil enviado!' }),
     ).toBeVisible();
+    if (mentor) expect(uploads).toBe(2);
     expect(requests).toBe(2);
     await page.getByRole('link', { name: 'Entrar na minha conta' }).click();
     await expect(page).toHaveURL('/login');

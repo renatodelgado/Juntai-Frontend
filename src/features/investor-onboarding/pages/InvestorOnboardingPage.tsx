@@ -34,6 +34,11 @@ import {
 } from '../model/investor';
 import { InvestorFields } from '../components/InvestorFields';
 import { InvestorBackground, investorTheme } from './Investor.styles';
+import {
+  authenticateUploads,
+  logoFile,
+} from '@/features/auth/services/startupUploads';
+import { uploadInvestorPhoto } from '@/features/auth/services/investorUploads';
 
 export function InvestorOnboardingPage() {
   const form = useInvestor();
@@ -45,6 +50,7 @@ export function InvestorOnboardingPage() {
   const [accountBusy, setAccountBusy] = useState(false);
   const [finished, setFinished] = useState(false);
   const title = useRef<HTMLHeadingElement>(null);
+  const createdAccount = useRef('');
   const ref = useRef<HTMLFormElement>(null);
   const blocker = useBlocker(
     form.dirty && !form.busy && !accountBusy && !finished,
@@ -98,12 +104,24 @@ export function InvestorOnboardingPage() {
         password,
         form.data.experienceYears,
       );
-      await registerRemote('investidores', payload);
+      if (createdAccount.current !== payload.email) {
+        await registerRemote('investidores', payload);
+        createdAccount.current = payload.email;
+      }
+      if (form.data.photo.startsWith('data:')) {
+        const token = await authenticateUploads(email, password);
+        const url = await uploadInvestorPhoto(logoFile(form.data.photo), token);
+        form.update('photo', url);
+      }
       setPassword('');
       setConfirmation('');
       setFinished(true);
     } catch (cause) {
-      setAccountError(registrationError(cause));
+      setAccountError(
+        (createdAccount.current === email.trim().toLowerCase()
+          ? 'Sua conta foi criada, mas a foto não foi enviada. Tente novamente ou entre e adicione a foto em Meu perfil. '
+          : '') + registrationError(cause),
+      );
     } finally {
       setAccountBusy(false);
     }
@@ -196,11 +214,8 @@ export function InvestorOnboardingPage() {
                         <Fields style={{ marginTop: '2rem' }}>
                           <h2>Crie sua conta</h2>
                           <p>
-                            Identificação, atuação, interesses e dados de
-                            investimento serão enviados. Foto, links,
-                            disponibilidade, contribuições e consentimentos só
-                            ficam neste navegador se você clicar em “Salvar e
-                            continuar depois”.
+                            Seu cadastro será enviado para análise. A foto é
+                            opcional e será salva no seu perfil.
                           </p>
                           <Input
                             id="account-email"

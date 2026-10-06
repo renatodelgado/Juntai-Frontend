@@ -45,8 +45,6 @@ export function registrationSyncNote(
     );
   if (
     [
-      'investor-photo',
-      'photo',
       'investmentCount',
       'frequency',
       'interactions',

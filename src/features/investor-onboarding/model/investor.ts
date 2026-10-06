@@ -145,6 +145,7 @@ export const investorSchema = z.object({
     .refine(
       (value) =>
         !value ||
+        /^https:\/\//.test(value) ||
         /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value),
     ),
   title: text,

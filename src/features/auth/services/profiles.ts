@@ -17,6 +17,7 @@ import {
 } from '@/shared/config/registrationCatalogs';
 import { getSession } from './session';
 import { logoFile, uploadStartupFile } from './startupUploads';
+import { uploadInvestorPhoto, removeInvestorPhoto } from './investorUploads';
 import { investmentPurposes } from '@/features/startup-onboarding/data/catalogs';
 import {
   changedFields,
@@ -86,6 +87,7 @@ export const startupSchema = z.object({
 });
 export const investorSchema = z.object({
   ...base,
+  avatarUrl: z.string().nullish(),
   nome: z.string(),
   tipoInvestidor: z.enum(['anjo', 'mentor', 'anjo_mentor']),
   ticketMinimo: numeric,
@@ -228,6 +230,7 @@ export async function loadInvestorProfile(
         ? 'rejected'
         : 'in_review';
   const data = createInvestorDraft();
+  data.photo = remote.avatarUrl ?? '';
   data.name = remote.nome;
   data.bio = remote.bio ?? '';
   data.title = remote.tituloProfissional ?? '';
@@ -362,6 +365,9 @@ export async function saveProfile(profile: SavedDraft) {
   return next;
 }
 export async function saveInvestorProfile(profile: SavedInvestor) {
+  const session = getSession();
+  if (!session || session.usuario.tipoPerfil !== 'investidor')
+    throw new Error('Entre novamente para salvar seu perfil.');
   const remote = investorSchema.parse(
     await (await apiRequest('auth/profile', { authenticated: true })).json(),
   );
@@ -382,6 +388,10 @@ export async function saveInvestorProfile(profile: SavedInvestor) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     });
+  if (profile.data.photo.startsWith('data:'))
+    await uploadInvestorPhoto(logoFile(profile.data.photo), session.token);
+  else if (!profile.data.photo && current.data.photo)
+    await removeInvestorPhoto(session.token);
   const latest = await loadInvestorProfile();
   if (!latest) throw new Error('Sua sessão mudou. Entre novamente.');
   await saveLocalProfile('investidor', {

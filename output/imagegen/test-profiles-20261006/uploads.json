@@ -1,0 +1,62 @@
+[
+  {
+    "asset": "solnexo",
+    "role": "startup",
+    "email": "solnexo.teste.2109@example.com",
+    "profileId": "96548495-01ea-4708-b47e-de655e4a9244",
+    "previousUrl": null,
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292510/juntai/startups/logo/418f4473-93af-40a0-8a95-753be673ceac.png",
+    "file": "solnexo.png",
+    "fictionalTestAsset": true
+  },
+  {
+    "asset": "agroponte",
+    "role": "startup",
+    "email": "agroponte.teste.2109@example.com",
+    "profileId": "1918001c-55f9-4544-81f6-101949147851",
+    "previousUrl": null,
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292512/juntai/startups/logo/b8a68dbc-0e0e-4430-b106-96c4b51e5641.png",
+    "file": "agroponte.png",
+    "fictionalTestAsset": true
+  },
+  {
+    "asset": "rotaclara",
+    "role": "startup",
+    "email": "rotaclara.teste.05102026@example.com",
+    "profileId": "cc52e08a-36f2-4440-8c62-9d159dc164a3",
+    "previousUrl": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791208223/juntai/startups/logo/279428c4-03dc-4d4d-9ee2-74b001672613.png",
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292513/juntai/startups/logo/11076532-2fab-4f6c-a4e2-0a8bd930b7a4.png",
+    "file": "rotaclara.png",
+    "fictionalTestAsset": true
+  },
+  {
+    "asset": "aprendemar",
+    "role": "startup",
+    "email": "aprendemar.teste.05102026@example.com",
+    "profileId": "411700e4-8e10-4ade-b9e9-abf5ad7963e8",
+    "previousUrl": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791208317/juntai/startups/logo/3f456e7f-11fb-47c5-8cb9-588c7ff57644.png",
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292514/juntai/startups/logo/d79a00d0-361e-4fe5-adc6-9c01900c130c.png",
+    "file": "aprendemar.png",
+    "fictionalTestAsset": true
+  },
+  {
+    "asset": "investidor-avatar-01",
+    "role": "investidor",
+    "email": "camila.investidora.2109@example.com",
+    "profileId": "e9338a20-c656-4dd8-abbe-8b33e80b0259",
+    "previousUrl": null,
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292516/juntai/investidores/avatar/b6362796-cc21-409a-8589-5a1d8f0dd22d.png",
+    "file": "investidor-avatar-01.png",
+    "fictionalTestAsset": true
+  },
+  {
+    "asset": "investidor-avatar-02",
+    "role": "investidor",
+    "email": "bruno.investidor.2109@example.com",
+    "profileId": "75954f2e-8fb3-4d76-b150-c930a3856739",
+    "previousUrl": null,
+    "url": "https://res.cloudinary.com/dq4ges0mc/image/upload/v1791292518/juntai/investidores/avatar/13f7090a-9d53-46cc-a3f7-5e2283bde5e8.png",
+    "file": "investidor-avatar-02.png",
+    "fictionalTestAsset": true
+  }
+]

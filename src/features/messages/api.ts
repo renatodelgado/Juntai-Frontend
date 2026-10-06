@@ -6,6 +6,8 @@ const summary = z.object({
   usuarioId: z.string(),
   nome: z.string(),
   tipoPerfil: z.enum(['startup', 'investidor']),
+  avatarUrl: z.string().nullish(),
+  logoUrl: z.string().nullish(),
   ultimaMensagem: z.string().nullable(),
   ultimaMensagemEm: z.string().nullable(),
   enviadaPorMim: z.boolean().nullable(),
@@ -23,28 +25,24 @@ export type ConversationSummary = z.infer<typeof summary>;
 export type ApiMessage = z.infer<typeof message>;
 export const messagesApi = {
   async list(signal?: AbortSignal) {
-    return z
-      .array(summary)
-      .parse(
-        await (
-          await apiRequest('mensagens/conversas', {
-            authenticated: true,
-            signal,
-          })
-        ).json(),
-      );
+    return z.array(summary).parse(
+      await (
+        await apiRequest('mensagens/conversas', {
+          authenticated: true,
+          signal,
+        })
+      ).json(),
+    );
   },
   async history(usuarioId: string, signal?: AbortSignal) {
-    return z
-      .array(message)
-      .parse(
-        await (
-          await apiRequest(`mensagens/${encodeURIComponent(usuarioId)}`, {
-            authenticated: true,
-            signal,
-          })
-        ).json(),
-      );
+    return z.array(message).parse(
+      await (
+        await apiRequest(`mensagens/${encodeURIComponent(usuarioId)}`, {
+          authenticated: true,
+          signal,
+        })
+      ).json(),
+    );
   },
   async send(destinatarioId: string, conteudo: string) {
     const text = conteudo.trim();
