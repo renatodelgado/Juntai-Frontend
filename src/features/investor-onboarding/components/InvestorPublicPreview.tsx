@@ -1,3 +1,4 @@
+import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import { MapPinIcon, LinkedinLogoIcon } from '@phosphor-icons/react';
 import * as S from '@/shared/components/profile/Profile.styles';
 import { safeLink } from '@/features/startup-profile/model/profile';
@@ -39,27 +40,7 @@ export function InvestorIdentity({
     <>
       <S.Row>
         <S.Avatar>
-          {data.photo ? (
-            <img
-              src={data.photo}
-              alt={`Foto de ${name}`}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: 'inherit',
-              }}
-            />
-          ) : (
-            <span aria-hidden="true">
-              {name
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((part) => part[0])
-                .join('')
-                .toUpperCase()}
-            </span>
-          )}
+          <ProfilePhoto src={data.photo} name={name} />
         </S.Avatar>
         <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
           {main ? <h1>{name}</h1> : <h2>{name}</h2>}

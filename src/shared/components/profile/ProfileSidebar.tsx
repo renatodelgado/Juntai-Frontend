@@ -1,3 +1,4 @@
+import { ProfilePhoto } from './ProfilePhoto';
 import { useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -153,6 +154,7 @@ export function ProfileSidebar({
   onSettings,
   onLogout,
   name,
+  avatarUrl,
   subtitle,
   unreadMessages = 0,
   onMatches,
@@ -163,6 +165,7 @@ export function ProfileSidebar({
   onSettings: () => void;
   onLogout: () => void;
   name?: string;
+  avatarUrl?: string | null;
   subtitle?: string;
   unreadMessages?: number;
   onMatches?: () => void;
@@ -339,13 +342,7 @@ export function ProfileSidebar({
           title={subtitle || status}
         >
           <span className="initials" aria-hidden="true">
-            {displayName
-              .trim()
-              .split(/\s+/)
-              .slice(0, 2)
-              .map((word) => word[0])
-              .join('')
-              .toUpperCase()}
+            <ProfilePhoto src={avatarUrl} name={displayName} />
           </span>
           <span>
             <strong>{displayName}</strong>

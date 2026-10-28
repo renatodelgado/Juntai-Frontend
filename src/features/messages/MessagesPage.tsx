@@ -1,3 +1,4 @@
+import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import { useEffect, useRef, useState } from 'react';
 import {
   useNavigate,
@@ -40,10 +41,12 @@ function Avatar({ person }: { person: ConversationSummary }) {
   const name = person.nome;
   return (
     <S.Avatar>
-      {url && /^https?:\/\//i.test(url) && failed !== url ? (
+      {person.tipoPerfil === 'investidor' ? (
+        <ProfilePhoto src={person.avatarUrl} name={name} />
+      ) : url && /^https?:\/\//i.test(url) && failed !== url ? (
         <img
           src={url}
-          alt={`${person.tipoPerfil === 'investidor' ? 'Foto' : 'Logo'} de ${name}`}
+          alt={`Logo de ${name}`}
           onError={() => setFailed(url)}
           style={{
             width: '100%',

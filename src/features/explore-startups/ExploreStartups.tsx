@@ -10,13 +10,9 @@ import {
 import { Button } from '@/shared/components/ui/Button';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import logoSymbol from '@/shared/assets/images/logo-symb.svg';
-import {
-  defaultFilters,
-  selectStartups,
-  type Filters,
-  type Startup,
-} from './model';
+import { defaultFilters, type Filters, type Startup } from './model';
 import { useDiscovery } from './useDiscovery';
+import { LoadMoreStartups } from './components/LoadMoreStartups';
 import { DiscoveryLayout } from './components/DiscoveryLayout';
 import { StartupCard } from './components/StartupCard';
 import { StartupMasonryGrid } from './components/StartupMasonryGrid';
@@ -25,12 +21,12 @@ import { InterestConfirmationModal } from './components/ConnectionModals';
 import * as S from './Explore.styles';
 
 export function ExploreStartups() {
-  const data = useDiscovery();
   const [params, setParams] = useSearchParams();
   const [interest, setInterest] = useState<Startup | null>(null);
   const filters = Object.fromEntries(
     Object.keys(defaultFilters).map((key) => [key, params.get(key) || '']),
   ) as Filters;
+  const data = useDiscovery(filters);
   function change(key: keyof Filters, value: string) {
     setParams(
       (previous) => {
@@ -39,7 +35,8 @@ export function ExploreStartups() {
         else next.delete(key);
         return next;
       },
-      { replace: true },
+      // Os filtros controlam os inputs; aplique o novo valor antes da próxima tecla.
+      { replace: true, flushSync: true },
     );
   }
   function clear() {
@@ -58,17 +55,8 @@ export function ExploreStartups() {
   const personalized = data.startups.some(
     (item) => item.compatibility !== undefined,
   );
-  const savedCount = data.startups.filter((startup) =>
-    data.state.saved.includes(startup.id),
-  ).length;
-  const visible = selectStartups(
-    data.startups,
-    {
-      ...filters,
-      sort: filters.sort || (personalized ? 'recommended' : 'recent'),
-    },
-    data.state.saved,
-  );
+  const savedCount = data.state.saved.length;
+  const visible = data.startups;
   return (
     <DiscoveryLayout data={data}>
       <PageHeader
@@ -103,17 +91,13 @@ export function ExploreStartups() {
           </p>
           <div className="stats">
             <span>
-              <strong>{visible.length}</strong> startups disponíveis
+              <strong>{data.total}</strong> startups disponíveis
             </span>
             <span>
-              <strong>{new Set(visible.map((s) => s.segment)).size}</strong>{' '}
-              segmentos
+              <strong>{data.facets.segments}</strong> segmentos
             </span>
             <span>
-              <strong>
-                {new Set(visible.map((s) => s.location.region)).size}
-              </strong>{' '}
-              regiões
+              <strong>{data.facets.regions}</strong> regiões
             </span>
           </div>
         </div>
@@ -128,7 +112,7 @@ export function ExploreStartups() {
         filters={filters}
         onChange={change}
         onClear={clear}
-        startups={data.startups}
+        locations={data.facets.locations}
       />
       <div className="results">
         <div>
@@ -136,7 +120,7 @@ export function ExploreStartups() {
           <small aria-live="polite">
             {data.loading
               ? 'Buscando oportunidades…'
-              : `${visible.length} oportunidades para explorar`}
+              : `${data.total} oportunidades para explorar · ${visible.length} carregadas`}
           </small>
         </div>
         <div className="actions">
@@ -219,6 +203,13 @@ export function ExploreStartups() {
               />
             );
           }}
+        />
+      )}
+      {!data.loading && !data.failed && data.hasMore && (
+        <LoadMoreStartups
+          loading={data.loadingMore}
+          failed={data.moreFailed}
+          onLoad={data.loadMore}
         />
       )}
       <InterestConfirmationModal

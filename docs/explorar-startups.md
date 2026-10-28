@@ -25,4 +25,3 @@ Substituir `demoStartupRepository` por um adaptador de API que retorne somente i
 - `npm run build`
 - `npm run lint`
 - `npm run test`
-- `npm run test:e2e -- tests/e2e/explore-startups.spec.ts tests/e2e/messages.spec.ts`

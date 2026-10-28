@@ -29,11 +29,11 @@ descrita acima está resolvida.
 Consulta atual do `information_schema` confirmou as seguintes colunas ausentes
 no banco apontado pelo `.env`, embora já existam nas entidades do backend:
 
-| Tabela | Colunas ausentes |
-| --- | --- |
-| `startups` | `descricao_curta`, `site_url`, `links_sociais`, `video_apresentacao_url`, `segmentos_secundarios`, `estado`, `cidade`, `regioes_atuacao`, `regioes_crescimento`, `metrica_crescimento`, `periodo_comparacao_crescimento`, `descricao_evolucao`, `busca_investimento`, `necessidades_adicionais` |
-| `investidores` | `titulo_profissional`, `linkedin_url`, `estado`, `cidade`, `areas_ajuda`, `disponibilidade`, `ja_atuou_com_startups`, `numero_aproximado_investimentos`, `descricao_experiencia`, `setores_atuacao` |
-| `usuarios` | `avatar_url` |
+| Tabela         | Colunas ausentes                                                                                                                                                                                                                                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `startups`     | `descricao_curta`, `site_url`, `links_sociais`, `video_apresentacao_url`, `segmentos_secundarios`, `estado`, `cidade`, `regioes_atuacao`, `regioes_crescimento`, `metrica_crescimento`, `periodo_comparacao_crescimento`, `descricao_evolucao`, `busca_investimento`, `necessidades_adicionais` |
+| `investidores` | `titulo_profissional`, `linkedin_url`, `estado`, `cidade`, `areas_ajuda`, `disponibilidade`, `ja_atuou_com_startups`, `numero_aproximado_investimentos`, `descricao_experiencia`, `setores_atuacao`                                                                                             |
+| `usuarios`     | `avatar_url`                                                                                                                                                                                                                                                                                    |
 
 `logo_url` e `apresentacao_url` existem. Esta consulta não alterou o banco.
 

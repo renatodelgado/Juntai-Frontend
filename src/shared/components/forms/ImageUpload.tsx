@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Input } from './Fields';
 import { Button } from '../ui/Button';
 
@@ -7,11 +7,13 @@ export function ImageUpload({
   label,
   value,
   onChange,
+  placeholder,
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: ReactNode;
 }) {
   const [error, setError] = useState('');
   async function choose(file?: File) {
@@ -38,6 +40,7 @@ export function ImageUpload({
   }
   return (
     <div>
+      {!value && placeholder}
       {value && (
         <img
           src={value}

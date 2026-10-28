@@ -1,4 +1,7 @@
-import { createBrowserRouter } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  type ShouldRevalidateFunctionArgs,
+} from 'react-router-dom';
 import { HomePage } from '@/features/home/pages/HomePage';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
@@ -83,6 +86,20 @@ export const router = createBrowserRouter([
     id:
       path === '/investidor/startups' ? 'discovery-list' : 'discovery-profile',
     path,
+    // Filtros locais não precisam validar a sessão na API a cada tecla.
+    // Navegação entre páginas e revalidação explícita continuam validando o acesso.
+    shouldRevalidate: ({
+      currentUrl,
+      nextUrl,
+      formMethod,
+      defaultShouldRevalidate,
+    }: ShouldRevalidateFunctionArgs) =>
+      path === '/investidor/startups' &&
+      !formMethod &&
+      currentUrl.pathname === nextUrl.pathname &&
+      currentUrl.search !== nextUrl.search
+        ? false
+        : defaultShouldRevalidate,
     element: <ProtectedRoute />,
     loader: requireRole('investidor'),
     errorElement: <AuthRouteError />,

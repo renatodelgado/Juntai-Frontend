@@ -1,3 +1,4 @@
+import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import {
   supportedSegment,
   supportedModel,
@@ -120,6 +121,11 @@ export function InvestorFields({
           id="investor-photo"
           label="Foto de perfil (opcional)"
           value={data.photo}
+          placeholder={
+            <div style={{ width: 96, height: 96, borderRadius: '50%' }}>
+              <ProfilePhoto name={data.name || 'Seu perfil'} />
+            </div>
+          }
           onChange={(value) => update('photo', value)}
         />
         <Input

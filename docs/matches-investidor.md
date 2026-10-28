@@ -21,4 +21,3 @@ Busca, filtros e ordenação ficam na URL. O perfil público preserva a origem M
 - `npm run build`
 - `npm run lint`
 - `npm run test`
-- `npm run test:e2e -- tests/e2e/matches.spec.ts tests/e2e/explore-startups.spec.ts tests/e2e/messages.spec.ts`

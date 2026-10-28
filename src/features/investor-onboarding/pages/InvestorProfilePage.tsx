@@ -97,6 +97,7 @@ export function InvestorProfilePage() {
           profilePath="/investidor/perfil"
           approved={saved?.status === 'approved'}
           name={data?.name}
+          avatarUrl={data?.photo}
           subtitle={mentor ? 'Mentor' : 'Investidor'}
           status={saved ? statusLabels[saved.status] : 'Meu perfil'}
           onSettings={() => setDialog('settings')}

@@ -21,11 +21,13 @@ export function StartupFilters({
   onChange,
   onClear,
   startups = [],
+  locations = [],
 }: {
   filters: Filters;
   onChange: (key: keyof Filters, value: string) => void;
   onClear: () => void;
   startups?: Startup[];
+  locations?: string[];
 }) {
   const [advanced, setAdvanced] = useState(false);
   const quick = [
@@ -40,14 +42,15 @@ export function StartupFilters({
         'Centro-Oeste',
         'Sudeste',
         'Sul',
-        ...new Set(
-          startups
+        ...new Set([
+          ...locations,
+          ...startups
             .flatMap((startup) => [
               startup.location.city,
               startup.location.state,
             ])
             .filter((value) => value && value !== 'Cidade não informada'),
-        ),
+        ]),
       ],
     },
     { key: 'model', label: 'Modelo de negócio', options: models },

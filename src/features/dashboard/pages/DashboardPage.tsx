@@ -93,6 +93,9 @@ export function DashboardPage() {
               : 'Carregando perfil'
           }
           name={name}
+          avatarUrl={
+            data?.role === 'investidor' ? data.profile.avatarUrl : undefined
+          }
           subtitle={
             data?.role === 'investidor'
               ? label(data.profile.tipoInvestidor)

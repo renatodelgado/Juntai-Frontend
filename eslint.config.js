@@ -9,10 +9,11 @@ export default tseslint.config(
   {
     ignores: [
       'dist',
+      'output',
+      'tmp',
       'coverage',
       'test-results',
       'playwright-report',
-      'cypress/artifacts',
     ],
   },
   js.configs.recommended,
@@ -23,6 +24,5 @@ export default tseslint.config(
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
   },
   { files: ['*.{js,ts}'], languageOptions: { globals: globals.node } },
-  { files: ['scripts/**/*.mjs'], languageOptions: { globals: globals.node } },
   prettier,
 );

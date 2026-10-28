@@ -1,4 +1,4 @@
-# Dependências e arquivos gerados
+# Dependencies and generated files
 node_modules/
 dist/
 coverage/
@@ -6,12 +6,15 @@ test-results/
 playwright-report/
 .vite/
 *.tsbuildinfo
+output/
+tmp/
 
-# Configurações locais (o exemplo deve ser versionado)
+# Local configuration
 .env
 .env.*
 !.env.example
 *.local
+cypress.env.json
 
 # Logs
 *.log
@@ -23,8 +26,3 @@ npm-debug.log*
 !.vscode/extensions.json
 .DS_Store
 Thumbs.db
-
-# Cypress: evidence generated locally
-cypress/artifacts/
-cypress/e2e/falha-controlada.cy.ts
-cypress.env.json

@@ -3,5 +3,7 @@ dist/
 coverage/
 test-results/
 playwright-report/
+output/
+tmp/
 package-lock.json
 *.tsbuildinfo

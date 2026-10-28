@@ -2,7 +2,7 @@
 import { apiRequest } from '@/shared/services/api';
 import { startupSchema } from '@/features/auth/services/profiles';
 import type { AuthUser } from '@/features/auth/services/session';
-import type { Startup } from './model';
+import { investmentRanges, type Filters, type Startup } from './model';
 
 export const segmentLabels: Record<string, string> = {
   fintech: 'Fintech',
@@ -44,14 +44,18 @@ const needs: Record<string, string> = {
   outro: 'Outro',
 };
 const scores = new Map<string, number>();
-const schema = startupSchema.extend({ criadoEm: z.string() });
+const schema = startupSchema.extend({
+  criadoEm: z.string(),
+  compatibility: z.number().min(0).max(100).optional(),
+});
 type RemoteStartup = z.infer<typeof schema>;
 export function toDiscoveryStartup(
   remote: RemoteStartup,
   userId: string,
 ): Startup {
   const key = userId + ':' + remote.id;
-  if (!scores.has(key)) scores.set(key, Math.floor(Math.random() * 101));
+  if (remote.compatibility !== undefined) scores.set(key, remote.compatibility);
+  else if (!scores.has(key)) scores.set(key, Math.floor(Math.random() * 101));
   const canvas = remote.canvasJson || {};
   const text = (key: string) =>
     typeof canvas[key] === 'string' ? (canvas[key] as string) : '';
@@ -122,7 +126,80 @@ export function toDiscoveryStartup(
     ],
   };
 }
+export const DISCOVERY_PAGE_SIZE = 24;
+const pageSchema = z.object({
+  items: z.array(schema),
+  total: z.number().int().nonnegative(),
+  hasMore: z.boolean(),
+  facets: z.object({
+    locations: z.array(z.string()),
+    segments: z.number(),
+    regions: z.number(),
+  }),
+});
+export type StartupPage = {
+  items: Startup[];
+  total: number;
+  hasMore: boolean;
+  facets: { locations: string[]; segments: number; regions: number };
+};
+const reverseLabel = (catalog: Record<string, string>, label: string) =>
+  Object.keys(catalog).find((key) => catalog[key] === label) ?? label;
 export const startupRepository = {
+  async get(
+    user: AuthUser,
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<Startup> {
+    const response = await apiRequest('startups/' + encodeURIComponent(id), {
+      authenticated: true,
+      signal,
+    });
+    return toDiscoveryStartup(schema.parse(await response.json()), user.id);
+  },
+  async page(
+    user: AuthUser,
+    filters: Filters,
+    saved: string[],
+    page: number,
+    signal?: AbortSignal,
+  ): Promise<StartupPage> {
+    const query = new URLSearchParams({
+      page: String(page),
+      size: String(DISCOVERY_PAGE_SIZE),
+    });
+    for (const key of ['q', 'location', 'investment', 'saved', 'sort'] as const)
+      if (filters[key]) query.set(key, filters[key]);
+    if (filters.segment)
+      query.set('segment', reverseLabel(segmentLabels, filters.segment));
+    if (filters.stage) query.set('stage', reverseLabel(stages, filters.stage));
+    if (filters.model)
+      query.set(
+        'model',
+        Object.keys(models).find((key) =>
+          models[key]!.includes(filters.model),
+        ) ?? filters.model,
+      );
+    const range = investmentRanges.find((item) => item.label === filters.range);
+    const min = filters.min || (range ? String(range.min) : '');
+    const max =
+      filters.max ||
+      (range && Number.isFinite(range.max) ? String(range.max) : '');
+    if (min) query.set('min', min);
+    if (max) query.set('max', max);
+    if (filters.saved) query.set('ids', saved.join(','));
+    const response = await apiRequest('startups/discovery?' + query, {
+      authenticated: true,
+      signal,
+    });
+    const result = pageSchema.parse(await response.json());
+    return {
+      ...result,
+      items: result.items
+        .filter((item) => item.statusModeracao === 'aprovado')
+        .map((item) => toDiscoveryStartup(item, user.id)),
+    };
+  },
   async list(user: AuthUser, signal?: AbortSignal): Promise<Startup[]> {
     const response = await apiRequest('startups', {
       authenticated: true,

@@ -43,19 +43,18 @@ export interface MatchesRepository {
 // Compatibility never establishes mutual interest or messaging permission.
 export const demoMatchesRepository: MatchesRepository = {
   async list(_user, startups, connections) {
-    return startups
-      .map((startup) => {
-        const conversation = connections.find(
-          (chat) =>
-            chat.participant.id === startup.id && chat.status === 'active',
-        );
-        return {
-          startup,
-          conversation,
-          mutualInterest: false,
-          canMessage: !!conversation,
-        };
-      });
+    return startups.map((startup) => {
+      const conversation = connections.find(
+        (chat) =>
+          chat.participant.id === startup.id && chat.status === 'active',
+      );
+      return {
+        startup,
+        conversation,
+        mutualInterest: false,
+        canMessage: !!conversation,
+      };
+    });
   },
 };
 export function matchStatus(match: Match, state: DiscoveryState): MatchStatus {

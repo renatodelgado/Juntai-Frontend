@@ -34,6 +34,8 @@ export function StartupIdentity({ startup }: { startup: Startup }) {
       {startup.logoUrl && failedUrl !== startup.logoUrl ? (
         <img
           src={startup.logoUrl}
+          loading="lazy"
+          decoding="async"
           alt=""
           onError={() => setFailedUrl(startup.logoUrl)}
           style={{
