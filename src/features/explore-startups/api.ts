@@ -43,8 +43,8 @@ const needs: Record<string, string> = {
   parcerias_estrategicas: 'Parcerias estratégicas',
   outro: 'Outro',
 };
-const scores = new Map<string, number>();
 const schema = startupSchema.extend({
+  contextoExposicao: z.string().optional(),
   criadoEm: z.string(),
   compatibility: z.number().min(0).max(100).optional(),
 });
@@ -53,13 +53,12 @@ export function toDiscoveryStartup(
   remote: RemoteStartup,
   userId: string,
 ): Startup {
-  const key = userId + ':' + remote.id;
-  if (remote.compatibility !== undefined) scores.set(key, remote.compatibility);
-  else if (!scores.has(key)) scores.set(key, Math.floor(Math.random() * 101));
+  void userId;
   const canvas = remote.canvasJson || {};
   const text = (key: string) =>
     typeof canvas[key] === 'string' ? (canvas[key] as string) : '';
   return {
+    exposureContext: remote.contextoExposicao,
     id: remote.id,
     name: remote.nomeFantasia,
     logoUrl: remote.logoUrl ?? undefined,
@@ -120,10 +119,11 @@ export function toDiscoveryStartup(
     createdAt: remote.criadoEm,
     color: '#F3F1F8',
     variant: 'standard',
-    compatibility: scores.get(key),
-    compatibilityFactors: [
-      'Compatibilidade ilustrativa, gerada aleatoriamente.',
-    ],
+    compatibility: remote.compatibility,
+    compatibilityFactors:
+      remote.compatibility === undefined
+        ? []
+        : ['Compatibilidade calculada pelo Nível 1.'],
   };
 }
 export const DISCOVERY_PAGE_SIZE = 24;
@@ -167,6 +167,7 @@ export const startupRepository = {
     const query = new URLSearchParams({
       page: String(page),
       size: String(DISCOVERY_PAGE_SIZE),
+      sort: filters.sort || 'compatibility',
     });
     for (const key of ['q', 'location', 'investment', 'saved', 'sort'] as const)
       if (filters[key]) query.set(key, filters[key]);

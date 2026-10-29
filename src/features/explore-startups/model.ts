@@ -1,6 +1,7 @@
 import type { AuthUser } from '@/features/auth/services/session';
 
 export type Startup = {
+  exposureContext?: string;
   id: string;
   name: string;
   logoUrl?: string;
