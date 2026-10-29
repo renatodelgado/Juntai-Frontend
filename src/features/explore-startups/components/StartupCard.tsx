@@ -8,11 +8,12 @@ import {
   LeafIcon,
 } from '@phosphor-icons/react';
 import type { Startup } from '../model';
+import { useExposure } from '../useExposure';
 import * as S from '../Explore.styles';
 
 export function CompatibilityIndicator({ value }: { value?: number }) {
   return (
-    <S.Compatibility title="Compatibilidade ilustrativa, gerada aleatoriamente">
+    <S.Compatibility title="Compatibilidade calculada pelo Nível 1 quando disponível">
       <SparkleIcon size={13} aria-hidden="true" />
       {value === undefined
         ? 'Compatibilidade indisponível'
@@ -70,8 +71,11 @@ export function StartupCard({
   onInterest: () => void;
   approved?: boolean;
 }) {
+  const exposureRef = useExposure(
+    approved ? startup.exposureContext : undefined,
+  );
   return (
-    <S.Card $list={list}>
+    <S.Card ref={exposureRef} $list={list}>
       {startup.variant === 'visual' && !list && (
         <S.Visual className="visual" $color={startup.color} aria-hidden="true">
           <span className="field" />

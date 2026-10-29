@@ -16,6 +16,7 @@ import {
 } from '@/features/explore-startups/components/StartupCard';
 import { SaveButton } from '@/features/explore-startups/Explore.styles';
 import type { Discovery } from '@/features/explore-startups/useDiscovery';
+import { useExposure } from '@/features/explore-startups/useExposure';
 import type { Startup } from '@/features/explore-startups/model';
 import { matchStatus, statusLabels, type Match } from '../model';
 import * as S from '../Matches.styles';
@@ -57,11 +58,14 @@ export function HighlightedMatch({
   onInterest,
 }: Omit<Props, 'onMeeting'>) {
   const startup = match.startup;
+  const exposureRef = useExposure(
+    data.approved ? startup.exposureContext : undefined,
+  );
   const sent = data.state.interests.some(
     (item) => item.startupId === startup.id,
   );
   return (
-    <S.Highlight aria-label="Match em destaque">
+    <S.Highlight ref={exposureRef} aria-label="Match em destaque">
       <div>
         <div className="eyebrow">
           <SparkleIcon size={15} />
@@ -117,13 +121,20 @@ export function MatchCard({
   onMeeting,
 }: Props) {
   const startup = match.startup;
+  const exposureRef = useExposure(
+    data.approved ? startup.exposureContext : undefined,
+  );
   const status = matchStatus(match, data.state);
   const sent = data.state.interests.some(
     (item) => item.startupId === startup.id,
   );
   const saved = data.state.saved.includes(startup.id);
   return (
-    <S.MatchCard $list={false} aria-label={`Match: ${startup.name}`}>
+    <S.MatchCard
+      ref={exposureRef}
+      $list={false}
+      aria-label={`Match: ${startup.name}`}
+    >
       {startup.variant === 'visual' && (
         <div className="initials-banner">
           <span>{startup.tagline}</span>
