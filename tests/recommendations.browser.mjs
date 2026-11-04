@@ -121,7 +121,7 @@ try {
     });
   });
   await page.goto('http://127.0.0.1:5187/investidor/startups', {
-    waitUntil: 'domcontentloaded',
+    waitUntil: 'commit',
   });
   await page.getByRole('meter').first().waitFor();
 

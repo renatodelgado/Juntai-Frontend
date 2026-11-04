@@ -8,6 +8,7 @@ const schema = z.object({
   avatarUrl: z.string().nullish(),
   logoUrl: z.string().nullish(),
   tituloProfissional: z.string().nullish(),
+  tipoInvestidor: z.enum(['anjo', 'mentor', 'anjo_mentor']).optional(),
 });
 type CurrentProfile = z.infer<typeof schema>;
 let snapshot: { token: string; profile: CurrentProfile } | null = null;

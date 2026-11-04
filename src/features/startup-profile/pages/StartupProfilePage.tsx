@@ -12,7 +12,7 @@ import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import type { SavedDraft } from '@/features/startup-onboarding/services/draftStorage';
-import { loadProfile, logout } from '@/features/auth/services/profiles';
+import { loadProfile } from '@/features/auth/services/profiles';
 import { ProfileEditor } from '../components/ProfileEditor';
 import { PresentationLink } from '../components/PresentationLink';
 import { steps, type StepId } from '@/features/startup-onboarding/data/steps';
@@ -211,30 +211,7 @@ export function StartupProfilePage() {
   );
   return (
     <S.Layout>
-      <ProfileSidebar
-        profilePath="/startup/perfil"
-        approved={status.approved}
-        name={name}
-        subtitle="Startup"
-        status={status.badge}
-        onLogout={() => {
-          logout();
-          void navigate('/login', { replace: true });
-        }}
-        onSettings={() =>
-          setDialog({
-            title: 'Configurações do perfil',
-            content: (
-              <>
-                <p>As alterações do perfil são salvas na sua conta.</p>
-                <Button onClick={() => edit('consent')}>
-                  Revisar consentimentos
-                </Button>
-              </>
-            ),
-          })
-        }
-      />
+      <ProfileSidebar approved={status.approved} />
       <S.Main>
         <PageHeader
           title="Meu perfil"
@@ -313,54 +290,7 @@ export function StartupProfilePage() {
                   </S.Row>
                   {data.description && <p>{data.description}</p>}
                 </S.IdentityCard>
-                <S.Grid>
-                  <S.StatusCard $status={saved.statusModeracao}>
-                    <S.Badge>{status.badge}</S.Badge>
-                    <h2>{status.title}</h2>
-                    <p>{status.description}</p>
-                    <S.Row>
-                      <S.Badge>
-                        <CheckCircleIcon size={16} aria-hidden="true" />
-                        Cadastro concluído
-                      </S.Badge>
-                      <Button
-                        $variant="secondary"
-                        onClick={() => edit('review')}
-                      >
-                        Editar meu perfil
-                      </Button>
-                    </S.Row>
-                  </S.StatusCard>
-                  <S.Card>
-                    <header>
-                      <h2>Complete seu perfil</h2>
-                      <S.Badge>{completeness?.percent}%</S.Badge>
-                    </header>
-                    <S.Progress
-                      value={completeness?.percent}
-                      max={100}
-                      aria-label="Completude do perfil"
-                    />
-                    <S.Muted>
-                      Seções preenchidas no seu perfil, incluindo o que você
-                      salvou na sua conta.
-                    </S.Muted>
-                    <S.CompletionActions>
-                      {completeness?.missing.map((item) => (
-                        <Button
-                          key={item.label}
-                          $variant="quiet"
-                          onClick={() => edit(item.step)}
-                        >
-                          Completar {item.label.toLowerCase()}
-                        </Button>
-                      ))}
-                    </S.CompletionActions>
-                    {completeness?.percent === 100 && (
-                      <p>As seções do seu perfil estão preenchidas.</p>
-                    )}
-                  </S.Card>
-                </S.Grid>
+
                 {section(
                   'Nosso pitch',
                   'pitch',
@@ -523,6 +453,50 @@ export function StartupProfilePage() {
                     investidores e mentores.
                   </S.Muted>
                 </S.FeatureCard>
+                <S.StatusCard $status={saved.statusModeracao}>
+                  <S.Badge>{status.badge}</S.Badge>
+                  <h2>{status.title}</h2>
+                  <p>{status.description}</p>
+                  <S.Row>
+                    <S.Badge>
+                      <CheckCircleIcon size={16} aria-hidden="true" />
+                      Cadastro concluído
+                    </S.Badge>
+                    <Button $variant="secondary" onClick={() => edit('review')}>
+                      Editar meu perfil
+                    </Button>
+                  </S.Row>
+                </S.StatusCard>
+                <S.Card>
+                  <header>
+                    <h2>Complete seu perfil</h2>
+                    <S.Badge>{completeness?.percent}%</S.Badge>
+                  </header>
+                  <S.Progress
+                    value={completeness?.percent}
+                    max={100}
+                    aria-label="Completude do perfil"
+                  />
+                  <S.Muted>
+                    Seções preenchidas no seu perfil, incluindo o que você
+                    salvou na sua conta.
+                  </S.Muted>
+                  <S.CompletionActions>
+                    {completeness?.missing.map((item) => (
+                      <Button
+                        key={item.label}
+                        $variant="quiet"
+                        onClick={() => edit(item.step)}
+                      >
+                        Completar {item.label.toLowerCase()}
+                      </Button>
+                    ))}
+                  </S.CompletionActions>
+                  {completeness?.percent === 100 && (
+                    <p>As seções do seu perfil estão preenchidas.</p>
+                  )}
+                </S.Card>
+
                 {section(
                   'Links e apresentação',
                   'about',
