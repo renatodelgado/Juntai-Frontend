@@ -45,6 +45,17 @@ O motor usa a estratégia `rules`. Ativar o modelo supervisionado exige
 disponibilizar os artefatos validados e as dependências apropriadas antes de
 alterar `MATCHMAKING_STRATEGY`.
 
+O firewall do servidor PostgreSQL permite conexões de serviços Azure, conforme
+autorizado para este beta. A regra também permite tentativas de outras contas
+Azure; a conexão continua exigindo credenciais e TLS. O usuário da aplicação
+recebe permissões sobre os objetos do banco beta. A regra evita depender dos
+IPs de saída variáveis do ambiente econômico. Para maior isolamento, planejar
+uma rede privada e revisar o custo antes de mudar a infraestrutura.
+
+O ambiente atual usa o modo Express do Container Apps, com cobrança por consumo
+e escala zero. Nesse modo, atualizações substituem a revisão ativa; não há
+divisão de tráfego entre revisões. O histórico de imagens permanece no ACR.
+
 O script `scripts/azure/Set-BetaDatabaseCredential.ps1` recebe a senha do
 administrador por entrada oculta e grava uma credencial protegida pelo Windows
 em `tmp/azure-auth`, ignorado pelo Git. Não versionar `.env`, dumps ou arquivos
