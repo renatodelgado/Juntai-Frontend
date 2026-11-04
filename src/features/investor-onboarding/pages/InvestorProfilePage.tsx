@@ -4,7 +4,6 @@ import { ThemeProvider } from 'styled-components';
 import {
   CheckCircleIcon,
   HandshakeIcon,
-  LockSimpleIcon,
   PencilSimpleIcon,
   ArrowRightIcon,
   EyeIcon,
@@ -396,18 +395,17 @@ export function InvestorProfilePage() {
                     'Como posso ajudar uma startup',
                     'offers',
                     <S.Grid>
-                      {model.offers
-                        .filter((offer) => data.offers.includes(offer.value))
+                      {model.expertise
+                        .filter((offer) => data.expertise.includes(offer.value))
                         .map((offer) => (
                           <div key={offer.value}>
                             <S.Badge>
                               <CheckCircleIcon size={18} aria-hidden="true" />
                               {offer.label}
                             </S.Badge>
-                            <p>{offer.description}</p>
                           </div>
                         ))}
-                      {!data.offers.length && (
+                      {!data.expertise.length && (
                         <p>Adicione as contribuições que você pode oferecer.</p>
                       )}
                     </S.Grid>,
@@ -473,12 +471,10 @@ export function InvestorProfilePage() {
                     <h2>Dados para conexões</h2>
                     <p>
                       Seus interesses, sua experiência e sua disponibilidade
-                      poderão ajudar a encontrar startups com objetivos em
-                      comum.
+                      ajudam a encontrar startups com objetivos em comum.
                     </p>
                     <S.Muted>
-                      Nesta prévia, nenhum algoritmo de recomendação é
-                      executado.
+                      Explore as startups recomendadas com base no seu perfil.
                     </S.Muted>
                   </S.FeatureCard>
                   <S.Card>
@@ -498,10 +494,9 @@ export function InvestorProfilePage() {
                     <h3>Preferências adicionais</h3>
                     <p>{data.preferences || 'Ainda não informado'}</p>
                     <S.Muted>
-                      <LockSimpleIcon size={16} aria-hidden="true" />{' '}
                       {saved.status === 'approved'
-                        ? 'Matchmaking em preparação.'
-                        : 'O matchmaking será liberado após aprovação e integração.'}
+                        ? 'Suas preferências são consideradas nas recomendações de startups.'
+                        : 'A aprovação do perfil é necessária para acessar as recomendações.'}
                     </S.Muted>
                   </S.Card>
                   <InvestorActivity events={saved.activity ?? []} />

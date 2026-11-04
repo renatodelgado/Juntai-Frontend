@@ -3,8 +3,9 @@ import { useParams, useRouteLoaderData } from 'react-router-dom';
 import { useProfileApproval } from '@/features/auth/useProfileApproval';
 import type { AuthUser } from '@/features/auth/services/session';
 import type { Conversation } from '@/features/messages/model';
-import type { Filters, Startup } from './model';
-import type { StartupPage } from './api';
+import { defaultFilters, type Filters, type Startup } from './model';
+import type { DiscoverySummary, StartupPage } from './api';
+import { getSession } from '@/features/auth/services/session';
 import { startupRepository, interestsApi } from './api';
 import { demoMeetingsRepository } from '@/features/meetings/repository';
 
@@ -56,6 +57,13 @@ export function useDiscovery(filters?: Filters) {
   const profileUser = useRouteLoaderData<AuthUser>('discovery-profile');
   const matchesUser = useRouteLoaderData<AuthUser>('investor-matches');
   const user = (listUser ?? profileUser ?? matchesUser)!;
+  const userId = user.id;
+  const token = getSession()?.token;
+  const userRef = useRef(user);
+  const discoveryOwner = useRef(userId);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
   const [startups, setStartups] = useState<Startup[]>([]);
   const [connections] = useState<Conversation[]>([]);
   const [state, setState] = useState<DiscoveryState>(() =>
@@ -68,6 +76,36 @@ export function useDiscovery(filters?: Filters) {
   const { id: profileId } = useParams();
   const filterKey = filters ? JSON.stringify({ ...filters, view: '' }) : '';
   const savedKey = filters?.saved ? JSON.stringify(state.saved) : '';
+  const summaryKey = JSON.stringify([userId, token, filterKey, savedKey]);
+  const [summary, setSummary] = useState<
+    (DiscoverySummary & { key: string }) | null
+  >(null);
+  useEffect(() => {
+    if (!filterKey || !approved) return;
+    const selected: Filters = JSON.parse(filterKey);
+    if (
+      selected.sort &&
+      !['compatibility', 'recommended'].includes(selected.sort)
+    )
+      return;
+    const controller = new AbortController();
+    const stored = readDiscovery(userId);
+    const timer = setTimeout(() => {
+      void startupRepository
+        .summary(selected, stored.saved, controller.signal)
+        .then((value) => {
+          if (!controller.signal.aborted)
+            setSummary({ ...value, key: summaryKey });
+        })
+        .catch(() => {
+          /* A failed summary must not hide successfully loaded recommendations. */
+        });
+    }, 200);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [userId, token, approved, filterKey, savedKey, summaryKey, attempt]);
   const [pagination, setPagination] = useState<Omit<StartupPage, 'items'>>({
     total: 0,
     hasMore: false,
@@ -83,6 +121,7 @@ export function useDiscovery(filters?: Filters) {
     saved: string[];
   } | null>(null);
   useEffect(() => {
+    const user = userRef.current;
     const controller = new AbortController();
     const stored = readDiscovery(user.id);
     const selected: Filters | null = filterKey ? JSON.parse(filterKey) : null;
@@ -96,6 +135,11 @@ export function useDiscovery(filters?: Filters) {
     request.current = current;
     const timer = setTimeout(
       () => {
+        if (discoveryOwner.current !== user.id) {
+          discoveryOwner.current = user.id;
+          setState(stored);
+          setNotice('');
+        }
         setLoading(true);
         setFailed(false);
         setLoadingMore(false);
@@ -111,41 +155,59 @@ export function useDiscovery(filters?: Filters) {
               0,
               controller.signal,
             )
-          : profileId
-            ? startupRepository
-                .get(user, profileId, controller.signal)
-                .then((item) => ({
-                  items: [item],
-                  total: 1,
-                  hasMore: false,
-                  facets: { locations: [], segments: 0, regions: 0 },
-                }))
-            : interestsPromise.then(async (interests) => ({
-                items: await Promise.all(
-                  interests.map((item) =>
-                    startupRepository.get(
-                      user,
-                      item.startupId,
-                      controller.signal,
+          : profileId && approved
+            ? startupRepository.page(
+                user,
+                { ...defaultFilters, saved: 'yes', sort: 'compatibility' },
+                [profileId],
+                0,
+                controller.signal,
+              )
+            : profileId
+              ? startupRepository
+                  .get(user, profileId, controller.signal)
+                  .then((item) => ({
+                    items: [item],
+                    total: 1,
+                    hasMore: false,
+                    facets: { locations: [], segments: 0, regions: 0 },
+                  }))
+              : interestsPromise.then(async (interests) => ({
+                  items: await Promise.all(
+                    interests.map((item) =>
+                      startupRepository.get(
+                        user,
+                        item.startupId,
+                        controller.signal,
+                      ),
                     ),
                   ),
-                ),
-                total: interests.length,
-                hasMore: false,
-                facets: { locations: [], segments: 0, regions: 0 },
-              }));
-        Promise.all([listing, interestsPromise])
-          .then(([result, interests]) => {
+                  total: interests.length,
+                  hasMore: false,
+                  facets: { locations: [], segments: 0, regions: 0 },
+                }));
+        void interestsPromise
+          .then((interests) => {
             if (controller.signal.aborted) return;
-            setStartups(result.items);
-            setPagination(result);
-            setState({
-              ...stored,
+            setState((current) => ({
+              ...current,
               interests: interests.map((item) => ({
                 startupId: item.startupId,
                 createdAt: item.createdAt,
               })),
-            });
+            }));
+          })
+          .catch(() => {
+            if (!controller.signal.aborted)
+              setNotice(
+                'Não foi possível atualizar seus interesses. Tente novamente.',
+              );
+          });
+        listing
+          .then((result) => {
+            if (controller.signal.aborted) return;
+            setStartups(result.items);
+            setPagination(result);
           })
           .catch(() => {
             if (!controller.signal.aborted) setFailed(true);
@@ -163,7 +225,7 @@ export function useDiscovery(filters?: Filters) {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [user, approved, attempt, filterKey, savedKey, profileId]);
+  }, [userId, token, approved, attempt, filterKey, savedKey, profileId]);
   async function loadMore() {
     const current = request.current;
     if (
@@ -300,9 +362,20 @@ export function useDiscovery(filters?: Filters) {
     approved,
     user,
     startups,
+    origemRecomendacao: pagination.origemRecomendacao,
+    fallback: pagination.fallback,
+    avisos: pagination.avisos,
+    catalogTotal:
+      summary?.key === summaryKey
+        ? summary.total
+        : filters?.sort &&
+            !['compatibility', 'recommended'].includes(filters.sort) &&
+            !loading
+          ? pagination.total
+          : undefined,
     total: pagination.total,
     hasMore: pagination.hasMore,
-    facets: pagination.facets,
+    facets: summary?.key === summaryKey ? summary.facets : pagination.facets,
     loadingMore,
     moreFailed,
     loadMore,

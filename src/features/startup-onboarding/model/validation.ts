@@ -96,7 +96,9 @@ export function validateStep(step: StepId, data: StartupDraft): Errors {
       maxLength('targetMarket', 200);
       break;
     case 'location':
-      requireFields('state', 'cityId', 'operatingRegions', 'targetRegions');
+      requireFields('state', 'operatingRegions', 'targetRegions');
+      if (!data.cityName.trim())
+        errors.cityId = 'Selecione uma cidade da lista.';
       if (data.cityId && (!/^\d{7}$/.test(data.cityId) || !data.cityName))
         errors.cityId = 'Selecione uma cidade da lista.';
       break;

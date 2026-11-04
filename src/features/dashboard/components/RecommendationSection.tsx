@@ -78,13 +78,25 @@ export function RecommendationSection({
             Consultar meu perfil
           </Button>
         </Empty>
+      ) : recommendations === null && investor ? (
+        <Empty>
+          <CompassIcon size={32} aria-hidden="true" />
+          <h3>Conheça suas recomendações</h3>
+          <p>
+            Explore as startups na ordem recomendada para você, com filtros e a
+            pontuação calculada pelo serviço de recomendações.
+          </p>
+          <Button as={Link} to="/investidor/startups" $variant="secondary">
+            Explorar recomendações
+          </Button>
+        </Empty>
       ) : recommendations === null ? (
         <Empty>
           <CompassIcon size={32} aria-hidden="true" />
-          <h3>Estamos preparando suas recomendações</h3>
+          <h3>Apresente sua startup a novas conexões</h3>
           <p>
-            Seu perfil está aprovado. O serviço de recomendações ainda não está
-            disponível. Suas conexões aparecerão aqui quando ele for liberado.
+            Seu perfil está aprovado e pode aparecer nas recomendações para
+            investidores e mentores. Mantenha suas informações atualizadas.
           </p>
           <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
             {investor ? 'Revisar preferências' : 'Revisar objetivos'}

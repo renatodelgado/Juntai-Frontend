@@ -519,8 +519,8 @@ export function StartupProfilePage() {
                     certos.
                   </p>
                   <S.Muted>
-                    As recomendações estarão disponíveis após aprovação e
-                    integração da plataforma.
+                    Perfis aprovados podem aparecer nas recomendações para
+                    investidores e mentores.
                   </S.Muted>
                 </S.FeatureCard>
                 {section(

@@ -35,7 +35,11 @@ const Dialog = styled.dialog`
   }
   > footer {
     justify-content: flex-end;
+    flex-wrap: wrap;
     border-top: 1px solid ${({ theme }) => theme.colors.accentBorder};
+  }
+  > footer > button:last-child {
+    margin-left: auto;
   }
   > div {
     padding: 1.5rem;
@@ -55,6 +59,7 @@ export function ContentDialog({
   onClose,
   closeLabel = 'Fechar',
   busy = false,
+  actions,
 }: {
   open: boolean;
   title: string;
@@ -62,6 +67,7 @@ export function ContentDialog({
   onClose: () => void;
   closeLabel?: string;
   busy?: boolean;
+  actions?: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
@@ -94,7 +100,13 @@ export function ContentDialog({
       </header>
       <div>{children}</div>
       <footer>
-        <Button type="button" disabled={busy} onClick={onClose}>
+        {actions}
+        <Button
+          type="button"
+          $variant="secondary"
+          disabled={busy}
+          onClick={onClose}
+        >
           {closeLabel}
         </Button>
       </footer>

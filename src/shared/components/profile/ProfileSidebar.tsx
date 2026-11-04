@@ -17,6 +17,7 @@ import {
 import logo from '@/shared/assets/images/logo-txt.svg';
 import { getSession } from '@/features/auth/services/session';
 import { useProfileApproval } from '@/features/auth/useProfileApproval';
+import { useCurrentProfile } from '@/features/auth/services/currentProfile';
 
 const Header = styled.header`
   background: ${({ theme }) => theme.colors.white};
@@ -172,6 +173,12 @@ export function ProfileSidebar({
   approved?: boolean;
 }) {
   const approved = useProfileApproval(knownApproval);
+  const profile = useCurrentProfile();
+  const accountPhoto = profile
+    ? getSession()?.usuario.tipoPerfil === 'startup'
+      ? profile.logoUrl
+      : profile.avatarUrl
+    : avatarUrl;
   const [open, setOpen] = useState(false);
   const id = useId();
   const { pathname, state } = useLocation();
@@ -342,7 +349,7 @@ export function ProfileSidebar({
           title={subtitle || status}
         >
           <span className="initials" aria-hidden="true">
-            <ProfilePhoto src={avatarUrl} name={displayName} />
+            <ProfilePhoto src={accountPhoto} name={displayName} />
           </span>
           <span>
             <strong>{displayName}</strong>
