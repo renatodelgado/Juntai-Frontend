@@ -9,6 +9,7 @@ import {
   EyeIcon,
 } from '@phosphor-icons/react';
 import { loadInvestorProfile, logout } from '@/features/auth/services/profiles';
+import { useCurrentProfile } from '@/features/auth/services/currentProfile';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
@@ -32,6 +33,7 @@ import {
 import { InvestorActivity } from '../components/InvestorActivity';
 
 export function InvestorProfilePage() {
+  const currentProfile = useCurrentProfile(false);
   const [saved, setSaved] = useState<model.SavedInvestor | null>(null);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState<model.InvestorStep | null>(null);
@@ -82,7 +84,15 @@ export function InvestorProfilePage() {
       </S.Card>
     );
   }
-  const data = saved?.data;
+  const data = saved
+    ? {
+        ...saved.data,
+        title:
+          currentProfile?.tituloProfissional !== undefined
+            ? (currentProfile.tituloProfissional ?? '')
+            : saved.data.title,
+      }
+    : undefined;
   const mentor = data?.participation === 'mentor';
   const completeness = data ? investorCompleteness(data) : null;
   const status = saved ? statusContent[saved.status] : null;
@@ -567,9 +577,9 @@ export function InvestorProfilePage() {
               <p>Nenhuma solicitação foi registrada nesta prévia.</p>
             ))}
         </ContentDialog>
-        {saved && editing && (
+        {saved && data && editing && (
           <InvestorEditor
-            saved={saved}
+            saved={{ ...saved, data }}
             step={editing}
             onClose={() => setEditing(null)}
             onSaved={setSaved}

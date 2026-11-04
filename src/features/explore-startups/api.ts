@@ -195,6 +195,17 @@ function discoveryQuery(
 }
 export type DiscoverySummary = Pick<StartupPage, 'total' | 'facets'>;
 export const startupRepository = {
+  async highlights(signal?: AbortSignal): Promise<Startup[]> {
+    const response = await apiRequest('startups/destaques', {
+      authenticated: true,
+      cache: 'no-store',
+      signal,
+    });
+    return z
+      .object({ items: z.array(schema).max(3) })
+      .parse(await response.json())
+      .items.map(toDiscoveryStartup);
+  },
   async summary(
     filters: Filters,
     saved: string[],

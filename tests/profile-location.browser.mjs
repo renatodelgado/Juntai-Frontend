@@ -31,6 +31,7 @@ try {
       estado: 'CE',
       cidade: 'Fortaleza',
       tipoInvestidor: 'anjo',
+      tituloProfissional: 'Investidora e mentora',
       segmentosInteresse: ['fintech'],
       estagiosInteresse: ['mvp'],
       regioesInteresse: ['nordeste'],
@@ -92,7 +93,16 @@ try {
     await page.goto(`http://127.0.0.1:5191/${role}/perfil`, {
       waitUntil: 'domcontentloaded',
     });
+    if (role === 'investidor')
+      await page.getByText('Investidora e mentora', { exact: true }).waitFor();
     await openEditor();
+    if (role === 'investidor') {
+      assert.equal(
+        await page.locator('#title').inputValue(),
+        'Investidora e mentora',
+      );
+      await page.locator('#title').fill('Investidora anjo');
+    }
     assert.equal(
       await selectedCity(),
       'Fortaleza',
@@ -105,8 +115,27 @@ try {
     await page.getByRole('dialog').waitFor({ state: 'hidden' });
     assert.equal(patches.at(-1).cidade, 'Sobral');
     assert.equal(profile.cidade, 'Sobral');
+    if (role === 'investidor') {
+      assert.equal(profile.tituloProfissional, 'Investidora anjo');
+      assert.equal(
+        await page.getByText('Investidora anjo', { exact: true }).count(),
+        1,
+      );
+    }
     await page.reload({ waitUntil: 'domcontentloaded' });
+    if (role === 'investidor')
+      await page.getByText('Investidora anjo', { exact: true }).waitFor();
+    if (role === 'investidor') {
+      profile.tituloProfissional = 'Mentora de startups';
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      await page.getByText('Mentora de startups', { exact: true }).waitFor();
+    }
     await openEditor();
+    if (role === 'investidor')
+      assert.equal(
+        await page.locator('#title').inputValue(),
+        'Mentora de startups',
+      );
     assert.equal(
       await selectedCity(),
       'Sobral',
@@ -155,11 +184,11 @@ try {
       });
       for (const width of [1280, 390]) {
         await page.setViewportSize({ width, height: 850 });
-        const left = await save.boundingBox();
-        const right = await cancel.boundingBox();
+        const left = await cancel.boundingBox();
+        const right = await save.boundingBox();
         assert.ok(
           left.x < right.x && Math.abs(left.y - right.y) < 2,
-          'Save left, cancel right on the same footer row',
+          'Cancel left, save right on the same footer row',
         );
         assert.notEqual(
           await save.evaluate((el) => getComputedStyle(el).backgroundColor),

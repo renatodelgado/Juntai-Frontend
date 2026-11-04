@@ -100,7 +100,6 @@ export function ContentDialog({
       </header>
       <div>{children}</div>
       <footer>
-        {actions}
         <Button
           type="button"
           $variant="secondary"
@@ -109,6 +108,7 @@ export function ContentDialog({
         >
           {closeLabel}
         </Button>
+        {actions}
       </footer>
     </Dialog>
   );

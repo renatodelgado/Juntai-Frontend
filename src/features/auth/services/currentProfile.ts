@@ -7,6 +7,7 @@ const schema = z.object({
   statusModeracao: z.string(),
   avatarUrl: z.string().nullish(),
   logoUrl: z.string().nullish(),
+  tituloProfissional: z.string().nullish(),
 });
 type CurrentProfile = z.infer<typeof schema>;
 let snapshot: { token: string; profile: CurrentProfile } | null = null;

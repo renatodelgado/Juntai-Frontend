@@ -17,7 +17,7 @@
     "format:check": "prettier --check .",
     "check": "npm run typecheck && npm run lint && npm run format:check",
     "test": "node --test tests/recommendations.test.mjs",
-    "test:browser": "node tests/recommendations.browser.mjs && node tests/explore-stability.browser.mjs"
+    "test:browser": "node tests/recommendations.browser.mjs && node tests/explore-stability.browser.mjs && node tests/profile-location.browser.mjs && node tests/dashboard-highlights.browser.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
