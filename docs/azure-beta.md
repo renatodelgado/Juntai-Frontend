@@ -5,7 +5,7 @@ Cada workflow pode ser executado manualmente pela aba Actions do GitHub.
 
 - Frontend: Azure Static Web Apps Free, `juntai-beta-front`.
 - API: Container Apps, `juntai-beta-api`.
-- Matchmaking: Container Apps com entrada interna, `juntai-beta-matchmaking`.
+- Matchmaking: Container Apps com autenticação entre serviços, `juntai-beta-matchmaking`.
 - Imagens privadas: `juntaibeta60774.azurecr.io`.
 - Grupo dos recursos beta: `juntai-beta`.
 - Banco separado: `juntai_beta`, no servidor PostgreSQL existente `juntai`, grupo `banco_juntai`.
@@ -27,6 +27,11 @@ As identidades de publicação têm permissão restrita ao recurso publicado.
 Backend e matchmaking também podem enviar imagens ao registro privado.
 A identidade de execução dos contêineres tem somente `AcrPull` no registro.
 As senhas do banco e a chave JWT ficam nos secrets da API no Container Apps.
+O motor exige `X-Matchmaking-Key` nas chamadas de recomendação; a API envia
+esse header usando um segredo compartilhado nos dois contêineres. O frontend
+nunca recebe essa chave. O endpoint `/health` permite verificações de saúde
+sem autenticação. A configuração de entrada interna do Express não bloqueou
+chamadas externas no teste, portanto a proteção é validada na aplicação.
 O token de publicação do frontend é obtido durante o job e mascarado nos logs.
 
 O workflow do frontend valida, testa, compila e envia `dist`. O arquivo
