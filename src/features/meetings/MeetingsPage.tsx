@@ -14,6 +14,7 @@ import { Layout, Card } from '@/shared/components/profile/Profile.styles';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Modal } from '@/shared/components/ui/Modal';
 import { Button } from '@/shared/components/ui/Button';
+import { safeExternalUrl } from '@/shared/utils/security';
 import { Form } from '@/features/explore-startups/Explore.styles';
 import { type AuthUser } from '@/features/auth/services/session';
 import { theme, investorTheme } from '@/shared/styles/theme';
@@ -429,16 +430,17 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
               {selected.format === 'online' && !selected.link && (
                 <p>O link da reunião ainda não foi informado.</p>
               )}
-              {canJoin(selected, data.now) && (
-                <Button
-                  as="a"
-                  href={selected.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Entrar na reunião
-                </Button>
-              )}
+              {canJoin(selected, data.now) &&
+                safeExternalUrl(selected.link) && (
+                  <Button
+                    as="a"
+                    href={safeExternalUrl(selected.link)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Entrar na reunião
+                  </Button>
+                )}
               {selected.cancellationReason && (
                 <p>Motivo: {selected.cancellationReason}</p>
               )}

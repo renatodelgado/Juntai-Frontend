@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
 const result = await build({
@@ -23,12 +24,14 @@ const result = await build({
           namespace: 'mock',
         }));
         b.onResolve({ filter: /^@\// }, (args) => ({
-          path: new URL(
-            '../src/' +
-              args.path.slice(2) +
-              (args.path.endsWith('Button') ? '.tsx' : '.ts'),
-            import.meta.url,
-          ).pathname.replace(/^\/([A-Z]:)/, '$1'),
+          path: fileURLToPath(
+            new URL(
+              '../src/' +
+                args.path.slice(2) +
+                (args.path.endsWith('Button') ? '.tsx' : '.ts'),
+              import.meta.url,
+            ),
+          ),
         }));
         b.onLoad({ filter: /.*/, namespace: 'mock' }, () => ({
           contents:

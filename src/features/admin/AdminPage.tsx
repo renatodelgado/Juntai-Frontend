@@ -971,7 +971,7 @@ export function AdminPage() {
                                 <a
                                   href={safeUrl(value)!}
                                   target="_blank"
-                                  rel="noreferrer"
+                                  rel="noopener noreferrer"
                                 >
                                   <img
                                     src={safeUrl(value)!}
@@ -987,7 +987,7 @@ export function AdminPage() {
                                 <a
                                   href={safeUrl(value)!}
                                   target="_blank"
-                                  rel="noreferrer"
+                                  rel="noopener noreferrer"
                                 >
                                   {key === 'apresentacaoUrl'
                                     ? 'Abrir apresentação'

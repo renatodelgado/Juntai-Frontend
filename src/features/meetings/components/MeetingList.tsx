@@ -1,4 +1,5 @@
 import { Button } from '@/shared/components/ui/Button';
+import { safeExternalUrl } from '@/shared/utils/security';
 import { MapPinIcon, VideoCameraIcon, ClockIcon } from '@phosphor-icons/react';
 import {
   canJoin,
@@ -100,16 +101,17 @@ export function MeetingList({
                       >
                         Ver detalhes
                       </Button>
-                      {canJoin(meeting, now) && (
-                        <Button
-                          as="a"
-                          href={meeting.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Entrar na reunião
-                        </Button>
-                      )}
+                      {canJoin(meeting, now) &&
+                        safeExternalUrl(meeting.link) && (
+                          <Button
+                            as="a"
+                            href={safeExternalUrl(meeting.link)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Entrar na reunião
+                          </Button>
+                        )}
                     </div>
                   </div>
                 </S.MeetingCard>

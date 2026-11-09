@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
@@ -220,7 +220,11 @@ export function AdminMeetingsPage() {
             </dl>
             {selected.linkReuniao &&
               /^https?:\/\//i.test(selected.linkReuniao) && (
-                <a href={selected.linkReuniao} target="_blank" rel="noreferrer">
+                <a
+                  href={selected.linkReuniao}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Abrir link da reunião
                 </a>
               )}

@@ -289,7 +289,7 @@ export function PublicStartupProfile() {
                           <a
                             href={startup.presentationUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           >
                             Abrir apresentação
                           </a>
@@ -301,7 +301,7 @@ export function PublicStartupProfile() {
                           <a
                             href={startup.siteUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           >
                             Visitar site
                           </a>
