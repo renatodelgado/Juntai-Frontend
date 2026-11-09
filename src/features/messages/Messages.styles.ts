@@ -195,6 +195,17 @@ export const Thread = styled.section`
   min-height: 0;
   min-width: 0;
   flex-direction: column;
+  .schedule-meeting {
+    margin-left: auto;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+  @media (max-width: 36rem) {
+    .schedule-meeting {
+      width: 100%;
+      justify-content: center;
+    }
+  }
   > header {
     padding: 1.1rem 1.5rem;
     display: flex;

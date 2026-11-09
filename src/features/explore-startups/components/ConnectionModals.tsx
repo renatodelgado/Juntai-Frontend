@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Modal } from '@/shared/components/ui/Modal';
-import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import type { Startup } from '../model';
 import type { Discovery } from '../useDiscovery';
-import { MeetingEditor } from '@/features/meetings/components/MeetingEditor';
+import { ScheduleMeetingDialog } from '@/features/meetings/components/ScheduleMeetingDialog';
 
 export function InterestConfirmationModal(props: {
   startup: Startup | null;
@@ -89,43 +88,12 @@ export function MeetingRequestModal({
   data: Discovery;
   onClose: () => void;
 }) {
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  return (
-    <ContentDialog
-      open={!!startup}
-      title="Agendar reunião"
-      onClose={() => {
-        if (!busy) {
-          setError('');
-          onClose();
-        }
-      }}
-    >
-      {startup && (
-        <MeetingEditor
-          key={startup.id}
-          startup={startup}
-          busy={busy}
-          error={error}
-          onSubmit={async (input) => {
-            setBusy(true);
-            setError('');
-            try {
-              await data.meeting(input);
-              onClose();
-            } catch (cause) {
-              setError(
-                cause instanceof Error
-                  ? cause.message
-                  : 'Não foi possível agendar a reunião.',
-              );
-            } finally {
-              setBusy(false);
-            }
-          }}
-        />
-      )}
-    </ContentDialog>
-  );
+  return startup ? (
+    <ScheduleMeetingDialog
+      key={startup.id}
+      user={data.user}
+      startup={startup}
+      onClose={onClose}
+    />
+  ) : null;
 }

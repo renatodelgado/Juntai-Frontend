@@ -9,6 +9,7 @@ import {
   ChecksIcon,
   MagnifyingGlassIcon,
   PaperPlaneTiltIcon,
+  CalendarPlusIcon,
 } from '@phosphor-icons/react';
 import { getSession, type AuthUser } from '@/features/auth/services/session';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
@@ -18,6 +19,7 @@ import { Button } from '@/shared/components/ui/Button';
 import { theme, investorTheme } from '@/shared/styles/theme';
 import { messagesApi, type ConversationSummary, type ApiMessage } from './api';
 import { interestsApi } from '@/features/explore-startups/api';
+import { ScheduleMeetingDialog } from '@/features/meetings/components/ScheduleMeetingDialog';
 import * as S from './Messages.styles';
 
 const dateTime = (date: string) =>
@@ -74,6 +76,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
   const [params] = useSearchParams();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [scheduling, setScheduling] = useState(false);
   const [messages, setMessages] = useState<ApiMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [threadLoading, setThreadLoading] = useState(false);
@@ -214,6 +217,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
   }, [messages.length, selected]);
   const conversation = conversations.find((c) => c.usuarioId === selected);
   function choose(usuarioId: string | null) {
+    setScheduling(false);
     selectedRef.current = usuarioId;
     setSelected(usuarioId);
     setMessages([]);
@@ -405,7 +409,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                       <ArrowLeftIcon size={20} />
                     </button>
                     <Avatar person={conversation} />
-                    <div>
+                    <div className="identity">
                       <h2>{conversation.nome}</h2>
                       <small>
                         {conversation.tipoPerfil === 'startup'
@@ -413,6 +417,17 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                           : 'Investidor'}
                       </small>
                     </div>
+                    {user.tipoPerfil === 'investidor' &&
+                      conversation.tipoPerfil === 'startup' && (
+                        <Button
+                          className="schedule-meeting"
+                          $variant="secondary"
+                          onClick={() => setScheduling(true)}
+                        >
+                          <CalendarPlusIcon size={20} />
+                          <span>Agendar reunião</span>
+                        </Button>
+                      )}
                   </header>
                   <S.Timeline
                     ref={timeline}
@@ -500,6 +515,14 @@ function MessagesScreen({ user }: { user: AuthUser }) {
             </S.Thread>
           </S.Workspace>
         </S.Page>
+        {scheduling && conversation && (
+          <ScheduleMeetingDialog
+            key={conversation.usuarioId}
+            user={user}
+            recipientUserId={conversation.usuarioId}
+            onClose={() => setScheduling(false)}
+          />
+        )}
       </Layout>
     </ThemeProvider>
   );

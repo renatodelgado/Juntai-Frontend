@@ -7,8 +7,6 @@ import { defaultFilters, type Filters, type Startup } from './model';
 import type { DiscoverySummary, StartupPage } from './api';
 import { getSession } from '@/features/auth/services/session';
 import { startupRepository, interestsApi } from './api';
-import { meetingsRepository } from '@/features/meetings/repository';
-import type { MeetingInput } from '@/features/meetings/model';
 
 export type DiscoveryState = {
   saved: string[];
@@ -290,12 +288,6 @@ export function useDiscovery(filters?: Filters) {
     setNotice('Interesse confirmado. Você já pode iniciar a conversa.');
     return result;
   }
-  async function meeting(value: MeetingInput) {
-    if (user.tipoPerfil !== 'investidor')
-      throw new Error('Somente investidores podem agendar reuniões.');
-    await meetingsRepository.create(value);
-    setNotice('Reuni?o agendada. Acompanhe em Reuniões.');
-  }
   function viewed(id: string) {
     if (!state.viewed.includes(id))
       commit({ ...state, viewed: [...state.viewed, id] }, '');
@@ -342,7 +334,6 @@ export function useDiscovery(filters?: Filters) {
     notice,
     save,
     interest,
-    meeting,
     viewed,
     discard,
     retry: () => {

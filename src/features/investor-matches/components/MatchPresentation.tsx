@@ -203,10 +203,22 @@ export function MatchCard({
             </Button>
           </div>
         )}
-        <Button $variant="quiet" onClick={onMeeting} disabled={!data.approved}>
-          <CalendarIcon size={16} />
-          Agendar reunião
-        </Button>
+        <div className="meeting-action">
+          <div>
+            <CalendarIcon size={24} weight="duotone" />
+            <span>
+              <strong>Vamos conversar?</strong>
+              <small>Reserve um horário com a startup.</small>
+            </span>
+          </div>
+          <Button
+            $variant="secondary"
+            onClick={onMeeting}
+            disabled={!data.approved}
+          >
+            Agendar reunião
+          </Button>
+        </div>
         <button className="discard" onClick={() => data.discard(startup.id)}>
           {status === 'discarded'
             ? 'Restaurar recomendação'

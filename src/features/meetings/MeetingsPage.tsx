@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData } from 'react-router-dom';
+import { CalendarPlusIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { ThemeProvider } from 'styled-components';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
@@ -20,6 +21,7 @@ import {
 import { useMeetings } from './useMeetings';
 import { MeetingCalendar } from './components/MeetingCalendar';
 import { MeetingList } from './components/MeetingList';
+import { ScheduleMeetingDialog } from './components/ScheduleMeetingDialog';
 import * as S from './Meetings.styles';
 
 export function MeetingsPage() {
@@ -30,10 +32,13 @@ export function MeetingsPage() {
 }
 function MeetingsScreen({ user }: { user: AuthUser }) {
   const data = useMeetings(user);
+  const [scheduling, setScheduling] = useState(false);
   const [status, setStatus] = useState<MeetingStatus>('agendada');
   const [query, setQuery] = useState('');
   const [view, setView] = useState<'list' | 'calendar'>('list');
-  const [selected, setSelected] = useState<ScheduledMeeting | null>(null);
+  const [selection, setSelected] = useState<ScheduledMeeting | null>(null);
+  const selected =
+    data.meetings.find((item) => item.id === selection?.id) ?? null;
   const [change, setChange] = useState<
     'realizada' | 'cancelada' | 'no_show' | null
   >(null);
@@ -87,7 +92,8 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
             breadcrumbs={[{ label: 'Reuniões' }]}
             actions={
               user.tipoPerfil === 'investidor' ? (
-                <Button as={Link} to="/investidor/startups">
+                <Button onClick={() => setScheduling(true)}>
+                  <CalendarPlusIcon size={20} />
                   Agendar reunião
                 </Button>
               ) : undefined
@@ -120,10 +126,12 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
               ))}
             </div>
             <div className="filters">
-              <label>
-                Buscar participante
+              <label className="search">
+                <MagnifyingGlassIcon size={20} aria-hidden="true" />
                 <input
                   type="search"
+                  aria-label="Buscar participante"
+                  placeholder="Buscar startup ou investidor"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
@@ -164,8 +172,16 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
               <p>
                 {user.tipoPerfil === 'startup'
                   ? 'As reuniões agendadas pelos investidores aparecerão aqui.'
-                  : 'Agende uma reunião pelo perfil de uma startup em Explorar ou Matches.'}
+                  : 'Escolha uma startup e reserve um horário para a próxima conversa.'}
               </p>
+              {user.tipoPerfil === 'investidor' &&
+                !query &&
+                status === 'agendada' && (
+                  <Button onClick={() => setScheduling(true)}>
+                    <CalendarPlusIcon size={20} />
+                    Agendar reunião
+                  </Button>
+                )}
             </div>
           ) : view === 'calendar' ? (
             <MeetingCalendar
@@ -185,6 +201,18 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
             />
           )}
         </S.Main>
+        {scheduling && (
+          <ScheduleMeetingDialog
+            user={user}
+            onClose={() => setScheduling(false)}
+            onCreated={() => {
+              setStatus('agendada');
+              setQuery('');
+              setNotice('Reunião agendada com sucesso.');
+              data.retry();
+            }}
+          />
+        )}
         <ContentDialog
           open={!!selected && !change}
           title="Detalhes da reunião"

@@ -313,6 +313,35 @@ export const MatchCard = styled(DiscoveryCard)`
     gap: 8px;
     margin-top: 14px;
   }
+  .meeting-action {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 12px;
+    background: ${({ theme }) => theme.colors.accentSoft};
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .meeting-action > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: ${({ theme }) => theme.colors.accentStrong};
+  }
+  .meeting-action strong,
+  .meeting-action small {
+    display: block;
+  }
+  .meeting-action strong {
+    font-size: 13px;
+  }
+  .meeting-action small {
+    margin-top: 4px;
+    font-size: 12px;
+    color: ${({ theme }) => theme.colors.appMuted};
+  }
   .connection-actions a,
   .connection-actions button {
     font-size: 11px;
