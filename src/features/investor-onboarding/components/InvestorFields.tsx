@@ -25,6 +25,7 @@ import {
 import { RegionSelect } from '@/features/startup-onboarding/components/RegionSelect';
 import {
   getCities,
+  citySelection,
   type City,
 } from '@/features/startup-onboarding/services/locations';
 import * as catalogs from '@/features/startup-onboarding/data/catalogs';
@@ -352,7 +353,9 @@ export function InvestorFields({
             'Preferências adicionais',
             'Algo mais sobre as startups que você gostaria de conhecer?',
           )}
-        <p>Nesta etapa não há pontuação ou recomendação automática.</p>
+        <p>
+          Suas preferências ajudam a encontrar startups alinhadas ao seu perfil.
+        </p>
       </>
     ),
     review: <InvestorSummary data={data} onEdit={edit} />,
@@ -394,7 +397,7 @@ export function InvestorFields({
         />
         <Checkbox
           id="matchingConsent"
-          label="Quero que minhas preferências sejam consideradas em futuras sugestões de conexões."
+          label="Quero que minhas preferências sejam consideradas nas sugestões de conexões."
           checked={data.matchingConsent}
           onChange={(value) => update('matchingConsent', value)}
         />
@@ -443,6 +446,7 @@ function InvestorLocation({
   const cities = result?.state === data.state ? result.cities : [];
   const loading = !!data.state && result?.state !== data.state;
   const failed = result?.state === data.state && result.error;
+  const selection = citySelection(cities, data);
   return (
     <>
       <Columns>
@@ -459,8 +463,8 @@ function InvestorLocation({
           id="cityId"
           label="Cidade"
           required
-          options={cities.map((city) => ({ value: city.id, label: city.name }))}
-          value={data.cityId}
+          options={selection.options}
+          value={selection.value}
           disabled={!data.state || loading || failed}
           placeholder={loading ? 'Carregando cidades…' : 'Selecione uma cidade'}
           error={errors.cityId}

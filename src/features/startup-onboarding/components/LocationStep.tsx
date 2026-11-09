@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 import { Select } from '@/shared/components/forms/Fields';
 import { Button } from '@/shared/components/ui/Button';
-import { getCities, type City } from '../services/locations';
+import { citySelection, getCities, type City } from '../services/locations';
 import type { OnboardingController } from '../hooks/useOnboarding';
 import { bindFields } from './fields';
 import { states } from '../data/catalogs';
@@ -39,12 +39,7 @@ export function LocationStep({ form }: { form: OnboardingController }) {
   const loading = !!state && result?.state !== state;
   const cities = result?.state === state ? result.cities : [];
   const error = result?.state === state ? result.error : '';
-  const options = cities.map((city) => ({ value: city.id, label: city.name }));
-  if (
-    form.data.cityId &&
-    !options.some((option) => option.value === form.data.cityId)
-  )
-    options.push({ value: form.data.cityId, label: form.data.cityName });
+  const selection = citySelection(cities, form.data);
   return (
     <Fields>
       <Columns>
@@ -53,8 +48,8 @@ export function LocationStep({ form }: { form: OnboardingController }) {
           id="cityId"
           label="Cidade"
           required
-          options={options}
-          value={form.data.cityId}
+          options={selection.options}
+          value={selection.value}
           disabled={!state || loading || !!error}
           placeholder={
             loading

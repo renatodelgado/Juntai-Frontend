@@ -1,50 +1,141 @@
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CompassIcon, LockSimpleIcon } from '@phosphor-icons/react';
+import styled from 'styled-components';
+import {
+  CompassIcon,
+  LockSimpleIcon,
+  ArrowRightIcon,
+} from '@phosphor-icons/react';
 import { Card, Muted } from '@/shared/components/profile/Profile.styles';
 import { Button } from '@/shared/components/ui/Button';
+import { startupRepository } from '@/features/explore-startups/api';
+import type { Startup } from '@/features/explore-startups/model';
+import {
+  CompatibilityIndicator,
+  StartupIdentity,
+} from '@/features/explore-startups/components/StartupCard';
+import { useExposure } from '@/features/explore-startups/useExposure';
 import { Empty } from '../pages/Dashboard.styles';
 import { moderation, type Dashboard } from '../model/dashboard';
 
-// A future adapter must provide public data and server-computed matching factors.
-export interface Recommendation {
-  id: string;
-  name: string;
-  summary: string;
-  compatibility: 'high' | 'good';
-  factors: {
-    key: 'segment' | 'stage' | 'region' | 'ticket' | 'businessModel';
-    explanation: string;
-  }[];
-}
-
-export function CompatibilityFactors({
-  factors,
-}: {
-  factors: Recommendation['factors'];
-}) {
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0;
+`;
+const Highlight = styled.article`
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.accentBorder};
+  border-radius: ${({ theme }) => theme.radii.card};
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  > header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  h3 {
+    margin: 0.2rem 0;
+    overflow-wrap: anywhere;
+  }
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+  > p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  > a {
+    margin-top: auto;
+  }
+`;
+function HighlightCard({ startup }: { startup: Startup }) {
+  const exposure = useExposure(startup.contextoExposicao);
   return (
-    <details>
-      <summary>Por que recomendamos esta conexão?</summary>
-      <ul>
-        {factors.map((factor) => (
-          <li key={factor.key}>{factor.explanation}</li>
-        ))}
-      </ul>
-      <Muted>
-        A compatibilidade não representa garantia de qualidade, investimento ou
-        retorno.
-      </Muted>
-    </details>
+    <Highlight ref={exposure}>
+      <header>
+        <StartupIdentity startup={startup} />
+        <div>
+          <Muted>{startup.segment}</Muted>
+          <h3>{startup.name}</h3>
+        </div>
+      </header>
+      <p>{startup.tagline || startup.description}</p>
+      <CompatibilityIndicator startup={startup} />
+      <Button as={Link} to={`/startups/${startup.id}`} $variant="secondary">
+        Conhecer startup <ArrowRightIcon size={18} aria-hidden="true" />
+      </Button>
+    </Highlight>
   );
 }
-
-export function RecommendationSection({
-  data,
-  recommendations = null,
+function InvestorRecommendations({
+  profile,
 }: {
-  data: Dashboard;
-  recommendations?: Recommendation[] | null;
+  profile: Dashboard['profile'];
 }) {
+  const [attempt, setAttempt] = useState(0);
+  const key = `${profile.id}:${profile.atualizadoEm}:${attempt}`;
+  const [result, setResult] = useState<{
+    key: string;
+    items: Startup[];
+    failed: boolean;
+  } | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    void startupRepository
+      .highlights(controller.signal)
+      .then((items) => {
+        if (!controller.signal.aborted)
+          setResult({ key, items, failed: false });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setResult({ key, items: [], failed: true });
+      });
+    return () => controller.abort();
+  }, [key]);
+  const current = result?.key === key ? result : null;
+  return (
+    <>
+      {!current ? (
+        <p role="status">
+          Buscando as startups mais compatíveis com seu perfil…
+        </p>
+      ) : current.failed ? (
+        <div role="alert">
+          <p>Não conseguimos carregar suas recomendações agora.</p>
+          <Button
+            $variant="secondary"
+            onClick={() => setAttempt((value) => value + 1)}
+          >
+            Tentar novamente
+          </Button>
+        </div>
+      ) : current.items.length ? (
+        <Grid>
+          {current.items.map((startup) => (
+            <HighlightCard key={startup.id} startup={startup} />
+          ))}
+        </Grid>
+      ) : (
+        <p>
+          Ainda não encontramos startups compatíveis. Revise suas preferências
+          ou explore o catálogo.
+        </p>
+      )}
+      <Button as={Link} to="/investidor/startups" $variant="secondary">
+        Descubra mais <ArrowRightIcon size={18} aria-hidden="true" />
+      </Button>
+    </>
+  );
+}
+export function RecommendationSection({ data }: { data: Dashboard }) {
   const approved = moderation(data.profile.statusModeracao).approved;
   const investor = data.role === 'investidor';
   return (
@@ -56,7 +147,7 @@ export function RecommendationSection({
       </header>
       <Muted>
         {investor
-          ? 'Um espaço para descobrir startups alinhadas aos seus interesses.'
+          ? 'Conheça startups com as maiores pontuações para o seu perfil. Em caso de empate, variamos as sugestões.'
           : 'Encontre investidores e mentores que compartilham dos seus objetivos.'}
       </Muted>
       {!approved ? (
@@ -64,58 +155,31 @@ export function RecommendationSection({
           <LockSimpleIcon size={32} aria-hidden="true" />
           <h3>
             {data.profile.statusModeracao === 'pendente'
-              ? investor
-                ? 'Suas recomendações aparecerão aqui'
-                : 'Matchmaking aguardando aprovação'
+              ? 'Suas recomendações aparecerão aqui'
               : 'Conexões indisponíveis no momento'}
           </h3>
           <p>
-            Depois que seu perfil for aprovado, o Juntaí! poderá usar seus
-            {investor ? 'interesses' : 'necessidades'}, estágio, regiões e
-            modelo de negócio para encontrar conexões compatíveis.
+            Depois que seu perfil for aprovado, você poderá acessar suas
+            recomendações.
           </p>
           <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
             Consultar meu perfil
           </Button>
         </Empty>
-      ) : recommendations === null ? (
-        <Empty>
-          <CompassIcon size={32} aria-hidden="true" />
-          <h3>Estamos preparando suas recomendações</h3>
-          <p>
-            Seu perfil está aprovado. O serviço de recomendações ainda não está
-            disponível. Suas conexões aparecerão aqui quando ele for liberado.
-          </p>
-          <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
-            {investor ? 'Revisar preferências' : 'Revisar objetivos'}
-          </Button>
-        </Empty>
-      ) : recommendations.length === 0 ? (
-        <Empty>
-          <CompassIcon size={32} aria-hidden="true" />
-          <h3>Ainda estamos procurando conexões para você</h3>
-          <p>
-            {investor
-              ? 'Revise seus interesses, estágios, regiões e faixa de investimento para representar suas preferências atuais.'
-              : 'Revise seu segmento, estágio, regiões de atuação, capital e necessidades para representar o momento atual da startup.'}
-          </p>
-          <Button as={Link} to={`/${data.role}/perfil`} $variant="secondary">
-            {investor ? 'Atualizar preferências' : 'Atualizar objetivos'}
-          </Button>
-        </Empty>
+      ) : investor ? (
+        <InvestorRecommendations profile={data.profile} />
       ) : (
-        recommendations.map((item) => (
-          <article key={item.id}>
-            <h3>{item.name}</h3>
-            <p>{item.summary}</p>
-            <strong>
-              {item.compatibility === 'high'
-                ? 'Alta compatibilidade'
-                : 'Boa compatibilidade'}
-            </strong>
-            <CompatibilityFactors factors={item.factors} />
-          </article>
-        ))
+        <Empty>
+          <CompassIcon size={32} aria-hidden="true" />
+          <h3>Apresente sua startup a novas conexões</h3>
+          <p>
+            Seu perfil está aprovado e pode aparecer nas recomendações para
+            investidores e mentores. Mantenha suas informações atualizadas.
+          </p>
+          <Button as={Link} to="/startup/perfil" $variant="secondary">
+            Revisar objetivos
+          </Button>
+        </Empty>
       )}
     </Card>
   );

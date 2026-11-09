@@ -27,6 +27,12 @@ export type Startup = {
   createdAt: string;
   color: string;
   variant: 'featured' | 'visual' | 'compact' | 'standard';
+  probabilidadeInteresse?: number;
+  origemRecomendacao?: 'rules' | 'supervised' | 'discovery';
+  posicaoRanking?: number | null;
+  versaoModelo?: string | null;
+  avisos?: string[];
+  contextoExposicao?: string;
   compatibility?: number;
   compatibilityFactors?: string[];
 };

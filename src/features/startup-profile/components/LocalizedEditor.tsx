@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
 import {
@@ -28,6 +28,7 @@ export function LocalizedEditor({
   const [data, setData] = useState(() => structuredClone(saved.data));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const formId = useId();
   const canvasField = catalogs.canvasFields.find(
     (field) => target === `canvas:${field.value}`,
   );
@@ -110,9 +111,14 @@ export function LocalizedEditor({
       title={`Editar ${title}`}
       onClose={onClose}
       busy={busy}
-      closeLabel="Cancelar / fechar"
+      closeLabel="Cancelar"
+      actions={
+        <Button type="submit" form={formId} disabled={busy}>
+          {busy ? 'Salvando…' : 'Salvar alterações'}
+        </Button>
+      }
     >
-      <form onSubmit={(event) => void submit(event)}>
+      <form id={formId} onSubmit={(event) => void submit(event)}>
         <fieldset
           disabled={busy}
           style={{ border: 0, padding: 0, minWidth: 0 }}
@@ -190,9 +196,6 @@ export function LocalizedEditor({
           )}
           {error && <p role="alert">{error}</p>}
           <p>Esta alteração será salva na sua conta.</p>
-          <Button type="submit">
-            {busy ? 'Salvando…' : 'Salvar alterações'}
-          </Button>
         </fieldset>
       </form>
     </ContentDialog>

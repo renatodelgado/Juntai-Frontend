@@ -1,15 +1,15 @@
 ﻿import { useEffect, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import {
   CheckCircleIcon,
   HandshakeIcon,
-  LockSimpleIcon,
   PencilSimpleIcon,
   ArrowRightIcon,
   EyeIcon,
 } from '@phosphor-icons/react';
-import { loadInvestorProfile, logout } from '@/features/auth/services/profiles';
+import { loadInvestorProfile } from '@/features/auth/services/profiles';
+import { useCurrentProfile } from '@/features/auth/services/currentProfile';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
@@ -30,14 +30,14 @@ import {
   InvestorPublicPreview,
   ProfileTags,
 } from '../components/InvestorPublicPreview';
-import { InvestorActivity } from '../components/InvestorActivity';
 
 export function InvestorProfilePage() {
+  const currentProfile = useCurrentProfile(false);
   const [saved, setSaved] = useState<model.SavedInvestor | null>(null);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState<model.InvestorStep | null>(null);
   const [dialog, setDialog] = useState<
-    'sections' | 'public' | 'settings' | 'moderation' | null
+    'sections' | 'public' | 'moderation' | null
   >(null);
   const navigate = useNavigate();
   useEffect(() => {
@@ -83,7 +83,15 @@ export function InvestorProfilePage() {
       </S.Card>
     );
   }
-  const data = saved?.data;
+  const data = saved
+    ? {
+        ...saved.data,
+        title:
+          currentProfile?.tituloProfissional !== undefined
+            ? (currentProfile.tituloProfissional ?? '')
+            : saved.data.title,
+      }
+    : undefined;
   const mentor = data?.participation === 'mentor';
   const completeness = data ? investorCompleteness(data) : null;
   const status = saved ? statusContent[saved.status] : null;
@@ -93,19 +101,7 @@ export function InvestorProfilePage() {
   return (
     <ThemeProvider theme={investorTheme}>
       <S.Layout $audience="investor">
-        <ProfileSidebar
-          profilePath="/investidor/perfil"
-          approved={saved?.status === 'approved'}
-          name={data?.name}
-          avatarUrl={data?.photo}
-          subtitle={mentor ? 'Mentor' : 'Investidor'}
-          status={saved ? statusLabels[saved.status] : 'Meu perfil'}
-          onSettings={() => setDialog('settings')}
-          onLogout={() => {
-            logout();
-            void navigate('/login', { replace: true });
-          }}
-        />
+        <ProfileSidebar approved={saved?.status === 'approved'} />
         <S.Main>
           <PageHeader
             title="Meu perfil"
@@ -128,71 +124,7 @@ export function InvestorProfilePage() {
                       <EyeIcon size={18} aria-hidden="true" /> Ver como startup
                     </Button>
                   </S.IdentityCard>
-                  <S.Grid>
-                    <S.StatusCard $status={saved.status}>
-                      <S.Badge>{statusLabels[saved.status]}</S.Badge>
-                      <h2>{status?.title}</h2>
-                      <p>{status?.description}</p>
-                      <S.Row>
-                        <S.Badge>
-                          <CheckCircleIcon size={18} aria-hidden="true" />{' '}
-                          Cadastro concluído
-                        </S.Badge>
-                        <Button
-                          $variant="secondary"
-                          onClick={() => setDialog('sections')}
-                        >
-                          Editar perfil
-                        </Button>
-                      </S.Row>
-                      {(saved.status === 'changes_requested' ||
-                        saved.status === 'rejected') && (
-                        <S.Row>
-                          <Button
-                            $variant="secondary"
-                            onClick={() => setDialog('moderation')}
-                          >
-                            Ver solicitações
-                          </Button>
-                          <Button onClick={() => setDialog('sections')}>
-                            Corrigir perfil
-                          </Button>
-                        </S.Row>
-                      )}
-                    </S.StatusCard>
-                    <S.Card>
-                      <header>
-                        <h2>
-                          {completeness?.percent === 100
-                            ? 'Seu perfil está completo'
-                            : `Seu perfil está ${completeness?.percent}% completo`}
-                        </h2>
-                        <S.Badge>{completeness?.percent}%</S.Badge>
-                      </header>
-                      <S.Progress
-                        value={completeness?.percent}
-                        max={100}
-                        aria-label="Completude do perfil"
-                      />
-                      <p>
-                        Perfis mais completos ajudam a apresentar melhor sua
-                        experiência e seus interesses.
-                      </p>
-                      <S.Muted>
-                        Seções preenchidas, sem pontuação de compatibilidade.
-                      </S.Muted>
-                      {completeness?.missing.slice(0, 4).map((field) => (
-                        <Button
-                          key={field.label}
-                          $variant="quiet"
-                          onClick={() => edit(field.step)}
-                        >
-                          Adicionar {field.label}
-                          <ArrowRightIcon size={16} aria-hidden="true" />
-                        </Button>
-                      ))}
-                    </S.Card>
-                  </S.Grid>
+
                   <S.Grid>
                     {section(
                       'Sobre você',
@@ -396,18 +328,17 @@ export function InvestorProfilePage() {
                     'Como posso ajudar uma startup',
                     'offers',
                     <S.Grid>
-                      {model.offers
-                        .filter((offer) => data.offers.includes(offer.value))
+                      {model.expertise
+                        .filter((offer) => data.expertise.includes(offer.value))
                         .map((offer) => (
                           <div key={offer.value}>
                             <S.Badge>
                               <CheckCircleIcon size={18} aria-hidden="true" />
                               {offer.label}
                             </S.Badge>
-                            <p>{offer.description}</p>
                           </div>
                         ))}
-                      {!data.offers.length && (
+                      {!data.expertise.length && (
                         <p>Adicione as contribuições que você pode oferecer.</p>
                       )}
                     </S.Grid>,
@@ -473,50 +404,81 @@ export function InvestorProfilePage() {
                     <h2>Dados para conexões</h2>
                     <p>
                       Seus interesses, sua experiência e sua disponibilidade
-                      poderão ajudar a encontrar startups com objetivos em
-                      comum.
+                      ajudam a encontrar startups com objetivos em comum.
                     </p>
                     <S.Muted>
-                      Nesta prévia, nenhum algoritmo de recomendação é
-                      executado.
+                      Explore as startups recomendadas com base no seu perfil.
                     </S.Muted>
+                    <Button
+                      as={Link}
+                      to="/investidor/startups"
+                      $variant="secondary"
+                    >
+                      Explorar startups
+                    </Button>
                   </S.FeatureCard>
+                  <S.StatusCard $status={saved.status}>
+                    <S.Badge>{statusLabels[saved.status]}</S.Badge>
+                    <h2>{status?.title}</h2>
+                    <p>{status?.description}</p>
+                    <S.Row>
+                      <S.Badge>
+                        <CheckCircleIcon size={18} aria-hidden="true" />{' '}
+                        Cadastro concluído
+                      </S.Badge>
+                      <Button
+                        $variant="secondary"
+                        onClick={() => setDialog('sections')}
+                      >
+                        Editar perfil
+                      </Button>
+                    </S.Row>
+                    {(saved.status === 'changes_requested' ||
+                      saved.status === 'rejected') && (
+                      <S.Row>
+                        <Button
+                          $variant="secondary"
+                          onClick={() => setDialog('moderation')}
+                        >
+                          Ver solicitações
+                        </Button>
+                        <Button onClick={() => setDialog('sections')}>
+                          Corrigir perfil
+                        </Button>
+                      </S.Row>
+                    )}
+                  </S.StatusCard>
                   <S.Card>
                     <header>
-                      <h2>Preferências</h2>
-                      <S.EditButton
-                        aria-label="Editar preferências"
-                        onClick={() => edit('preferences')}
-                      >
-                        <PencilSimpleIcon size={18} aria-hidden="true" />
-                      </S.EditButton>
+                      <h2>
+                        {completeness?.percent === 100
+                          ? 'Seu perfil está completo'
+                          : `Seu perfil está ${completeness?.percent}% completo`}
+                      </h2>
+                      <S.Badge>{completeness?.percent}%</S.Badge>
                     </header>
-                    <h3>Regiões de interesse</h3>
-                    {tags(catalogs.regions, data.regions)}
-                    <h3>Estágios apoiados</h3>
-                    {tags(catalogs.stages, data.stages)}
-                    <h3>Preferências adicionais</h3>
-                    <p>{data.preferences || 'Ainda não informado'}</p>
-                    <S.Muted>
-                      <LockSimpleIcon size={16} aria-hidden="true" />{' '}
-                      {saved.status === 'approved'
-                        ? 'Matchmaking em preparação.'
-                        : 'O matchmaking será liberado após aprovação e integração.'}
-                    </S.Muted>
-                  </S.Card>
-                  <InvestorActivity events={saved.activity ?? []} />
-                  <S.Card>
-                    <h2>Seu perfil para startups</h2>
+                    <S.Progress
+                      value={completeness?.percent}
+                      max={100}
+                      aria-label="Completude do perfil"
+                    />
                     <p>
-                      Confira como sua trajetória, seus interesses e suas
-                      contribuições aparecem na prévia do perfil.
+                      Perfis mais completos ajudam a apresentar melhor sua
+                      experiência e seus interesses.
                     </p>
-                    <Button
-                      $variant="secondary"
-                      onClick={() => setDialog('public')}
-                    >
-                      Visualizar perfil completo
-                    </Button>
+                    <S.Muted>
+                      Seções preenchidas, sem pontuação de compatibilidade.
+                    </S.Muted>
+                    {completeness?.missing.slice(0, 4).map((field) => (
+                      <Button
+                        key={field.label}
+                        $variant="quiet"
+                        onClick={() => edit(field.step)}
+                      >
+                        Adicionar {field.label}
+                        <ArrowRightIcon size={16} aria-hidden="true" />
+                      </Button>
+                    ))}
                   </S.Card>
                 </S.SupportColumn>
               </S.ProfileColumns>
@@ -528,11 +490,9 @@ export function InvestorProfilePage() {
           title={
             dialog === 'public'
               ? 'Seu perfil para startups'
-              : dialog === 'settings'
-                ? 'Configurações do perfil'
-                : dialog === 'moderation'
-                  ? 'Solicitações da moderação'
-                  : 'O que você quer atualizar?'
+              : dialog === 'moderation'
+                ? 'Solicitações da moderação'
+                : 'O que você quer atualizar?'
           }
           onClose={() => setDialog(null)}
         >
@@ -552,17 +512,7 @@ export function InvestorProfilePage() {
                 ))}
             </S.Row>
           )}
-          {dialog === 'settings' && (
-            <>
-              <p>
-                As alterações do perfil são salvas na sua conta, sem voltar ao
-                cadastro.
-              </p>
-              <Button $variant="secondary" onClick={() => edit('consent')}>
-                Revisar consentimentos
-              </Button>
-            </>
-          )}
+
           {dialog === 'moderation' &&
             (saved?.moderationNotes?.length ? (
               saved.moderationNotes.map((note, index) => (
@@ -572,9 +522,9 @@ export function InvestorProfilePage() {
               <p>Nenhuma solicitação foi registrada nesta prévia.</p>
             ))}
         </ContentDialog>
-        {saved && editing && (
+        {saved && data && editing && (
           <InvestorEditor
-            saved={saved}
+            saved={{ ...saved, data }}
             step={editing}
             onClose={() => setEditing(null)}
             onSaved={setSaved}

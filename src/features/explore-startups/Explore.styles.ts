@@ -650,3 +650,57 @@ export const Profile = styled.div`
     }
   }
 `;
+
+export const Recommendation = styled.div<{ $tier: number }>`
+  --score-color: ${({ $tier }) => ['#526078', '#526078', '#285f94', '#426127', '#983e16'][$tier]};
+  color: var(--score-color);
+  background: ${({ $tier }) => ($tier === 4 ? '#fff0df' : $tier === 3 ? '#eef5e4' : '#f0f4f9')};
+  border: 1px solid ${({ $tier }) => ($tier === 4 ? '#edb17d' : '#dce3e9')};
+  border-radius: 12px;
+  padding: 12px;
+  margin: 10px 0;
+  width: 100%;
+  min-width: 0;
+  .score-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .score-heading > svg {
+    flex-shrink: 0;
+  }
+  .score-heading > div {
+    flex: 1;
+    min-width: 0;
+  }
+  strong {
+    display: block;
+    font-size: 23px;
+    line-height: 1.2;
+  }
+  span,
+  small {
+    display: block;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  b {
+    font-size: 11px;
+  }
+  .score-track {
+    height: 6px;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 10px 0 7px;
+  }
+  .score-track > div {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--score-color);
+  }
+  summary {
+    font-size: 11px;
+    cursor: pointer;
+  }
+`;

@@ -20,9 +20,9 @@ export function LegalDocument({ document }: { document: 'terms' | 'privacy' }) {
           <p>
             O Juntaí! é um projeto acadêmico para aproximar startups,
             investidores anjo e mentores. Nesta versão, você pode construir e
-            revisar um perfil no navegador e enviar o cadastro ao servidor. Não
-            há recomendação automática, oferta de investimento, intermediação
-            financeira ou garantia de conexão.
+            revisar um perfil e receber recomendações de conexões entre perfis
+            aprovados. As recomendações não representam oferta de investimento,
+            intermediação financeira ou garantia de conexão.
           </p>
           <h2>2. Informações e materiais do perfil</h2>
           <p>
@@ -68,8 +68,8 @@ export function LegalDocument({ document }: { document: 'terms' | 'privacy' }) {
             Para investidores e mentores, o perfil também reúne foto, bio, áreas
             de interesse, faixas de investimento quando aplicáveis, experiência,
             disponibilidade e formas de contribuição. As opções são usadas para
-            construir a apresentação e preparar preferências para conexões
-            futuras, sem executar recomendações nesta versão.
+            construir a apresentação e recomendar conexões com base nas
+            características e preferências dos perfis aprovados.
           </p>
           <h2>2. Finalidade e armazenamento nesta prévia</h2>
           <p>
@@ -94,15 +94,15 @@ export function LegalDocument({ document }: { document: 'terms' | 'privacy' }) {
             IP, aos provedores. O conteúdo completo do perfil não é enviado
             nessas consultas.
           </p>
-          <h2>4. Sugestões de conexão no futuro</h2>
+          <h2>4. Sugestões de conexão</h2>
           <p>
-            O projeto pretende comparar características estruturadas, como
-            segmento, estágio, regiões e necessidades, com preferências de
-            investidores e mentores. Ainda não há pontuação, ranking ou
-            algoritmo de recomendação. A escolha opcional registrada agora é
-            apenas uma preferência da prévia; finalidade, base legal e condições
-            do recurso deverão ser revisadas antes da ativação, com nova
-            confirmação quando cabível.
+            O Juntaí! compara características estruturadas, como segmento,
+            estágio, regiões e necessidades, com preferências de investidores e
+            mentores para ordenar recomendações. A interface identifica a
+            compatibilidade com o perfil ou a probabilidade estimada de
+            interesse, conforme o método utilizado. O modelo de probabilidade é
+            experimental. A pontuação não garante interesse, conexão ou
+            investimento.
           </p>
           <h2>5. Controle sobre seu rascunho</h2>
           <p>

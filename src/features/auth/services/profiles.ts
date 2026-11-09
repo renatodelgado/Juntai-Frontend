@@ -16,6 +16,7 @@ import {
   registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 import { getSession } from './session';
+import { publishCurrentProfile } from './currentProfile';
 import { logoFile, uploadStartupFile } from './startupUploads';
 import { uploadInvestorPhoto, removeInvestorPhoto } from './investorUploads';
 import { investmentPurposes } from '@/features/startup-onboarding/data/catalogs';
@@ -123,6 +124,7 @@ export async function loadProfile(
       await (await apiRequest('auth/profile', { authenticated: true })).json(),
     );
   if (getSession()?.token !== session.token) return null;
+  publishCurrentProfile(remote, session.token);
   const local = await get<SavedDraft>(key(session.usuario.id, 'startup'));
   const data = createDraft();
   data.name = remote.nomeFantasia;
@@ -223,6 +225,7 @@ export async function loadInvestorProfile(
     );
   if (getSession()?.token !== session.token) return null;
   const local = await get<SavedInvestor>(key(session.usuario.id, 'investidor'));
+  publishCurrentProfile(remote, session.token);
   const status =
     remote.statusModeracao === 'aprovado'
       ? 'approved'
