@@ -33,6 +33,8 @@ export interface Metrics {
   mentores: number;
   pendentes: number;
   reunioes: number;
+  matches: number;
+  conversas: number;
 }
 export async function adminGet<T>(
   path: string,

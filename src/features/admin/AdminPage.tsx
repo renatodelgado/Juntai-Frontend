@@ -7,6 +7,7 @@ import {
   GraduationCapIcon,
   ClipboardTextIcon,
   CalendarIcon,
+  ChatCircleIcon,
   ClockCounterClockwiseIcon,
 } from '@phosphor-icons/react';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
@@ -548,10 +549,22 @@ export function AdminPage() {
                     'Aguardando sua análise',
                   ],
                   [
-                    'Reuniões',
+                    'Matches',
+                    metrics.matches,
+                    HandshakeIcon,
+                    'Pares investidor–startup com interesse confirmado',
+                  ],
+                  [
+                    'Conversas iniciadas',
+                    metrics.conversas,
+                    ChatCircleIcon,
+                    'Conversas com pelo menos uma mensagem enviada',
+                  ],
+                  [
+                    'Reuniões criadas',
                     metrics.reunioes,
                     CalendarIcon,
-                    'Registros de reuniões na plataforma',
+                    'Todas as reuniões, independentemente do status',
                   ],
                 ] as const
               ).map(([label, count, Icon, hint]) => (

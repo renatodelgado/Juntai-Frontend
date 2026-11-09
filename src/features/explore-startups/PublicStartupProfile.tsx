@@ -102,7 +102,7 @@ export function PublicStartupProfile() {
                 </Button>
                 <Button
                   $variant="secondary"
-                  disabled={!connected || !data.approved}
+                  disabled={!data.approved}
                   title={
                     !data.approved
                       ? 'Disponível após aprovação do perfil'
@@ -137,8 +137,8 @@ export function PublicStartupProfile() {
             </header>
             {!connected && (
               <p>
-                Conversa e agendamento ficam disponíveis após uma conexão
-                habilitada pela plataforma.
+                Conversas ficam disponíveis após uma conexão habilitada pela
+                plataforma.
               </p>
             )}
             <div className="profile-layout">

@@ -7,31 +7,18 @@ import { defaultFilters, type Filters, type Startup } from './model';
 import type { DiscoverySummary, StartupPage } from './api';
 import { getSession } from '@/features/auth/services/session';
 import { startupRepository, interestsApi } from './api';
-import { demoMeetingsRepository } from '@/features/meetings/repository';
+import { meetingsRepository } from '@/features/meetings/repository';
+import type { MeetingInput } from '@/features/meetings/model';
 
-export type MeetingInvitation = {
-  id: string;
-  startupId: string;
-  startupName: string;
-  date: string;
-  time: string;
-  duration: string;
-  format: string;
-  link: string;
-  notes: string;
-  status: 'pending';
-};
 export type DiscoveryState = {
   saved: string[];
   interests: { startupId: string; createdAt: string }[];
-  meetings: MeetingInvitation[];
   viewed: string[];
   discarded: string[];
 };
 const empty: DiscoveryState = {
   saved: [],
   interests: [],
-  meetings: [],
   viewed: [],
   discarded: [],
 };
@@ -39,14 +26,11 @@ export function readDiscovery(userId: string): DiscoveryState {
   const raw = localStorage.getItem(`juntai:discovery:${userId}`);
   if (!raw) return empty;
   const value = JSON.parse(raw) as DiscoveryState;
-  if (
-    !Array.isArray(value.saved) ||
-    !Array.isArray(value.interests) ||
-    !Array.isArray(value.meetings)
-  )
+  if (!Array.isArray(value.saved) || !Array.isArray(value.interests))
     throw new Error('Invalid local state');
   return {
-    ...value,
+    saved: value.saved,
+    interests: value.interests,
     viewed: Array.isArray(value.viewed) ? value.viewed : [],
     discarded: Array.isArray(value.discarded) ? value.discarded : [],
   };
@@ -306,39 +290,11 @@ export function useDiscovery(filters?: Filters) {
     setNotice('Interesse confirmado. Você já pode iniciar a conversa.');
     return result;
   }
-  function meeting(value: Omit<MeetingInvitation, 'id' | 'status'>) {
-    if (!approved) return false;
-    if (!connections.some((chat) => chat.participant.id === value.startupId))
-      return false;
-    try {
-      demoMeetingsRepository.create(user, {
-        participantId: value.startupId,
-        date: value.date,
-        time: value.time,
-        duration: Number(value.duration),
-        format:
-          value.format === 'Presencial'
-            ? 'presential'
-            : value.format === 'Telefone'
-              ? 'phone'
-              : 'online',
-        title: `Conversa com ${value.startupName}`,
-        description: value.notes,
-        link: value.link,
-        address: '',
-      });
-      setNotice(
-        'Convite enviado. Aguardando confirmação da startup. Acompanhe em Reuniões.',
-      );
-      return true;
-    } catch (cause) {
-      setNotice(
-        cause instanceof Error
-          ? cause.message
-          : 'Não foi possível salvar o convite. Tente novamente.',
-      );
-      throw cause;
-    }
+  async function meeting(value: MeetingInput) {
+    if (user.tipoPerfil !== 'investidor')
+      throw new Error('Somente investidores podem agendar reuniões.');
+    await meetingsRepository.create(value);
+    setNotice('Reuni?o agendada. Acompanhe em Reuniões.');
   }
   function viewed(id: string) {
     if (!state.viewed.includes(id))

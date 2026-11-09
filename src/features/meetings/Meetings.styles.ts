@@ -248,8 +248,8 @@ export const Status = styled.span<{ $status: string }>`
   font-size: 11px;
   font-weight: 600;
   display: inline-flex;
-  background: ${({ $status }) => ($status === 'pending' ? '#fff7e7' : $status === 'confirmed' ? '#edf4ee' : '#f1f1f5')};
-  color: ${({ $status }) => ($status === 'pending' ? '#8a5a14' : $status === 'confirmed' ? '#506c53' : '#68758a')};
+  background: ${({ $status }) => ($status === 'no_show' ? '#fff7e7' : $status === 'agendada' ? '#edf4ee' : '#f1f1f5')};
+  color: ${({ $status }) => ($status === 'no_show' ? '#8a5a14' : $status === 'agendada' ? '#506c53' : '#68758a')};
 `;
 export const Calendar = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.appBorder};

@@ -201,12 +201,12 @@ export function MatchCard({
               <ChatCircleIcon size={16} />
               Enviar mensagem
             </Button>
-            <Button $variant="quiet" onClick={onMeeting}>
-              <CalendarIcon size={16} />
-              Agendar reunião
-            </Button>
           </div>
         )}
+        <Button $variant="quiet" onClick={onMeeting} disabled={!data.approved}>
+          <CalendarIcon size={16} />
+          Agendar reunião
+        </Button>
         <button className="discard" onClick={() => data.discard(startup.id)}>
           {status === 'discarded'
             ? 'Restaurar recomendação'

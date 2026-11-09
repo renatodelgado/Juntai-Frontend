@@ -106,3 +106,13 @@ Imagens de teste: output/admin/admin-desktop.png e output/admin/admin-mobile.png
 - Login administrativo não gera um novo tipo de log: o enum de auditoria existente não contém essa categoria. São registradas as decisões e edições implementadas.
 - A consulta de reuniões é somente leitura. Cancelamento e outras operações exigem regras/API administrativas específicas.
 - A imagem do container precisa incorporar as novas rotas e a migration de índices. O ambiente local 3336 está atualizado.
+
+## Metricas de uso do ecossistema
+
+GET /admin/metricas retorna totais acumulados dos registros existentes, sem filtro de periodo:
+
+- matches: pares distintos investidor-startup com interesse_demonstrado em funil_interacoes. Eventos repetidos contam uma vez.
+- conversas: conversas com pelo menos uma mensagem persistida. Varias mensagens na mesma conversa contam uma vez; conversas vazias nao contam.
+- reunioes: todas as reunioes criadas, independentemente do status.
+
+Os tres indicadores aparecem na visao geral administrativa. Exclusoes definitivas podem reduzir os totais.

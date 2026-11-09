@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { AuthUser } from '@/features/auth/services/session';
-import { demoMeetingsRepository } from './repository';
+import { meetingsRepository } from './repository';
 import type { ScheduledMeeting } from './model';
 
 export function useMeetings(user: AuthUser) {
@@ -8,50 +8,34 @@ export function useMeetings(user: AuthUser) {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    let active = true;
-    const refresh = () => {
-      void demoMeetingsRepository
-        .list(user)
-        .then((items) => {
-          if (active) {
-            setMeetings(items);
-            setFailed(false);
-          }
-        })
-        .catch(() => {
-          if (active) setFailed(true);
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
+    const controller = new AbortController();
+    const refresh = async () => {
+      try {
+        const items = await meetingsRepository.list(controller.signal);
+        if (!controller.signal.aborted) {
+          setMeetings(items);
+          setFailed(false);
+        }
+      } catch {
+        if (!controller.signal.aborted) setFailed(true);
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
     };
-    refresh();
-    const tick = window.setInterval(() => {
-      setNow(Date.now());
-      refresh();
-    }, 60000);
-    const storage = (event: StorageEvent) => {
-      if (event.key === 'juntai:meetings:v1') refresh();
-    };
-    window.addEventListener('juntai:meetings-change', refresh);
-    window.addEventListener('storage', storage);
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 60000);
     return () => {
-      active = false;
-      clearInterval(tick);
-      window.removeEventListener('juntai:meetings-change', refresh);
-      window.removeEventListener('storage', storage);
+      controller.abort();
+      clearInterval(timer);
     };
-  }, [user, attempt]);
+  }, [user.id, attempt]);
   return {
     meetings,
     loading,
     failed,
-    now,
     retry: () => {
       setLoading(true);
-      setFailed(false);
       setAttempt((value) => value + 1);
     },
   };
