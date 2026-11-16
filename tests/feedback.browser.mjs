@@ -67,7 +67,26 @@ await context.route(
     const json = (data) => route.fulfill({ json: data });
     if (path === '/auth/me') return json(user);
     if (path === '/auth/profile') return json({ statusModeracao: 'aprovado' });
-    if (path === '/startups/interesses') return json([]);
+    if (path === '/startups/interesses')
+      return json([
+        {
+          startupId: 's',
+          startupName: 'Aurora Tecnologia',
+          usuarioId: 'startup-user',
+          createdAt: now,
+        },
+      ]);
+    if (path === '/startups/s')
+      return json({
+        id: 's',
+        nomeFantasia: 'Aurora Tecnologia',
+        segmento: 'fintech',
+        estagio: 'mvp',
+        modeloNegocio: 'b2b',
+        statusModeracao: 'aprovado',
+        atualizadoEm: now,
+        criadoEm: now,
+      });
     if (path === '/mensagens/conversas') return json([conversation]);
     if (path === '/mensagens/startup-user')
       return json(
@@ -194,6 +213,27 @@ try {
     .getByRole('button', { name: 'Fechar', exact: true })
     .first()
     .click();
+  await page.goto('http://127.0.0.1:5199/investidor/matches');
+  const match = page.getByLabel('Match: Aurora Tecnologia', { exact: true });
+  await match.getByRole('button', { name: /Avaliar intera/ }).click();
+  dialog = page.getByRole('dialog', { name: 'Avaliação enviada' });
+  await dialog.getByText(/foi registrada no sistema/).waitFor();
+  assert.equal(await dialog.getByRole('radio').count(), 0);
+  await dialog
+    .getByRole('button', { name: 'Fechar', exact: true })
+    .first()
+    .click();
+  meeting.status = 'realizada';
+  await page.reload();
+  await match.getByRole('button', { name: /Avaliar intera/ }).click();
+  dialog = page.getByRole('dialog', { name: 'Avaliar interação', exact: true });
+  await dialog.getByText('Como foi a interação?').waitFor();
+  assert.match(await dialog.innerText(), /Reunião/);
+  await dialog
+    .getByRole('button', { name: 'Fechar', exact: true })
+    .first()
+    .click();
+  meeting.status = 'agendada';
   await page.goto('http://127.0.0.1:5199/investidor/reunioes');
   await page
     .getByRole('button', { name: /Ver detalhes/ })

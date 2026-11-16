@@ -24,10 +24,12 @@ import {
 import { MatchFilters } from './components/MatchFilters';
 import { HighlightedMatch, MatchCard } from './components/MatchPresentation';
 import * as S from './Matches.styles';
+import { useMatchFeedback } from './useMatchFeedback';
 import { Grid, Card } from '@/features/explore-startups/Explore.styles';
 
 export function InvestorMatchesPage() {
   const data = useDiscovery();
+  const feedbackContexts = useMatchFeedback(data.user.id, data.approved);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -203,6 +205,7 @@ export function InvestorMatchesPage() {
               match={highlight}
               data={data}
               search={params.toString()}
+              feedback={feedbackContexts[highlight.startup.id]}
               onInterest={() => setInterest(highlight.startup)}
             />
           )}
@@ -233,6 +236,7 @@ export function InvestorMatchesPage() {
                   match={match}
                   data={data}
                   search={params.toString()}
+                  feedback={feedbackContexts[match.startup.id]}
                   onInterest={() => setInterest(match.startup)}
                   onMeeting={() => setMeeting(match.startup)}
                 />
