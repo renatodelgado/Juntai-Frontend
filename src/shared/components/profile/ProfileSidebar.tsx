@@ -1,3 +1,4 @@
+import { FeedbackReminders } from '@/features/feedback/FeedbackReminders';
 import { AccountMenu } from './AccountMenu';
 import { useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -322,6 +323,7 @@ export function ProfileSidebar({
         </nav>
         <AccountMenu />
       </div>
+      <FeedbackReminders />
     </Header>
   );
 }
