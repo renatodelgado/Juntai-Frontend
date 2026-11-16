@@ -3,8 +3,11 @@ import { XIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
 import { Button } from './Button';
 
-const Dialog = styled.dialog`
-  width: min(100% - 1.5rem, 48rem);
+const Dialog = styled.dialog<{ $compact: boolean }>`
+  width: min(
+    100% - 1.5rem,
+    ${({ $compact }) => ($compact ? '30rem' : '48rem')}
+  );
   max-height: calc(100dvh - 2rem);
   padding: 0;
   border: 1px solid ${({ theme }) => theme.colors.accentBorder};
@@ -58,6 +61,7 @@ export function ContentDialog({
   children,
   onClose,
   closeLabel = 'Fechar',
+  compact = false,
   busy = false,
   actions,
 }: {
@@ -66,6 +70,7 @@ export function ContentDialog({
   children: ReactNode;
   onClose: () => void;
   closeLabel?: string;
+  compact?: boolean;
   busy?: boolean;
   actions?: ReactNode;
 }) {
@@ -78,6 +83,7 @@ export function ContentDialog({
   }, [open]);
   return (
     <Dialog
+      $compact={compact}
       ref={ref}
       aria-label={title}
       aria-labelledby={id}

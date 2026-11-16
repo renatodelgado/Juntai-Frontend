@@ -15,3 +15,5 @@ Para testar os fluxos com API simulada: `npm run build` e `node tests/meetings.b
 Ao concluir uma reuniao, o participante pode avaliar a interacao. Avaliacoes sao privadas, individuais e editaveis, com nota de 1 a 5 e comentario opcional de ate 2000 caracteres. O outro participante recebe sua propria pendencia. Agora nao adia o lembrete por 24 horas no servidor.
 
 O formulario compartilhado valida o interesse tambem nos acessos com startup preenchida (perfil, Matches e conversa). Sem interesses, explica como demonstrar interesse em Explorar e mantem o envio desabilitado. Falhas ao consultar interesses permitem nova tentativa, sem usar o catalogo geral como alternativa.
+
+O feedback inclui estrelas, resultado da interação e perspectiva de investimento, com comentário opcional recolhido. Investimento realizado só aparece como confirmado quando os dois participantes o informam na mesma interação; intenção e negociação não confirmam investimento. Avaliações antigas recebem valores neutros, mantendo nota e comentário.

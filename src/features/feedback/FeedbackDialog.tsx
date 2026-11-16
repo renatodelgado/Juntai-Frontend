@@ -1,11 +1,22 @@
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
+import { StarIcon } from '@phosphor-icons/react';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
-import { feedbackApi, type FeedbackContext, type FeedbackState } from './api';
+import {
+  feedbackApi,
+  resultadoOptions,
+  investimentoOptions,
+  type FeedbackContext,
+  type FeedbackState,
+  type FeedbackInput,
+} from './api';
 const Fields = styled.div`
   display: grid;
   gap: 1rem;
+  p {
+    margin: 0;
+  }
   fieldset {
     border: 0;
     padding: 0;
@@ -13,27 +24,57 @@ const Fields = styled.div`
   }
   .ratings {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
   }
   label {
     display: grid;
     gap: 0.5rem;
   }
   .ratings label {
-    display: flex;
-    align-items: center;
+    position: relative;
     padding: 0.5rem;
-    border: 1px solid currentColor;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    color: ${({ theme }) => theme.colors.accentStrong};
+  }
+  .ratings input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .ratings label:has(input:focus-visible) {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.65rem;
+    font: inherit;
+    color: inherit;
+    background: ${({ theme }) => theme.colors.white};
+    border: 1px solid ${({ theme }) => theme.colors.border};
     border-radius: 0.5rem;
   }
   textarea {
-    width: 100%;
-    min-height: 7rem;
+    min-height: 5rem;
+  }
+  summary {
+    cursor: pointer;
+  }
+  details label {
+    margin-top: 0.75rem;
+  }
+  small {
+    line-height: 1.5;
+  }
+  .investment-status {
     padding: 0.75rem;
-    font: inherit;
     border-radius: 0.5rem;
+    background: ${({ theme }) => theme.colors.accentSoft};
+    font-size: 0.85rem;
   }
 `;
 export function FeedbackDialog({
@@ -47,6 +88,10 @@ export function FeedbackDialog({
 }) {
   const [data, setData] = useState<FeedbackState | null>(null);
   const [nota, setNota] = useState(0);
+  const [resultado, setResultado] =
+    useState<FeedbackInput['resultadoInteracao']>('em_analise');
+  const [perspectiva, setPerspectiva] =
+    useState<FeedbackInput['perspectivaInvestimento']>('nao_definido');
   const [comentario, setComentario] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -62,6 +107,10 @@ export function FeedbackDialog({
         setData(value);
         setNota(value.avaliacao?.nota ?? 0);
         setComentario(value.avaliacao?.comentario ?? '');
+        setResultado(value.avaliacao?.resultadoInteracao ?? 'em_analise');
+        setPerspectiva(
+          value.avaliacao?.perspectivaInvestimento ?? 'nao_definido',
+        );
       })
       .catch((e) => {
         if (!controller.signal.aborted)
@@ -99,7 +148,12 @@ export function FeedbackDialog({
     setBusy(true);
     setError('');
     try {
-      await feedbackApi.save(context, nota, comentario);
+      await feedbackApi.save(context, {
+        nota,
+        comentario,
+        resultadoInteracao: resultado,
+        perspectivaInvestimento: perspectiva,
+      });
       onClose();
     } catch (e) {
       setError(
@@ -113,6 +167,7 @@ export function FeedbackDialog({
   }
   return (
     <ContentDialog
+      compact
       open
       title={data?.avaliacao ? 'Minha avaliação' : 'Avaliar interação'}
       onClose={() => void close()}
@@ -131,45 +186,108 @@ export function FeedbackDialog({
         {data && (
           <>
             <p>
-              Como{' '}
-              {context.tipo === 'conversa'
-                ? 'está sendo sua interação'
-                : 'foi sua reunião'}{' '}
-              com <strong>{data.nome}</strong>
-              {context.tipo === 'conversa' ? ' até agora' : ''}?
-            </p>
-            <p>
-              Sua avaliação é privada. Nota de 1 (muito ruim) a 5 (muito boa).
+              <strong>{data.nome}</strong> ·{' '}
+              {tipo === 'conversa' ? 'Conversa até agora' : 'Reunião'}
             </p>
             {data.elegivel ? (
               <>
                 <fieldset disabled={busy}>
-                  <legend>Nota da interação</legend>
+                  <legend>Como foi a interação?</legend>
                   <div className="ratings">
                     {[1, 2, 3, 4, 5].map((value) => (
-                      <label key={value}>
+                      <label key={value} title={`${value} de 5`}>
                         <input
                           type="radio"
                           name={name}
+                          aria-label={`${value} ${value === 1 ? 'estrela' : 'estrelas'}`}
                           value={value}
                           checked={nota === value}
                           onChange={() => setNota(value)}
                         />
-                        {value}
+                        <StarIcon
+                          size={28}
+                          weight={nota >= value ? 'fill' : 'regular'}
+                          aria-hidden="true"
+                        />
                       </label>
                     ))}
                   </div>
                 </fieldset>
                 <label>
-                  Comentário (opcional)
-                  <textarea
-                    maxLength={2000}
-                    value={comentario}
+                  Qual foi o resultado até agora?
+                  <select
                     disabled={busy}
-                    onChange={(e) => setComentario(e.target.value)}
-                  />
+                    value={resultado}
+                    onChange={(e) =>
+                      setResultado(
+                        e.target.value as FeedbackInput['resultadoInteracao'],
+                      )
+                    }
+                  >
+                    {Object.entries(resultadoOptions).map(([value, label]) => (
+                      <option value={value} key={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
-                <small>{comentario.length}/2000 caracteres</small>
+                <label>
+                  Há perspectiva de investimento?
+                  <select
+                    disabled={busy}
+                    value={perspectiva}
+                    onChange={(e) =>
+                      setPerspectiva(
+                        e.target
+                          .value as FeedbackInput['perspectivaInvestimento'],
+                      )
+                    }
+                  >
+                    {Object.entries(investimentoOptions).map(
+                      ([value, label]) => (
+                        <option value={value} key={value}>
+                          {label}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </label>
+                {perspectiva === 'realizado' ? (
+                  <p className="investment-status" role="status">
+                    {data.investimentoConfirmado &&
+                    data.avaliacao?.perspectivaInvestimento === perspectiva
+                      ? 'Investimento confirmado pelos dois participantes nesta interação.'
+                      : data.investimentoInformadoPeloOutro
+                        ? 'O outro participante já informou o investimento. Salve para confirmar também.'
+                        : 'Será registrado como informado por você. A confirmação depende do outro participante.'}
+                  </p>
+                ) : (
+                  data.investimentoInformadoPeloOutro && (
+                    <p className="investment-status">
+                      O outro participante informou um investimento realizado.
+                      Se aconteceu, selecione essa opção para confirmar.
+                    </p>
+                  )
+                )}
+                <details>
+                  <summary>
+                    Adicionar comentário{comentario ? ' (preenchido)' : ''}
+                  </summary>
+                  <label>
+                    Comentário (opcional)
+                    <textarea
+                      maxLength={2000}
+                      value={comentario}
+                      disabled={busy}
+                      onChange={(e) => setComentario(e.target.value)}
+                    />
+                  </label>
+                  <small>{comentario.length}/2000 caracteres</small>
+                </details>
+                <small>
+                  Nota e comentário são privados. A informação de investimento
+                  realizado é compartilhada para confirmação.
+                </small>
               </>
             ) : (
               <p>
