@@ -259,7 +259,10 @@ export function FeedbackDialog({
                       ? 'Investimento confirmado pelos dois participantes nesta interação.'
                       : data.investimentoInformadoPeloOutro
                         ? 'O outro participante já informou o investimento. Salve para confirmar também.'
-                        : 'Será registrado como informado por você. A confirmação depende do outro participante.'}
+                        : data.avaliacao?.perspectivaInvestimento ===
+                            'realizado'
+                          ? 'Investimento informado por você. Aguardando confirmação do outro participante.'
+                          : 'Será registrado como informado por você. A confirmação depende do outro participante.'}
                   </p>
                 ) : (
                   data.investimentoInformadoPeloOutro && (

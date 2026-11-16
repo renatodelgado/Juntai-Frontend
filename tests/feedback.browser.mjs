@@ -199,6 +199,19 @@ try {
     .waitFor();
   await dialog.getByRole('button', { name: 'Salvar avaliação' }).click();
   await dialog.waitFor({ state: 'hidden' });
+  await page
+    .getByRole('button', { name: 'Avaliar interação', exact: true })
+    .click();
+  dialog = page.getByRole('dialog', { name: 'Minha avaliação' });
+  await dialog
+    .getByText(
+      'Investimento informado por você. Aguardando confirmação do outro participante.',
+    )
+    .waitFor();
+  await dialog
+    .getByRole('button', { name: 'Fechar', exact: true })
+    .first()
+    .click();
   otherReported = true;
   await page
     .getByRole('button', { name: 'Avaliar interação', exact: true })
