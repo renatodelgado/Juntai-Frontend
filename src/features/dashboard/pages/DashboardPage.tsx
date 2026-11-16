@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { BellIcon, UserCircleIcon } from '@phosphor-icons/react';
 import { theme, investorTheme } from '@/shared/styles/theme';
-import {
-  getSession,
-  logout,
-  sessionEvent,
-} from '@/features/auth/services/session';
+import { getSession, sessionEvent } from '@/features/auth/services/session';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import { Main, Card, Row } from '@/shared/components/profile/Profile.styles';
@@ -29,7 +25,6 @@ import {
 import {
   loadDashboard,
   dashboardName,
-  label,
   moderation,
   type Dashboard,
 } from '../model/dashboard';
@@ -39,10 +34,7 @@ export function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [dialog, setDialog] = useState<'settings' | 'notifications' | null>(
-    null,
-  );
-  const navigate = useNavigate();
+  const [dialog, setDialog] = useState<'notifications' | null>(null);
   const session = getSession();
   const role =
     session?.usuario.tipoPerfil === 'investidor' ? 'investidor' : 'startup';
@@ -83,29 +75,9 @@ export function DashboardPage() {
     <ThemeProvider theme={role === 'investidor' ? investorTheme : theme}>
       <DashboardLayout>
         <ProfileSidebar
-          profilePath={profile}
           approved={
             data ? moderation(data.profile.statusModeracao).approved : false
           }
-          status={
-            data
-              ? moderation(data.profile.statusModeracao).badge
-              : 'Carregando perfil'
-          }
-          name={name}
-          avatarUrl={
-            data?.role === 'investidor' ? data.profile.avatarUrl : undefined
-          }
-          subtitle={
-            data?.role === 'investidor'
-              ? label(data.profile.tipoInvestidor)
-              : 'Startup'
-          }
-          onSettings={() => setDialog('settings')}
-          onLogout={() => {
-            logout();
-            void navigate('/login', { replace: true });
-          }}
         />
         <Main>
           <PageHeader
@@ -180,26 +152,13 @@ export function DashboardPage() {
         </Main>
         <ContentDialog
           open={dialog !== null}
-          title={dialog === 'settings' ? 'Sua conta' : 'Notificações'}
+          title="Notificações"
           onClose={() => setDialog(null)}
         >
-          {dialog === 'settings' ? (
-            <>
-              <p>{session?.usuario.email}</p>
-              <p>
-                Sua sessão permanece ativa até você sair da conta ou o token
-                expirar.
-              </p>
-              <Button as={Link} to={profile}>
-                Ver meu perfil
-              </Button>
-            </>
-          ) : (
-            <p>
-              A central de notificações ainda não está disponível. Acompanhe o
-              status do seu perfil nesta página.
-            </p>
-          )}
+          <p>
+            A central de notificações ainda não está disponível. Acompanhe o
+            status do seu perfil nesta página.
+          </p>
         </ContentDialog>
       </DashboardLayout>
     </ThemeProvider>

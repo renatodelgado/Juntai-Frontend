@@ -43,19 +43,21 @@ const needs: Record<string, string> = {
   parcerias_estrategicas: 'Parcerias estratégicas',
   outro: 'Outro',
 };
-const scores = new Map<string, number>();
+export const recommendationFields = z.object({
+  probabilidadeInteresse: z.number().finite().min(0).max(1).optional(),
+  origemRecomendacao: z.enum(['rules', 'supervised', 'discovery']).optional(),
+  posicaoRanking: z.number().int().positive().nullish(),
+  versaoModelo: z.string().nullish(),
+  avisos: z.array(z.string()).optional(),
+  contextoExposicao: z.string().optional(),
+});
 const schema = startupSchema.extend({
+  ...recommendationFields.shape,
   criadoEm: z.string(),
   compatibility: z.number().min(0).max(100).optional(),
 });
 type RemoteStartup = z.infer<typeof schema>;
-export function toDiscoveryStartup(
-  remote: RemoteStartup,
-  userId: string,
-): Startup {
-  const key = userId + ':' + remote.id;
-  if (remote.compatibility !== undefined) scores.set(key, remote.compatibility);
-  else if (!scores.has(key)) scores.set(key, Math.floor(Math.random() * 101));
+export function toDiscoveryStartup(remote: RemoteStartup): Startup {
   const canvas = remote.canvasJson || {};
   const text = (key: string) =>
     typeof canvas[key] === 'string' ? (canvas[key] as string) : '';
@@ -120,14 +122,20 @@ export function toDiscoveryStartup(
     createdAt: remote.criadoEm,
     color: '#F3F1F8',
     variant: 'standard',
-    compatibility: scores.get(key),
-    compatibilityFactors: [
-      'Compatibilidade ilustrativa, gerada aleatoriamente.',
-    ],
+    compatibility:
+      remote.origemRecomendacao === 'supervised'
+        ? undefined
+        : remote.compatibility,
+    ...recommendationFields.parse(remote),
   };
 }
 export const DISCOVERY_PAGE_SIZE = 24;
 const pageSchema = z.object({
+  ...recommendationFields.pick({ origemRecomendacao: true, avisos: true })
+    .shape,
+  fallback: z
+    .object({ de: z.literal('supervised'), motivo: z.string() })
+    .optional(),
   items: z.array(schema),
   total: z.number().int().nonnegative(),
   hasMore: z.boolean(),
@@ -138,6 +146,9 @@ const pageSchema = z.object({
   }),
 });
 export type StartupPage = {
+  origemRecomendacao?: 'rules' | 'supervised' | 'discovery';
+  avisos?: string[];
+  fallback?: { de: 'supervised'; motivo: string };
   items: Startup[];
   total: number;
   hasMore: boolean;
@@ -145,17 +156,82 @@ export type StartupPage = {
 };
 const reverseLabel = (catalog: Record<string, string>, label: string) =>
   Object.keys(catalog).find((key) => catalog[key] === label) ?? label;
+function discoveryQuery(
+  filters: Filters,
+  saved: string[],
+  page: number,
+  size: number,
+) {
+  const query = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  query.set(
+    'sort',
+    !filters.sort || filters.sort === 'recommended'
+      ? 'compatibility'
+      : filters.sort,
+  );
+  for (const key of ['q', 'location', 'investment', 'saved'] as const)
+    if (filters[key]) query.set(key, filters[key]);
+  if (filters.segment)
+    query.set('segment', reverseLabel(segmentLabels, filters.segment));
+  if (filters.stage) query.set('stage', reverseLabel(stages, filters.stage));
+  if (filters.model)
+    query.set(
+      'model',
+      Object.keys(models).find((key) => models[key]!.includes(filters.model)) ??
+        filters.model,
+    );
+  const range = investmentRanges.find((item) => item.label === filters.range);
+  const min = filters.min || (range ? String(range.min) : '');
+  const max =
+    filters.max ||
+    (range && Number.isFinite(range.max) ? String(range.max) : '');
+  if (min) query.set('min', min);
+  if (max) query.set('max', max);
+  if (filters.saved) query.set('ids', saved.join(','));
+  return query;
+}
+export type DiscoverySummary = Pick<StartupPage, 'total' | 'facets'>;
 export const startupRepository = {
+  async highlights(signal?: AbortSignal): Promise<Startup[]> {
+    const response = await apiRequest('startups/destaques', {
+      authenticated: true,
+      cache: 'no-store',
+      signal,
+    });
+    return z
+      .object({ items: z.array(schema).max(3) })
+      .parse(await response.json())
+      .items.map(toDiscoveryStartup);
+  },
+  async summary(
+    filters: Filters,
+    saved: string[],
+    signal?: AbortSignal,
+  ): Promise<DiscoverySummary> {
+    // The ordinary listing counts eligible profiles without invoking matchmaking.
+    const query = discoveryQuery({ ...filters, sort: 'recent' }, saved, 0, 1);
+    const response = await apiRequest('startups/discovery?' + query, {
+      authenticated: true,
+      signal,
+    });
+    return pageSchema
+      .pick({ total: true, facets: true })
+      .parse(await response.json());
+  },
   async get(
     user: AuthUser,
     id: string,
     signal?: AbortSignal,
   ): Promise<Startup> {
+    void user;
     const response = await apiRequest('startups/' + encodeURIComponent(id), {
       authenticated: true,
       signal,
     });
-    return toDiscoveryStartup(schema.parse(await response.json()), user.id);
+    return toDiscoveryStartup(schema.parse(await response.json()));
   },
   async page(
     user: AuthUser,
@@ -164,30 +240,8 @@ export const startupRepository = {
     page: number,
     signal?: AbortSignal,
   ): Promise<StartupPage> {
-    const query = new URLSearchParams({
-      page: String(page),
-      size: String(DISCOVERY_PAGE_SIZE),
-    });
-    for (const key of ['q', 'location', 'investment', 'saved', 'sort'] as const)
-      if (filters[key]) query.set(key, filters[key]);
-    if (filters.segment)
-      query.set('segment', reverseLabel(segmentLabels, filters.segment));
-    if (filters.stage) query.set('stage', reverseLabel(stages, filters.stage));
-    if (filters.model)
-      query.set(
-        'model',
-        Object.keys(models).find((key) =>
-          models[key]!.includes(filters.model),
-        ) ?? filters.model,
-      );
-    const range = investmentRanges.find((item) => item.label === filters.range);
-    const min = filters.min || (range ? String(range.min) : '');
-    const max =
-      filters.max ||
-      (range && Number.isFinite(range.max) ? String(range.max) : '');
-    if (min) query.set('min', min);
-    if (max) query.set('max', max);
-    if (filters.saved) query.set('ids', saved.join(','));
+    void user;
+    const query = discoveryQuery(filters, saved, page, DISCOVERY_PAGE_SIZE);
     const response = await apiRequest('startups/discovery?' + query, {
       authenticated: true,
       signal,
@@ -197,10 +251,11 @@ export const startupRepository = {
       ...result,
       items: result.items
         .filter((item) => item.statusModeracao === 'aprovado')
-        .map((item) => toDiscoveryStartup(item, user.id)),
+        .map((item) => toDiscoveryStartup(item)),
     };
   },
   async list(user: AuthUser, signal?: AbortSignal): Promise<Startup[]> {
+    void user;
     const response = await apiRequest('startups', {
       authenticated: true,
       signal,
@@ -209,7 +264,7 @@ export const startupRepository = {
       .array(schema)
       .parse(await response.json())
       .filter((item) => item.statusModeracao === 'aprovado')
-      .map((item) => toDiscoveryStartup(item, user.id));
+      .map((item) => toDiscoveryStartup(item));
   },
 };
 

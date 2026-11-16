@@ -33,18 +33,12 @@ export function LoadMoreStartups({
       style={{ padding: '24px', textAlign: 'center' }}
       aria-busy={loading}
     >
-      <p role={failed ? 'alert' : 'status'}>
-        {failed
-          ? 'Não foi possível carregar mais startups.'
-          : loading
-            ? 'Carregando mais startups…'
-            : 'Role para descobrir mais startups.'}
-      </p>
+      {failed && <p role="alert">Não foi possível carregar mais startups.</p>}
       <Button $variant="secondary" disabled={loading} onClick={onLoad}>
         {failed
           ? 'Tentar novamente'
           : loading
-            ? 'Carregando…'
+            ? 'Carregando mais startups…'
             : 'Carregar mais startups'}
       </Button>
     </div>

@@ -289,7 +289,7 @@ export function PublicStartupProfile() {
                           <a
                             href={startup.presentationUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           >
                             Abrir apresentação
                           </a>
@@ -301,7 +301,7 @@ export function PublicStartupProfile() {
                           <a
                             href={startup.siteUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           >
                             Visitar site
                           </a>
@@ -352,22 +352,25 @@ export function PublicStartupProfile() {
               </div>
               <aside>
                 <section className="affinity">
-                  <h2>Compatibilidade demonstrativa</h2>
-                  <CompatibilityIndicator value={startup.compatibility} />
+                  <h2>Recomendação</h2>
+                  <CompatibilityIndicator startup={startup} />
                   {startup.compatibilityFactors?.length ? (
                     <ul>
                       {startup.compatibilityFactors.map((factor) => (
                         <li key={factor}>{factor}</li>
                       ))}
                     </ul>
-                  ) : (
+                  ) : startup.compatibility === undefined &&
+                    startup.probabilidadeInteresse === undefined ? (
                     <p>
-                      Complete suas preferências para personalizar a descoberta.
+                      Consulte o ranking de recomendações para ver a pontuação
+                      calculada para esta startup, quando disponível.
                     </p>
-                  )}
+                  ) : null}
                   <small>
-                    Pontuação aleatória de afinidade. Não representa garantia de
-                    sucesso, retorno ou investimento.
+                    <Link to="/investidor/startups">
+                      Explorar recomendações
+                    </Link>
                   </small>
                 </section>
               </aside>

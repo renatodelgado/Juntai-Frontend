@@ -11,7 +11,7 @@ export function investorCompleteness(data: InvestorDraft) {
     {
       label: 'localização',
       step: 'about',
-      filled: !!data.cityId && !!data.state,
+      filled: !!data.cityName && !!data.state,
     },
     { label: 'atuação', step: 'participation', filled: !!data.participation },
     { label: 'segmentos', step: 'interests', filled: !!data.segments.length },
@@ -42,7 +42,7 @@ export function investorCompleteness(data: InvestorDraft) {
         !!data.interactions.length &&
         data.acceptsMentoring !== null,
     },
-    { label: 'contribuições', step: 'offers', filled: !!data.offers.length },
+    { label: 'contribuições', step: 'offers', filled: !!data.expertise.length },
   ];
   if (data.participation !== 'mentor') {
     fields.push({

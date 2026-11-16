@@ -92,7 +92,10 @@ export function InvestorPublicPreview({ data }: { data: model.InvestorDraft }) {
       />
       <ProfileTags options={catalogs.regions} values={data.regions} />
       <h3>Como posso contribuir</h3>
-      <ProfileTags options={model.offers} values={data.offers} />
+      <ProfileTags
+        options={data.offers.length ? model.offers : model.expertise}
+        values={data.offers.length ? data.offers : data.expertise}
+      />
       <h3>Disponibilidade</h3>
       <p>
         {catalogs.optionLabel(model.frequencies, data.frequency) ||

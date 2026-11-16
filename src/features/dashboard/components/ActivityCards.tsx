@@ -23,8 +23,8 @@ export function ConnectionSummary() {
         <h2>Minhas conexões</h2>
       </Row>
       <Muted>
-        Interesses demonstrados, conexões estabelecidas e conversas poderão ser
-        acompanhados aqui quando a área de conexões estiver disponível.
+        Converse com suas conexões e acompanhe seus contatos na área de
+        Mensagens.
       </Muted>
     </QuietSection>
   );

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
 import { useOnboarding } from '@/features/startup-onboarding/hooks/useOnboarding';
@@ -41,6 +41,7 @@ export function ProfileEditor({
   }
   const form = useOnboarding(saved, persist);
   const ref = useRef<HTMLFormElement>(null);
+  const formId = useId();
   const sections = {
     about: <AboutStep form={form} accountEdit />,
     business: <BusinessStep form={form} />,
@@ -57,7 +58,16 @@ export function ProfileEditor({
       open
       title={`Editar ${steps.find((item) => item.id === step)?.label ?? 'perfil'}`}
       busy={form.busy}
-      closeLabel="Cancelar / fechar"
+      closeLabel="Cancelar"
+      actions={
+        <Button
+          type="submit"
+          form={formId}
+          disabled={form.busy || form.loading}
+        >
+          {form.busy ? 'Salvando…' : 'Salvar alterações'}
+        </Button>
+      }
       onClose={() => {
         onSaved(snapshot.current);
         onClose();
@@ -67,6 +77,7 @@ export function ProfileEditor({
         <p role="status">Preparando edição…</p>
       ) : (
         <form
+          id={formId}
           ref={ref}
           noValidate
           onSubmit={(event) => {
@@ -92,9 +103,6 @@ export function ProfileEditor({
             style={{ border: 0, padding: 0, minWidth: 0 }}
           >
             {sections[step]}
-            <Button type="submit" style={{ marginTop: '1.5rem' }}>
-              Salvar alterações
-            </Button>
           </fieldset>
           <p role="status">{form.message}</p>
         </form>

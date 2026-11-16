@@ -84,8 +84,10 @@ export function HighlightedMatch({
         </S.Status>
       </div>
       <div className="reasons">
-        <CompatibilityIndicator value={startup.compatibility} />
-        <h3>Interesses que se encontram</h3>
+        <CompatibilityIndicator startup={startup} />
+        {startup.compatibilityFactors?.length ? (
+          <h3>Interesses que se encontram</h3>
+        ) : null}
         <MatchReasons startup={startup} limit={3} />
         <div className="actions">
           <Button
@@ -157,7 +159,7 @@ export function MatchCard({
           ))}
         </div>
         <div className="match-meta">
-          <CompatibilityIndicator value={startup.compatibility} />
+          <CompatibilityIndicator startup={startup} />
           <S.Status $status={status}>{statusLabels[status]}</S.Status>
         </div>
         {startup.seekingInvestment && (
@@ -166,10 +168,12 @@ export function MatchCard({
             Em busca de investimento
           </div>
         )}
-        <details>
-          <summary>Por que este match?</summary>
-          <MatchReasons startup={startup} />
-        </details>
+        {!!startup.compatibilityFactors?.length && (
+          <details>
+            <summary>Por que este match?</summary>
+            <MatchReasons startup={startup} />
+          </details>
+        )}
         <div className="card-footer">
           <Link
             to={`/startups/${startup.id}`}

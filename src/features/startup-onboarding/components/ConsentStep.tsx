@@ -57,12 +57,11 @@ export function ConsentStep({ form }: { form: OnboardingController }) {
         label="Estou ciente da Política de Privacidade e do tratamento dos meus dados para as finalidades apresentadas nesta prévia."
       />
       <Notice>
-        <strong>Como pensamos em aproximar vocês dos parceiros certos</strong>
+        <strong>Como aproximamos você de parceiros</strong>
         <p>
-          No futuro, segmento, estágio, regiões, necessidades e preferências
-          poderão ser comparados com os interesses de investidores e mentores
-          para sugerir conexões. Não há recomendação automática nem
-          compartilhamento desses dados nesta prévia.
+          Segmento, estágio, regiões, necessidades e preferências são comparados
+          com os interesses de investidores e mentores para recomendar conexões
+          entre perfis aprovados.
         </p>
       </Notice>
       <ContentDialog

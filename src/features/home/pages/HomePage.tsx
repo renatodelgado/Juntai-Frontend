@@ -63,10 +63,10 @@ export function HomePage() {
         <p>
           Apresente sua startup ou compartilhe sua experiência como investidor e
           mentor. Crie sua conta de teste, entre e mantenha seu perfil
-          atualizado. As sugestões de conexões chegam nas próximas etapas.
+          atualizado para encontrar oportunidades alinhadas aos seus interesses.
         </p>
         <small>
-          Nesta versão, contas e perfis ficam somente no navegador utilizado.
+          As recomendações consideram as informações dos perfis aprovados.
         </small>
       </Card>
     </PageContainer>

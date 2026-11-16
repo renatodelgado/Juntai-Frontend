@@ -2,6 +2,19 @@ import { z } from 'zod';
 
 const citiesSchema = z.array(z.object({ id: z.number(), nome: z.string() }));
 export type City = { id: string; name: string };
+// The profile API persists the city name, not the IBGE identifier.
+export function citySelection(
+  cities: City[],
+  location: { cityId: string; cityName: string },
+) {
+  const selected =
+    cities.find((city) => city.id === location.cityId) ??
+    cities.find((city) => city.name === location.cityName);
+  const options = cities.map((city) => ({ value: city.id, label: city.name }));
+  const value = selected?.id ?? (location.cityName ? 'saved-city' : '');
+  if (value === 'saved-city') options.push({ value, label: location.cityName });
+  return { options, value };
+}
 const cache = new Map<string, City[]>();
 
 export async function getCities(

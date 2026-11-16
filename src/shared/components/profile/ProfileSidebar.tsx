@@ -1,4 +1,4 @@
-import { ProfilePhoto } from './ProfilePhoto';
+import { AccountMenu } from './AccountMenu';
 import { useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -8,15 +8,12 @@ import {
   HeartIcon,
   ChatCircleIcon,
   CalendarIcon,
-  GearIcon,
   ListIcon,
-  SignOutIcon,
-  CaretDownIcon,
   CompassIcon,
 } from '@phosphor-icons/react';
 import logo from '@/shared/assets/images/logo-txt.svg';
 import { getSession } from '@/features/auth/services/session';
-import { useProfileApproval } from '@/features/auth/useProfileApproval';
+import { useCurrentProfile } from '@/features/auth/services/currentProfile';
 
 const Header = styled.header`
   background: ${({ theme }) => theme.colors.white};
@@ -47,7 +44,6 @@ const Header = styled.header`
   nav a,
   nav button,
   .account,
-  .signout,
   .toggle {
     display: flex;
     align-items: center;
@@ -106,9 +102,6 @@ const Header = styled.header`
   .toggle {
     display: none;
   }
-  .signout {
-    padding: 0.5rem;
-  }
   @media (max-width: 70rem) {
     > div {
       flex-wrap: wrap;
@@ -149,29 +142,22 @@ const Header = styled.header`
 `;
 
 export function ProfileSidebar({
-  profilePath,
-  status,
-  onSettings,
-  onLogout,
-  name,
-  avatarUrl,
-  subtitle,
   unreadMessages = 0,
   onMatches,
   approved: knownApproval,
 }: {
-  profilePath: string;
-  status: string;
-  onSettings: () => void;
-  onLogout: () => void;
-  name?: string;
-  avatarUrl?: string | null;
-  subtitle?: string;
   unreadMessages?: number;
   onMatches?: () => void;
   approved?: boolean;
 }) {
-  const approved = useProfileApproval(knownApproval);
+  const profile = useCurrentProfile();
+  const approved = profile
+    ? profile.statusModeracao === 'aprovado'
+    : knownApproval === true;
+  const profilePath =
+    getSession()?.usuario.tipoPerfil === 'startup'
+      ? '/startup/perfil'
+      : '/investidor/perfil';
   const [open, setOpen] = useState(false);
   const id = useId();
   const { pathname, state } = useLocation();
@@ -182,7 +168,6 @@ export function ProfileSidebar({
     'returnTo' in state &&
     state.returnTo === '/investidor/matches';
   const home = profilePath.replace('/perfil', '/inicio');
-  const displayName = name || getSession()?.usuario.nome || 'Minha conta';
   return (
     <Header>
       <div>
@@ -335,30 +320,7 @@ export function ProfileSidebar({
             </button>
           )}
         </nav>
-        <button
-          className="account"
-          onClick={onSettings}
-          aria-label="Configurações da conta"
-          title={subtitle || status}
-        >
-          <span className="initials" aria-hidden="true">
-            <ProfilePhoto src={avatarUrl} name={displayName} />
-          </span>
-          <span>
-            <strong>{displayName}</strong>
-            <small>{subtitle || status}</small>
-          </span>
-          <CaretDownIcon size={13} aria-hidden="true" />
-          <GearIcon size={16} aria-hidden="true" />
-        </button>
-        <button
-          className="signout"
-          onClick={onLogout}
-          aria-label="Sair da conta"
-          title="Sair da conta"
-        >
-          <SignOutIcon size={21} aria-hidden="true" />
-        </button>
+        <AccountMenu />
       </div>
     </Header>
   );

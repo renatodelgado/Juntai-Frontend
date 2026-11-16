@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import {
   CalendarIcon,
@@ -14,12 +14,9 @@ import { Layout, Card } from '@/shared/components/profile/Profile.styles';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Modal } from '@/shared/components/ui/Modal';
 import { Button } from '@/shared/components/ui/Button';
+import { safeExternalUrl } from '@/shared/utils/security';
 import { Form } from '@/features/explore-startups/Explore.styles';
-import {
-  logout,
-  profilePath,
-  type AuthUser,
-} from '@/features/auth/services/session';
+import { type AuthUser } from '@/features/auth/services/session';
 import { theme, investorTheme } from '@/shared/styles/theme';
 import {
   demoMeetingsRepository,
@@ -55,7 +52,6 @@ export function MeetingsPage() {
 }
 function MeetingsScreen({ user }: { user: AuthUser }) {
   const data = useMeetings(user);
-  const navigate = useNavigate();
   const self = meetingAccount(user);
   const connections = meetingConnections(user);
   const [filters, setFilters] = useState<MeetingFilters>({
@@ -139,17 +135,7 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
       theme={user.tipoPerfil === 'startup' ? theme : investorTheme}
     >
       <Layout>
-        <ProfileSidebar
-          profilePath={profilePath(user.tipoPerfil)}
-          name={user.nome}
-          subtitle={roleLabels[self.role]}
-          status="Minha agenda"
-          onSettings={() => void navigate(profilePath(user.tipoPerfil))}
-          onLogout={() => {
-            logout();
-            void navigate('/login');
-          }}
-        />
+        <ProfileSidebar />
         <S.Main>
           <PageHeader
             title="Reuniões Agendadas"
@@ -444,16 +430,17 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
               {selected.format === 'online' && !selected.link && (
                 <p>O link da reunião ainda não foi informado.</p>
               )}
-              {canJoin(selected, data.now) && (
-                <Button
-                  as="a"
-                  href={selected.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Entrar na reunião
-                </Button>
-              )}
+              {canJoin(selected, data.now) &&
+                safeExternalUrl(selected.link) && (
+                  <Button
+                    as="a"
+                    href={safeExternalUrl(selected.link)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Entrar na reunião
+                  </Button>
+                )}
               {selected.cancellationReason && (
                 <p>Motivo: {selected.cancellationReason}</p>
               )}

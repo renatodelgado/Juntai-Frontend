@@ -5,19 +5,89 @@ import {
   BookmarkSimpleIcon,
   MapPinIcon,
   SparkleIcon,
+  FireIcon,
+  TrendUpIcon,
+  CircleIcon,
   LeafIcon,
 } from '@phosphor-icons/react';
 import type { Startup } from '../model';
 import * as S from '../Explore.styles';
+import { useExposure } from '../useExposure';
+import { recommendationNotices } from '../recommendationPresentation';
 
-export function CompatibilityIndicator({ value }: { value?: number }) {
+export function CompatibilityIndicator({ startup }: { startup: Startup }) {
+  const supervised = startup.origemRecomendacao === 'supervised';
+  const value = supervised
+    ? startup.probabilidadeInteresse
+    : startup.compatibility;
+  if (value === undefined) return null;
+  const percent = supervised ? value * 100 : value;
+  const tier = percent >= 90 ? 4 : percent >= 70 ? 3 : percent >= 40 ? 2 : 1;
+  const Icon =
+    tier === 4
+      ? FireIcon
+      : tier === 3
+        ? SparkleIcon
+        : tier === 2
+          ? TrendUpIcon
+          : CircleIcon;
+  const label =
+    tier === 4
+      ? 'Muito alta'
+      : tier === 3
+        ? 'Alta'
+        : tier === 2
+          ? 'Moderada'
+          : 'Baixa';
   return (
-    <S.Compatibility title="Compatibilidade ilustrativa, gerada aleatoriamente">
-      <SparkleIcon size={13} aria-hidden="true" />
-      {value === undefined
-        ? 'Compatibilidade indisponível'
-        : `${value}% compatível`}
-    </S.Compatibility>
+    <S.Recommendation $tier={tier}>
+      <div className="score-heading">
+        <Icon
+          size={tier === 4 ? 30 : 22}
+          weight={tier >= 3 ? 'fill' : 'regular'}
+          aria-hidden="true"
+        />
+        <div>
+          <strong>
+            {percent.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%
+          </strong>
+          <span>
+            {supervised
+              ? 'Probabilidade estimada de interesse'
+              : 'Compatibilidade com seu perfil'}
+          </span>
+        </div>
+        <b>{label}</b>
+      </div>
+      <div
+        role="meter"
+        aria-label={
+          supervised
+            ? 'Probabilidade estimada de interesse'
+            : 'Compatibilidade por regras'
+        }
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        className="score-track"
+      >
+        <div style={{ width: `${percent}%` }} />
+      </div>
+      <small>
+        {supervised
+          ? 'Modelo experimental · Interações sintéticas'
+          : 'Comparação com os interesses do seu perfil'}
+      </small>
+      {recommendationNotices(startup.avisos).map((notice) => (
+        <small key={notice}>{notice}</small>
+      ))}
+      {startup.versaoModelo && (
+        <details>
+          <summary>Sobre o modelo</summary>
+          <small>{startup.versaoModelo}</small>
+        </details>
+      )}
+    </S.Recommendation>
   );
 }
 export function StartupIdentity({ startup }: { startup: Startup }) {
@@ -70,8 +140,9 @@ export function StartupCard({
   onInterest: () => void;
   approved?: boolean;
 }) {
+  const exposureRef = useExposure(startup.contextoExposicao);
   return (
-    <S.Card $list={list}>
+    <S.Card ref={exposureRef} $list={list}>
       {startup.variant === 'visual' && !list && (
         <S.Visual className="visual" $color={startup.color} aria-hidden="true">
           <span className="field" />
@@ -113,7 +184,7 @@ export function StartupCard({
             <span key={model}>{model}</span>
           ))}
         </div>
-        <CompatibilityIndicator value={startup.compatibility} />
+        <CompatibilityIndicator startup={startup} />
         {startup.seekingInvestment && (
           <div className="investment">
             <LeafIcon size={14} aria-hidden="true" /> Em busca de investimento

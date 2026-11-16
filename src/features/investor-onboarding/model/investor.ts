@@ -328,7 +328,9 @@ export function validateInvestor(
   }
   switch (step) {
     case 'about':
-      required('name', 'state', 'cityId');
+      required('name', 'state');
+      if (!data.cityName.trim())
+        errors.cityId = 'Selecione uma cidade da lista.';
       if (data.linkedin && !/^https?:\/\/[^\s]+$/i.test(data.linkedin))
         errors.linkedin = 'Use um endereço com https://';
       break;

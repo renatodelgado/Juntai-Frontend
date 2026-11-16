@@ -19,6 +19,7 @@ import { StartupMasonryGrid } from './components/StartupMasonryGrid';
 import { StartupFilters } from './components/StartupFilters';
 import { InterestConfirmationModal } from './components/ConnectionModals';
 import * as S from './Explore.styles';
+import { recommendationNotices } from './recommendationPresentation';
 
 export function ExploreStartups() {
   const [params, setParams] = useSearchParams();
@@ -52,9 +53,6 @@ export function ExploreStartups() {
       { replace: true },
     );
   }
-  const personalized = data.startups.some(
-    (item) => item.compatibility !== undefined,
-  );
   const savedCount = data.state.saved.length;
   const visible = data.startups;
   return (
@@ -91,7 +89,10 @@ export function ExploreStartups() {
           </p>
           <div className="stats">
             <span>
-              <strong>{data.total}</strong> startups disponíveis
+              <strong>
+                {data.catalogTotal?.toLocaleString('pt-BR') ?? '—'}
+              </strong>{' '}
+              startups disponíveis
             </span>
             <span>
               <strong>{data.facets.segments}</strong> segmentos
@@ -108,6 +109,20 @@ export function ExploreStartups() {
           aria-hidden="true"
         />
       </S.Hero>
+      {!data.loading && !data.failed && (
+        <div role="status" style={{ margin: '16px 0', fontSize: 13 }}>
+          {data.fallback
+            ? 'Modelo experimental indisponível. Exibindo compatibilidade por regras.'
+            : data.origemRecomendacao === 'supervised'
+              ? 'Ranking por probabilidade estimada de interesse · Modelo experimental treinado com interações sintéticas.'
+              : data.origemRecomendacao === 'rules'
+                ? 'Ranking por compatibilidade com suas preferências · Regras.'
+                : 'Exploração sem ranking de recomendações.'}
+          {recommendationNotices(data.avisos).map((notice) => (
+            <p key={notice}>{notice}</p>
+          ))}
+        </div>
+      )}
       <StartupFilters
         filters={filters}
         onChange={change}
@@ -120,21 +135,30 @@ export function ExploreStartups() {
           <small aria-live="polite">
             {data.loading
               ? 'Buscando oportunidades…'
-              : `${data.total} oportunidades para explorar · ${visible.length} carregadas`}
+              : `${data.total.toLocaleString('pt-BR')} ${!filters.sort || ['compatibility', 'recommended'].includes(filters.sort) ? 'recomendações' : 'startups encontradas'} · ${visible.length} carregadas`}
           </small>
+          {!data.loading &&
+            data.catalogTotal !== undefined &&
+            data.catalogTotal > data.total &&
+            (!filters.sort ||
+              ['compatibility', 'recommended'].includes(filters.sort)) && (
+              <p style={{ fontSize: 12 }}>
+                O ranking destaca as recomendações para você. Para explorar
+                todas as startups disponíveis, ordene por Mais recentes ou Nome.
+              </p>
+            )}
         </div>
         <div className="actions">
           <select
             aria-label="Ordenar startups"
-            value={filters.sort || (personalized ? 'recommended' : 'recent')}
+            value={
+              filters.sort === 'recommended'
+                ? 'compatibility'
+                : filters.sort || 'compatibility'
+            }
             onChange={(e) => change('sort', e.target.value)}
           >
-            {personalized && (
-              <>
-                <option value="recommended">Recomendadas para você</option>
-                <option value="compatibility">Maior compatibilidade</option>
-              </>
-            )}
+            <option value="compatibility">Recomendadas para você</option>
             <option value="recent">Mais recentes</option>
             <option value="investment">Em busca de investimento</option>
             <option value="name">Nome: A–Z</option>

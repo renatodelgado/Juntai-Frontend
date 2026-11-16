@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Button } from '@/shared/components/ui/Button';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import {
@@ -27,6 +27,7 @@ export function InvestorEditor({
   const [cancel, setCancel] = useState(false);
   const [activeStep, setActiveStep] = useState(step);
   const ref = useRef<HTMLFormElement>(null);
+  const formId = useId();
   async function save() {
     if (!form.validate(activeStep)) {
       requestAnimationFrame(() =>
@@ -47,13 +48,27 @@ export function InvestorEditor({
       open
       title={`Editar ${investorSteps.find((item) => item.id === activeStep)?.label}`}
       busy={form.busy}
-      closeLabel="Cancelar / fechar"
+      closeLabel="Cancelar"
+      actions={
+        <Button
+          type="submit"
+          form={formId}
+          disabled={
+            form.busy ||
+            activeStep === 'consent' ||
+            activeStep === 'preferences'
+          }
+        >
+          {form.busy ? 'Salvando…' : 'Salvar alterações'}
+        </Button>
+      }
       onClose={() => {
         if (form.dirty) setCancel(true);
         else onClose();
       }}
     >
       <form
+        id={formId}
         ref={ref}
         noValidate
         onSubmit={(event) => {
@@ -73,13 +88,6 @@ export function InvestorEditor({
             update={form.update}
             edit={setActiveStep}
           />
-          <Button
-            type="submit"
-            disabled={activeStep === 'consent' || activeStep === 'preferences'}
-            style={{ marginTop: '1.5rem' }}
-          >
-            Salvar alterações
-          </Button>
         </fieldset>
         <p role="status">{form.message}</p>
       </form>

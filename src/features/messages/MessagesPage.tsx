@@ -1,10 +1,6 @@
 import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import { useEffect, useRef, useState } from 'react';
-import {
-  useNavigate,
-  useRouteLoaderData,
-  useSearchParams,
-} from 'react-router-dom';
+import { useRouteLoaderData, useSearchParams } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import {
   ArrowLeftIcon,
@@ -14,12 +10,7 @@ import {
   MagnifyingGlassIcon,
   PaperPlaneTiltIcon,
 } from '@phosphor-icons/react';
-import {
-  getSession,
-  logout,
-  profilePath,
-  type AuthUser,
-} from '@/features/auth/services/session';
+import { getSession, type AuthUser } from '@/features/auth/services/session';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import { Layout, Badge } from '@/shared/components/profile/Profile.styles';
@@ -80,7 +71,6 @@ export function MessagesPage() {
   );
 }
 function MessagesScreen({ user }: { user: AuthUser }) {
-  const navigate = useNavigate();
   const [params] = useSearchParams();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -294,14 +284,7 @@ function MessagesScreen({ user }: { user: AuthUser }) {
         $audience={user.tipoPerfil === 'startup' ? 'startup' : 'investor'}
       >
         <ProfileSidebar
-          profilePath={profilePath(user.tipoPerfil)}
-          status="Mensagens"
           unreadMessages={conversations.reduce((n, c) => n + c.naoLidas, 0)}
-          onSettings={() => void navigate(profilePath(user.tipoPerfil))}
-          onLogout={() => {
-            logout();
-            void navigate('/login');
-          }}
         />
         <S.Page>
           <PageHeader
