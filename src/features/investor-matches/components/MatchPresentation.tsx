@@ -10,6 +10,8 @@ import {
   LeafIcon,
 } from '@phosphor-icons/react';
 import { Button } from '@/shared/components/ui/Button';
+import { FeedbackButton } from '@/features/feedback/FeedbackButton';
+import type { FeedbackContext } from '@/features/feedback/api';
 import {
   StartupIdentity,
   CompatibilityIndicator,
@@ -44,6 +46,7 @@ export function MatchReasons({
   );
 }
 type Props = {
+  feedback?: FeedbackContext;
   match: Match;
   data: Discovery;
   search: string;
@@ -51,6 +54,7 @@ type Props = {
   onMeeting: () => void;
 };
 export function HighlightedMatch({
+  feedback,
   match,
   data,
   search,
@@ -106,12 +110,14 @@ export function HighlightedMatch({
           >
             {sent ? 'Iniciar conversa' : 'Tenho interesse'}
           </Button>
+          {feedback && <FeedbackButton context={feedback} />}
         </div>
       </div>
     </S.Highlight>
   );
 }
 export function MatchCard({
+  feedback,
   match,
   data,
   search,
@@ -201,6 +207,11 @@ export function MatchCard({
               <ChatCircleIcon size={16} />
               Enviar mensagem
             </Button>
+          </div>
+        )}
+        {feedback && (
+          <div className="connection-actions">
+            <FeedbackButton context={feedback} />
           </div>
         )}
         <div className="meeting-action">
