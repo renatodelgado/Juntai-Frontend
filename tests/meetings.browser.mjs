@@ -70,6 +70,7 @@ async function session(role) {
       const json = (data) => route.fulfill({ json: data });
       const failure = (message) =>
         route.fulfill({ status: 503, json: { message } });
+      if (path === '/avaliacoes/pendentes') return json([]);
       if (path === '/auth/me') return json(user);
       if (path === '/auth/profile')
         return json({ statusModeracao: 'aprovado' });
@@ -203,6 +204,12 @@ try {
     .waitFor();
   await page.getByRole('button', { name: 'Calendário', exact: true }).click();
   await page.getByRole('button', { name: '14:30 Aurora Tecnologia' }).click();
+  assert.equal(
+    await page
+      .getByRole('button', { name: 'Marcar como realizada', exact: true })
+      .isDisabled(),
+    true,
+  );
   await page
     .getByRole('button', { name: 'Cancelar reunião', exact: true })
     .click();

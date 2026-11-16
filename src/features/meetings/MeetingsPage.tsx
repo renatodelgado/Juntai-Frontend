@@ -74,6 +74,7 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
         change,
       );
       setSelected(updated);
+      data.replace(updated);
       setChange(null);
       setNotice('Status da reunião atualizado.');
       data.retry();
