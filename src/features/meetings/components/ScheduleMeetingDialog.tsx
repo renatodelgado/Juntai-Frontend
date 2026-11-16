@@ -4,10 +4,7 @@ import { CheckCircleIcon } from '@phosphor-icons/react';
 import { ContentDialog } from '@/shared/components/ui/ContentDialog';
 import { Button } from '@/shared/components/ui/Button';
 import type { AuthUser } from '@/features/auth/services/session';
-import {
-  interestsApi,
-  startupRepository,
-} from '@/features/explore-startups/api';
+import { interestsApi } from '@/features/explore-startups/api';
 import { meetingsRepository } from '../repository';
 import { MeetingEditor } from './MeetingEditor';
 
@@ -26,40 +23,39 @@ export function ScheduleMeetingDialog(props: Props) {
   ) : null;
 }
 
-function ScheduleForm({
-  user,
-  startup,
-  recipientUserId,
-  onClose,
-  onCreated,
-}: Props) {
+function ScheduleForm({ startup, recipientUserId, onClose, onCreated }: Props) {
   const [options, setOptions] = useState<StartupOption[]>([]);
   const [recipient, setRecipient] = useState<StartupOption>();
-  const [loading, setLoading] = useState(!startup);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (startup) return;
     const controller = new AbortController();
     async function load() {
       try {
-        if (recipientUserId) {
-          const interests = await interestsApi.list(controller.signal);
-          const match = interests.find(
-            (item) => item.usuarioId === recipientUserId,
+        const interests = await interestsApi.list(controller.signal);
+        if (startup || recipientUserId) {
+          const match = interests.find((item) =>
+            startup
+              ? item.startupId === startup.id
+              : item.usuarioId === recipientUserId,
           );
           if (!match)
             throw new Error(
-              'Esta startup não está disponível para agendamento.',
+              'Demonstre interesse nesta startup antes de agendar uma reunião.',
             );
           if (!controller.signal.aborted)
             setRecipient({ id: match.startupId, name: match.startupName });
-        } else {
-          const items = await startupRepository.list(user, controller.signal);
-          if (!controller.signal.aborted) setOptions(items);
+        } else if (!controller.signal.aborted) {
+          setOptions(
+            interests.map((item) => ({
+              id: item.startupId,
+              name: item.startupName,
+            })),
+          );
         }
       } catch (cause) {
         if (!controller.signal.aborted)
@@ -74,7 +70,7 @@ function ScheduleForm({
     }
     void load();
     return () => controller.abort();
-  }, [startup, recipientUserId, user, attempt]);
+  }, [startup, recipientUserId, attempt]);
   return (
     <ContentDialog
       open
@@ -112,7 +108,7 @@ function ScheduleForm({
       ) : (
         <MeetingEditor
           startups={options}
-          startup={startup ?? recipient}
+          startup={recipient}
           busy={busy}
           error={error}
           onSubmit={async (input) => {

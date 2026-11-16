@@ -74,7 +74,11 @@ async function session(role) {
       if (path === '/auth/me') return json(user);
       if (path === '/auth/profile')
         return json({ statusModeracao: 'aprovado' });
-      if (path === '/startups') return json([startup]);
+      if (path === '/startups')
+        return json([
+          startup,
+          { ...startup, id: 'not-interested', nomeFantasia: 'Sem interesse' },
+        ]);
       if (path === '/startups/interesses') return json([interest]);
       if (path === `/startups/${startup.id}`) return json(startup);
       if (path === '/mensagens/conversas')
@@ -171,6 +175,13 @@ try {
   await dialog
     .getByRole('combobox', { name: 'Startup', exact: true })
     .selectOption(startup.id);
+  assert.deepEqual(
+    await dialog
+      .getByRole('combobox')
+      .locator('option')
+      .evaluateAll((items) => items.map((item) => item.value)),
+    ['', startup.id],
+  );
   await fill(dialog);
   await page.screenshot({ path: 'output/meetings/schedule-desktop.png' });
   await dialog
@@ -288,6 +299,31 @@ try {
   await dialog.getByText('Aurora Tecnologia', { exact: true }).waitFor();
   await page.screenshot({ path: 'output/meetings/from-match.png' });
   await context.close();
+  const emptySession = await session('investidor');
+  await emptySession.context.route('**/startups/interesses', (route) =>
+    route.fulfill({ json: [] }),
+  );
+  await emptySession.page.goto(origin + '/investidor/reunioes');
+  await emptySession.page
+    .getByRole('button', { name: 'Agendar reunião', exact: true })
+    .first()
+    .click();
+  const emptyDialog = emptySession.page.getByRole('dialog', {
+    name: 'Agendar reunião',
+    exact: true,
+  });
+  await emptyDialog.getByText(/Você ainda não demonstrou interesse/).waitFor();
+  assert.equal(
+    await emptyDialog.getByRole('combobox').locator('option').count(),
+    1,
+  );
+  assert.equal(
+    await emptyDialog
+      .getByRole('button', { name: 'Agendar reunião', exact: true })
+      .isDisabled(),
+    true,
+  );
+  await emptySession.context.close();
   const startupSession = await session('startup');
   await startupSession.page.goto(origin + '/startup/reunioes');
   await startupSession.page
