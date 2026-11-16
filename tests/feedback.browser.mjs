@@ -37,6 +37,7 @@ const conversation = {
   enviadaPorMim: true,
   naoLidas: 0,
 };
+let otherReported = false;
 let review = null,
   failSave = true,
   pending = false,
@@ -107,12 +108,22 @@ await context.route(
         const body = req.postDataJSON();
         assert.equal(body.nota, 4);
         assert.equal(body.comentario, 'Boa conversa');
+        assert.equal(body.resultadoInteracao, 'avancar');
+        assert.ok(
+          ['intencao', 'realizado'].includes(body.perspectivaInvestimento),
+        );
         review = { id: '1', ...body, criadoEm: now, atualizadoEm: now };
       }
       return json({
         elegivel: true,
         nome: 'Aurora Tecnologia',
         avaliacao: path.includes('/conversa/') ? review : null,
+        investimentoInformadoPeloOutro:
+          path.includes('/conversa/') && otherReported,
+        investimentoConfirmado:
+          path.includes('/conversa/') &&
+          otherReported &&
+          review?.perspectivaInvestimento === 'realizado',
       });
     }
     return route.fulfill({ status: 404, json: {} });
@@ -132,12 +143,20 @@ try {
     name: 'Avaliar interação',
     exact: true,
   });
-  await dialog.getByText('Nota da interação').waitFor();
+  await dialog.getByText('Como foi a interação?').waitFor();
   assert.equal(
     await dialog.getByRole('button', { name: 'Salvar avaliação' }).isDisabled(),
     true,
   );
-  await dialog.getByRole('radio', { name: '4', exact: true }).check();
+  await dialog.getByRole('radio', { name: '4 estrelas', exact: true }).check();
+  assert.equal(await dialog.getByRole('textbox').count(), 0);
+  await dialog
+    .getByRole('combobox', { name: 'Qual foi o resultado até agora?' })
+    .selectOption('avancar');
+  await dialog
+    .getByRole('combobox', { name: 'Há perspectiva de investimento?' })
+    .selectOption('intencao');
+  await dialog.locator('summary').click();
   await dialog.getByRole('textbox').fill('Boa conversa');
   await dialog.getByRole('button', { name: 'Salvar avaliação' }).click();
   await dialog
@@ -152,10 +171,57 @@ try {
     .click();
   dialog = page.getByRole('dialog', { name: 'Minha avaliação' });
   assert.equal(
-    await dialog.getByRole('radio', { name: '4', exact: true }).isChecked(),
+    await dialog
+      .getByRole('radio', { name: '4 estrelas', exact: true })
+      .isChecked(),
     true,
   );
+  assert.equal(
+    await dialog
+      .getByRole('combobox', { name: 'Qual foi o resultado até agora?' })
+      .inputValue(),
+    'avancar',
+  );
+  assert.equal(
+    await dialog
+      .getByRole('combobox', { name: 'Há perspectiva de investimento?' })
+      .inputValue(),
+    'intencao',
+  );
+  assert.equal(await dialog.getByRole('textbox').count(), 0);
+  await dialog.locator('summary').click();
   assert.equal(await dialog.getByRole('textbox').inputValue(), 'Boa conversa');
+  await dialog
+    .getByRole('combobox', { name: 'Há perspectiva de investimento?' })
+    .selectOption('realizado');
+  await dialog
+    .getByText(/A confirmação depende do outro participante/)
+    .waitFor();
+  await dialog.getByRole('button', { name: 'Salvar avaliação' }).click();
+  await dialog.waitFor({ state: 'hidden' });
+  await page
+    .getByRole('button', { name: 'Avaliar interação', exact: true })
+    .click();
+  dialog = page.getByRole('dialog', { name: 'Minha avaliação' });
+  await dialog
+    .getByText(
+      'Investimento informado por você. Aguardando confirmação do outro participante.',
+    )
+    .waitFor();
+  await dialog
+    .getByRole('button', { name: 'Fechar', exact: true })
+    .first()
+    .click();
+  otherReported = true;
+  await page
+    .getByRole('button', { name: 'Avaliar interação', exact: true })
+    .click();
+  dialog = page.getByRole('dialog', { name: 'Minha avaliação' });
+  await dialog
+    .getByText(
+      'Investimento confirmado pelos dois participantes nesta interação.',
+    )
+    .waitFor();
   await dialog
     .getByRole('button', { name: 'Fechar', exact: true })
     .first()
@@ -173,7 +239,7 @@ try {
     .getByRole('button', { name: 'Confirmar', exact: true })
     .click();
   dialog = page.getByRole('dialog', { name: 'Avaliar interação', exact: true });
-  await dialog.getByText('Nota da interação').waitFor();
+  await dialog.getByText('Como foi a interação?').waitFor();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: 'output/feedback/reuniao-mobile.png' });
   assert.ok(
@@ -189,7 +255,7 @@ try {
   pending = true;
   await page.reload();
   dialog = page.getByRole('dialog', { name: 'Avaliar interação', exact: true });
-  await dialog.getByText('Nota da interação').waitFor();
+  await dialog.getByText('Como foi a interação?').waitFor();
   await dialog
     .getByRole('button', { name: 'Agora não', exact: true })
     .first()
@@ -197,7 +263,7 @@ try {
   assert.equal(deferred, 2);
   assert.deepEqual(errors, []);
   console.log(
-    'PASS feedback browser: chat save/retry/edit, manual completion, mobile layout, persisted defer and pending reminder',
+    'PASS feedback browser: chat save/retry/edit, manual completion, mobile layout, persisted defer, compact fields, collapsed comment, investment confirmation and pending reminder',
   );
 } finally {
   await browser.close();
