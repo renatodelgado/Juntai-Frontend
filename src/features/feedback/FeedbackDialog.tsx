@@ -105,12 +105,6 @@ export function FeedbackDialog({
       .then((value) => {
         if (controller.signal.aborted) return;
         setData(value);
-        setNota(value.avaliacao?.nota ?? 0);
-        setComentario(value.avaliacao?.comentario ?? '');
-        setResultado(value.avaliacao?.resultadoInteracao ?? 'em_analise');
-        setPerspectiva(
-          value.avaliacao?.perspectivaInvestimento ?? 'nao_definido',
-        );
       })
       .catch((e) => {
         if (!controller.signal.aborted)
@@ -144,7 +138,7 @@ export function FeedbackDialog({
     }
   }
   async function save() {
-    if (!nota || busy) return;
+    if (!nota || busy || !data?.elegivel || data.avaliacao) return;
     setBusy(true);
     setError('');
     try {
@@ -169,12 +163,13 @@ export function FeedbackDialog({
     <ContentDialog
       compact
       open
-      title={data?.avaliacao ? 'Minha avaliação' : 'Avaliar interação'}
+      title={data?.avaliacao ? 'Avaliação enviada' : 'Avaliar interação'}
       onClose={() => void close()}
       busy={busy}
       closeLabel={reminder ? 'Agora não' : 'Fechar'}
       actions={
-        data?.elegivel && (
+        data?.elegivel &&
+        !data.avaliacao && (
           <Button disabled={!nota || busy} onClick={() => void save()}>
             {busy ? 'Enviando…' : 'Salvar avaliação'}
           </Button>
@@ -189,7 +184,11 @@ export function FeedbackDialog({
               <strong>{data.nome}</strong> ·{' '}
               {tipo === 'conversa' ? 'Conversa até agora' : 'Reunião'}
             </p>
-            {data.elegivel ? (
+            {data.avaliacao ? (
+              <p>
+                Sua avaliação foi registrada no sistema. Obrigado pelo feedback!
+              </p>
+            ) : data.elegivel ? (
               <>
                 <fieldset disabled={busy}>
                   <legend>Como foi a interação?</legend>
@@ -254,15 +253,9 @@ export function FeedbackDialog({
                 </label>
                 {perspectiva === 'realizado' ? (
                   <p className="investment-status" role="status">
-                    {data.investimentoConfirmado &&
-                    data.avaliacao?.perspectivaInvestimento === perspectiva
-                      ? 'Investimento confirmado pelos dois participantes nesta interação.'
-                      : data.investimentoInformadoPeloOutro
-                        ? 'O outro participante já informou o investimento. Salve para confirmar também.'
-                        : data.avaliacao?.perspectivaInvestimento ===
-                            'realizado'
-                          ? 'Investimento informado por você. Aguardando confirmação do outro participante.'
-                          : 'Será registrado como informado por você. A confirmação depende do outro participante.'}
+                    {data.investimentoInformadoPeloOutro
+                      ? 'O outro participante j\u00e1 informou o investimento. Salve para confirmar tamb\u00e9m.'
+                      : 'Ser\u00e1 registrado como informado por voc\u00ea. A confirma\u00e7\u00e3o depende do outro participante.'}
                   </p>
                 ) : (
                   data.investimentoInformadoPeloOutro && (

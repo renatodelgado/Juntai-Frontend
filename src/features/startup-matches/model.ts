@@ -8,7 +8,7 @@ export const statusLabels = {
   novo_interesse: 'Novo interesse',
   em_conversa: 'Em conversa',
   reuniao_agendada: 'Reunião agendada',
-  em_acompanhamento: 'Em acompanhamento',
+  em_acompanhamento: 'Reunião realizada',
 };
 const helpLabels: Record<string, string> = {
   mentoria: 'Mentoria',
