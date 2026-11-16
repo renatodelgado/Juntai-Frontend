@@ -129,7 +129,10 @@ export function MeetingEditor({
         </label>
       )}
       {!startup && !startups?.length && (
-        <p>Nenhuma startup disponível para agendamento no momento.</p>
+        <p>
+          Você ainda não demonstrou interesse em nenhuma startup. Demonstre
+          interesse em Explorar para agendar uma reunião.
+        </p>
       )}
       <div className="pair">
         <label>
