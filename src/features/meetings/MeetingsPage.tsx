@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { FeedbackButton } from '@/features/feedback/FeedbackButton';
+import { FeedbackDialog } from '@/features/feedback/FeedbackDialog';
+import { useEffect, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 import { CalendarPlusIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { ThemeProvider } from 'styled-components';
@@ -32,6 +34,11 @@ export function MeetingsPage() {
 }
 function MeetingsScreen({ user }: { user: AuthUser }) {
   const data = useMeetings(user);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [scheduling, setScheduling] = useState(false);
   const [status, setStatus] = useState<MeetingStatus>('agendada');
   const [query, setQuery] = useState('');
@@ -42,6 +49,7 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
   const [change, setChange] = useState<
     'realizada' | 'cancelada' | 'no_show' | null
   >(null);
+  const [feedbackId, setFeedbackId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -66,9 +74,14 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
         change,
       );
       setSelected(updated);
+      data.replace(updated);
       setChange(null);
       setNotice('Status da reunião atualizado.');
       data.retry();
+      if (updated.status === 'realizada') {
+        setSelected(null);
+        setFeedbackId(updated.id);
+      }
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -213,6 +226,13 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
             }}
           />
         )}
+        {feedbackId && (
+          <FeedbackDialog
+            context={{ tipo: 'reuniao', id: feedbackId }}
+            reminder
+            onClose={() => setFeedbackId(null)}
+          />
+        )}
         <ContentDialog
           open={!!selected && !change}
           title="Detalhes da reunião"
@@ -244,12 +264,27 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
               ) : (
                 <p>Link da reunião não informado ou indisponível.</p>
               )}
+              {selected.status === 'realizada' && (
+                <FeedbackButton
+                  context={{ tipo: 'reuniao', id: selected.id }}
+                />
+              )}
               {selected.status === 'agendada' && (
                 <div className="actions">
                   {(['realizada', 'no_show', 'cancelada'] as const).map(
                     (value) => (
                       <Button
                         key={value}
+                        disabled={
+                          value === 'realizada' &&
+                          Date.parse(selected.dataHoraAgendada) > now
+                        }
+                        title={
+                          value === 'realizada' &&
+                          Date.parse(selected.dataHoraAgendada) > now
+                            ? 'Disponível após o início da reunião'
+                            : undefined
+                        }
                         $variant="secondary"
                         onClick={() => {
                           setError('');

@@ -41,6 +41,11 @@ export function useMeetings(user: AuthUser) {
     meetings,
     loading,
     failed,
+    replace: (meeting: ScheduledMeeting) => {
+      setMeetings((items) =>
+        items.map((item) => (item.id === meeting.id ? meeting : item)),
+      );
+    },
     retry: () => {
       setLoading(true);
       setAttempt((value) => value + 1);

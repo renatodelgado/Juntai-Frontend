@@ -1,3 +1,4 @@
+import { FeedbackButton } from '@/features/feedback/FeedbackButton';
 import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import { useEffect, useRef, useState } from 'react';
 import { useRouteLoaderData, useSearchParams } from 'react-router-dom';
@@ -417,6 +418,19 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                           : 'Investidor'}
                       </small>
                     </div>
+                    {conversation.conversaId && (
+                      <FeedbackButton
+                        key={conversation.conversaId}
+                        context={{
+                          tipo: 'conversa',
+                          id: conversation.conversaId,
+                        }}
+                        disabled={
+                          !messages.some((m) => m.remetenteId === user.id) ||
+                          !messages.some((m) => m.remetenteId !== user.id)
+                        }
+                      />
+                    )}
                     {user.tipoPerfil === 'investidor' &&
                       conversation.tipoPerfil === 'startup' && (
                         <Button
