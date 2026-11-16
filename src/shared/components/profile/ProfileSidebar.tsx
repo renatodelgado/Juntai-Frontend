@@ -144,11 +144,9 @@ const Header = styled.header`
 
 export function ProfileSidebar({
   unreadMessages = 0,
-  onMatches,
   approved: knownApproval,
 }: {
   unreadMessages?: number;
-  onMatches?: () => void;
   approved?: boolean;
 }) {
   const profile = useCurrentProfile();
@@ -227,11 +225,12 @@ export function ProfileSidebar({
               Explorar
             </Link>
           )}
-          {profilePath.startsWith('/investidor') && approved ? (
+          {approved ? (
             <Link
-              to="/investidor/matches"
+              to={profilePath.replace('/perfil', '/matches')}
               aria-current={
-                pathname === '/investidor/matches' || fromMatches
+                pathname === profilePath.replace('/perfil', '/matches') ||
+                fromMatches
                   ? 'page'
                   : undefined
               }
@@ -239,7 +238,8 @@ export function ProfileSidebar({
               <HeartIcon
                 size={17}
                 weight={
-                  pathname === '/investidor/matches' || !!fromMatches
+                  pathname === profilePath.replace('/perfil', '/matches') ||
+                  fromMatches
                     ? 'fill'
                     : 'regular'
                 }
@@ -248,17 +248,7 @@ export function ProfileSidebar({
               Matches
             </Link>
           ) : (
-            <button
-              disabled={!approved || !onMatches}
-              onClick={onMatches}
-              title={
-                !approved
-                  ? 'Disponível após aprovação do perfil'
-                  : onMatches
-                    ? undefined
-                    : 'Área de matches ainda indisponível'
-              }
-            >
+            <button disabled title="Disponível após aprovação do perfil">
               <HeartIcon size={17} aria-hidden="true" />
               Matches
             </button>

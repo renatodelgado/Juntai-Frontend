@@ -1,7 +1,7 @@
 import { FeedbackButton } from '@/features/feedback/FeedbackButton';
 import { FeedbackDialog } from '@/features/feedback/FeedbackDialog';
 import { useEffect, useState } from 'react';
-import { useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData, useSearchParams } from 'react-router-dom';
 import { CalendarPlusIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { ThemeProvider } from 'styled-components';
 import { ProfileSidebar } from '@/shared/components/profile/ProfileSidebar';
@@ -43,7 +43,14 @@ function MeetingsScreen({ user }: { user: AuthUser }) {
   const [status, setStatus] = useState<MeetingStatus>('agendada');
   const [query, setQuery] = useState('');
   const [view, setView] = useState<'list' | 'calendar'>('list');
-  const [selection, setSelected] = useState<ScheduledMeeting | null>(null);
+  const [params] = useSearchParams();
+  const [selection, setSelected] = useState<Pick<
+    ScheduledMeeting,
+    'id'
+  > | null>(() => {
+    const id = params.get('reuniao');
+    return id ? { id } : null;
+  });
   const selected =
     data.meetings.find((item) => item.id === selection?.id) ?? null;
   const [change, setChange] = useState<

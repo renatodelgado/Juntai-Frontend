@@ -66,6 +66,23 @@ export const router = createBrowserRouter([
     ],
   })),
   {
+    id: 'startup-matches',
+    path: '/startup/matches',
+    element: <ProtectedRoute />,
+    loader: requireRole('startup', { approvedOnly: true }),
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { StartupMatchesPage } =
+            await import('@/features/startup-matches/StartupMatchesPage');
+          return { Component: StartupMatchesPage };
+        },
+      },
+    ],
+  },
+  {
     id: 'investor-matches',
     path: '/investidor/matches',
     element: <ProtectedRoute />,
