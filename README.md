@@ -23,22 +23,28 @@ Acesse `http://localhost:5173`. Os recursos integrados dependem do backend em ex
 ## Funcionalidades
 
 - Cadastro e edição de perfis de startups, investidores e mentores, com rascunhos locais.
-- Login, validação de sessão e solicitação de recuperação de senha via API.
+- Login e validação de sessão via API. A recuperação de senha ainda não envia código nem permite redefinição.
 - Exploração de startups, conexões, matches e mensagens.
 - Agendamento de reuniões e painéis administrativos.
 - Páginas de termos de uso e política de privacidade.
 
-Parte dos fluxos de compatibilidade e reuniões ainda utiliza dados demonstrativos e armazenamento no navegador. A existência de uma tela não implica integração completa com o backend. Os textos legais são provisórios.
+A exploração, as mensagens, os interesses e as reuniões usam APIs autenticadas. Favoritos e alguns estados da descoberta ficam no navegador e não são sincronizados entre dispositivos. A integração completa com serviços reais deve ser validada em ambiente de teste; os textos legais são provisórios.
+
+O envio de recuperação de senha depende de implementação no backend e de um serviço de e-mail configurado. A rota atual apenas verifica o endereço e ainda expõe se ele está cadastrado; não a considere um mecanismo completo de recuperação.
 
 ## Comandos
 
-| Comando           | Finalidade                         |
-| ----------------- | ---------------------------------- |
-| `npm run dev`     | Iniciar o ambiente local           |
-| `npm run build`   | Validar tipos e gerar `dist/`      |
-| `npm run preview` | Conferir o build localmente        |
-| `npm run check`   | Verificar tipos, lint e formatação |
-| `npm run format`  | Aplicar formatação                 |
+| Comando                | Finalidade                                                     |
+| ---------------------- | -------------------------------------------------------------- |
+| `npm run dev`          | Iniciar o ambiente local                                       |
+| `npm run build`        | Validar tipos e gerar `dist/`                                  |
+| `npm run preview`      | Conferir o build localmente                                    |
+| `npm run check`        | Verificar tipos, lint e formatação                             |
+| `npm test`             | Executar testes unitários de recomendações e reuniões          |
+| `npm run test:browser` | Executar parte dos testes de navegador com respostas simuladas |
+
+Os testes de navegador usam Playwright e, por padrão, Microsoft Edge. Alguns testes individuais exigem build prévio; consulte os arquivos em `tests/`. Os testes simulados não substituem a validação com o backend real.
+| `npm run format` | Aplicar formatação |
 
 ## Estrutura
 

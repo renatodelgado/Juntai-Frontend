@@ -21,17 +21,25 @@ const empty: DiscoveryState = {
   discarded: [],
 };
 export function readDiscovery(userId: string): DiscoveryState {
-  const raw = localStorage.getItem(`juntai:discovery:${userId}`);
-  if (!raw) return empty;
-  const value = JSON.parse(raw) as DiscoveryState;
-  if (!Array.isArray(value.saved) || !Array.isArray(value.interests))
-    throw new Error('Invalid local state');
-  return {
-    saved: value.saved,
-    interests: value.interests,
-    viewed: Array.isArray(value.viewed) ? value.viewed : [],
-    discarded: Array.isArray(value.discarded) ? value.discarded : [],
-  };
+  try {
+    const raw = localStorage.getItem(`juntai:discovery:${userId}`);
+    if (!raw) return empty;
+    const value = JSON.parse(raw) as DiscoveryState | null;
+    if (
+      !value ||
+      !Array.isArray(value.saved) ||
+      !Array.isArray(value.interests)
+    )
+      return empty;
+    return {
+      saved: value.saved,
+      interests: value.interests,
+      viewed: Array.isArray(value.viewed) ? value.viewed : [],
+      discarded: Array.isArray(value.discarded) ? value.discarded : [],
+    };
+  } catch {
+    return empty;
+  }
 }
 export function useDiscovery(filters?: Filters) {
   const approved = useProfileApproval();
@@ -269,7 +277,7 @@ export function useDiscovery(filters?: Filters) {
       },
       exists
         ? 'Startup removida das salvas.'
-        : 'Startup salva na demonstração.',
+        : 'Startup salva neste navegador.',
     );
   }
   async function interest(id: string) {
