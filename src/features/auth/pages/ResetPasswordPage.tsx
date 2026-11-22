@@ -8,6 +8,7 @@ import {
   Fields,
 } from '@/features/startup-onboarding/pages/Onboarding.styles';
 import { resetPassword } from '../services/auth';
+import { passwordError, passwordRequirements } from '../model/password';
 
 export function ResetPasswordPage() {
   const [token] = useState(() => window.location.hash.slice(1));
@@ -31,8 +32,9 @@ export function ResetPasswordPage() {
       setError('As senhas não coincidem.');
       return;
     }
-    if (new TextEncoder().encode(password).length > 72) {
-      setError('A senha deve ter no máximo 72 bytes.');
+    const invalidPassword = passwordError(password);
+    if (invalidPassword) {
+      setError(invalidPassword);
       return;
     }
     setBusy(true);
@@ -71,6 +73,7 @@ export function ResetPasswordPage() {
                 type="password"
                 autoComplete="new-password"
                 minLength={8}
+                hint={passwordRequirements}
                 required
                 value={password}
                 disabled={busy}

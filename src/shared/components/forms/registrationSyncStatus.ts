@@ -33,16 +33,6 @@ export function registrationSyncNote(
     return partial(
       'Sim ou não é registrado. “Prefiro não informar” é omitido, mas o servidor usa não como padrão.',
     );
-  if (field === 'account-confirm')
-    return local(
-      'Usado apenas para conferir a senha; não é enviado nem salvo.',
-    );
-  if (
-    ['termsAccepted', 'privacyAcknowledged', 'matchingConsent'].includes(field)
-  )
-    return local(
-      'O aceite fica neste navegador; o backend ainda não registra esta escolha.',
-    );
   if (
     [
       'investmentCount',
