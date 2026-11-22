@@ -169,6 +169,18 @@ export function AccountMenu() {
             role="menu"
             aria-label="Opções da conta"
           >
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                void navigate(
+                  startup ? '/startup/moderacao' : '/investidor/moderacao',
+                );
+              }}
+            >
+              <ShieldCheckIcon size={19} aria-hidden="true" />
+              Denúncias e sanções
+            </button>
             {panels.map(({ id, label, Icon }) => (
               <button
                 key={id}

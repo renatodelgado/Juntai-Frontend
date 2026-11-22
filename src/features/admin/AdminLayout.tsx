@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import {
   SquaresFourIcon,
+  ShieldCheckIcon,
   ClipboardTextIcon,
   UsersIcon,
   RocketLaunchIcon,
@@ -22,6 +23,7 @@ const links = [
   { to: '/admin/usuarios', label: 'Usuários', icon: UsersIcon },
   { to: '/admin/startups', label: 'Startups', icon: RocketLaunchIcon },
   { to: '/admin/investidores', label: 'Investidores', icon: HandshakeIcon },
+  { to: '/admin/denuncias', label: 'Denúncias', icon: ShieldCheckIcon },
   { to: '/admin/reunioes', label: 'Reuniões', icon: CalendarIcon },
   {
     to: '/admin/auditoria',

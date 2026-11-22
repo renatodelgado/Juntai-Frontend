@@ -1,3 +1,4 @@
+import { ReportButton } from '@/features/moderation/ReportButton';
 import { FeedbackButton } from '@/features/feedback/FeedbackButton';
 import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import { useEffect, useRef, useState } from 'react';
@@ -460,6 +461,9 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                                 : conversation.nome}
                             </strong>
                             <p>{m.conteudo}</p>
+                            {m.remetenteId !== user.id && (
+                              <ReportButton tipo="mensagem" id={m.id} />
+                            )}
                           </div>
                           <time dateTime={m.enviadoEm}>
                             {dateTime(m.enviadoEm)}
