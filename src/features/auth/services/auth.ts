@@ -35,3 +35,14 @@ export async function checkRecoveryEmail(email: string): Promise<void> {
     body: JSON.stringify({ email: email.trim().toLowerCase() }),
   });
 }
+
+export async function resetPassword(
+  token: string,
+  senha: string,
+): Promise<void> {
+  await apiRequest('auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, senha }),
+  });
+}

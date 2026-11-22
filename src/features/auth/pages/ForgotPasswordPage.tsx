@@ -24,7 +24,7 @@ export function ForgotPasswordPage() {
     try {
       await checkRecoveryEmail(email);
       setMessage(
-        'E-mail encontrado! O envio do código está temporariamente indisponível. Nenhum código foi enviado. Tente novamente mais tarde.',
+        'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.',
       );
     } catch (cause) {
       setError(
@@ -44,15 +44,7 @@ export function ForgotPasswordPage() {
       <Content>
         <Link to="/login">Voltar para o login</Link>
         <h1>Esqueceu sua senha?</h1>
-        <p>
-          Informe seu e-mail cadastrado. Vamos enviar um código para esse
-          endereço para você recuperar sua senha assim que o envio estiver
-          disponível.
-        </p>
-        <p>
-          Por enquanto, você pode verificar se o e-mail está na nossa base de
-          dados.
-        </p>
+        <p>Informe seu e-mail para receber instruções de recuperação.</p>
         <form onSubmit={(event) => void submit(event)}>
           <Fields>
             <Input
