@@ -24,7 +24,7 @@ export function ForgotPasswordPage() {
     try {
       await checkRecoveryEmail(email);
       setMessage(
-        'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.',
+        'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha. Confira também a pasta de spam ou lixo eletrônico.',
       );
     } catch (cause) {
       setError(
