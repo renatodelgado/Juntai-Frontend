@@ -11,6 +11,7 @@ import {
 import {
   supportedSegment,
   supportedModel,
+  registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 
 export const participation = [
@@ -380,12 +381,20 @@ export function validateInvestor(
       )
         errors.experienceYears = 'Informe um número inteiro entre 0 e 32.767.';
       required('expertise');
+      if (
+        data.expertise.some(
+          (value) => !Object.hasOwn(registrationHelpAreas, value),
+        )
+      )
+        errors.expertise = 'Escolha apenas as ?reas dispon?veis.';
       if (data.participation !== 'mentor') required('risk');
       if (data.participation !== 'mentor' && data.risk === 'early_stage')
         errors.risk = 'Escolha conservador, moderado ou arrojado.';
       break;
     case 'history':
       required('history');
+      if (data.history === 'undisclosed')
+        errors.history = 'Selecione sim ou n?o.';
       if (
         data.exactInvestmentCount !== null &&
         (!Number.isInteger(data.exactInvestmentCount) ||
@@ -395,17 +404,17 @@ export function validateInvestor(
         errors.exactInvestmentCount = 'Informe um inteiro entre 0 e 32.767.';
       break;
     case 'availability':
-      if (accountEdit) {
-        required('availability');
-        break;
-      }
-      required('frequency', 'interactions');
-      if (data.acceptsMentoring === null)
-        errors.acceptsMentoring = 'Escolha uma opção';
-      if (data.participation !== 'mentor') required('openInvestment');
+      required('availability');
       break;
     case 'offers':
       required(accountEdit ? 'expertise' : 'offers');
+      if (
+        accountEdit &&
+        data.expertise.some(
+          (value) => !Object.hasOwn(registrationHelpAreas, value),
+        )
+      )
+        errors.expertise = 'Escolha apenas as áreas disponíveis.';
       break;
     case 'consent':
       required('termsAccepted', 'privacyAcknowledged');

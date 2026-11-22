@@ -37,10 +37,7 @@ export function investorCompleteness(data: InvestorDraft) {
     {
       label: 'disponibilidade',
       step: 'availability',
-      filled:
-        !!data.frequency &&
-        !!data.interactions.length &&
-        data.acceptsMentoring !== null,
+      filled: !!data.availability,
     },
     { label: 'contribuições', step: 'offers', filled: !!data.expertise.length },
   ];

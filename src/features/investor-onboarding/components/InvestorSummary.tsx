@@ -139,9 +139,6 @@ export function InvestorSummary({
               {data.history === 'yes' && (
                 <>
                   <br />
-                  {data.participation !== 'mentor' &&
-                    catalogs.optionLabel(model.counts, data.investmentCount)}
-                  <br />
                   {data.experience}
                   {data.participation !== 'mentor' &&
                     data.exactInvestmentCount !== null && (
@@ -160,40 +157,14 @@ export function InvestorSummary({
             'Disponibilidade',
             'availability',
             <>
-              <p>{catalogs.optionLabel(model.frequencies, data.frequency)}</p>
               <p>
-                Tempo disponível:{' '}
+                Tempo dispon?vel:{' '}
                 {catalogs.optionLabel(
                   model.availabilityOptions,
                   data.availability,
-                )}
+                ) || 'Ainda n?o informado'}
               </p>
-              <p>{labels(model.interactions, data.interactions)}</p>
-              <p>
-                Aceita mentorias:{' '}
-                {data.acceptsMentoring === null
-                  ? 'Não informado'
-                  : data.acceptsMentoring
-                    ? 'Sim'
-                    : 'Não'}
-              </p>
-              {data.participation !== 'mentor' && (
-                <p>
-                  Novos investimentos:{' '}
-                  {catalogs.optionLabel(model.openness, data.openInvestment)}
-                </p>
-              )}
             </>,
-          )}
-          {card(
-            'O que posso oferecer',
-            'offers',
-            labels(model.offers, data.offers),
-          )}
-          {card(
-            'Preferências adicionais',
-            'preferences',
-            data.preferences || 'Ainda não informado',
           )}
         </>
       )}

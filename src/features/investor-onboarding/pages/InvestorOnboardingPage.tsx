@@ -1,7 +1,4 @@
-import {
-  RegistrationSyncScope,
-  SyncLegend,
-} from '@/shared/components/forms/RegistrationSync';
+import { RegistrationSyncScope } from '@/shared/components/forms/RegistrationSync';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useBlocker } from 'react-router-dom';
 import {
@@ -44,6 +41,10 @@ import {
 } from '@/features/auth/services/startupUploads';
 import { uploadInvestorPhoto } from '@/features/auth/services/investorUploads';
 
+const registrationSteps = investorSteps.filter(
+  (step) => !['offers', 'preferences'].includes(step.id),
+);
+
 export function InvestorOnboardingPage() {
   const form = useInvestor();
   const [editing, setEditing] = useState(false);
@@ -59,8 +60,11 @@ export function InvestorOnboardingPage() {
   const blocker = useBlocker(
     form.dirty && !form.busy && !accountBusy && !finished,
   );
-  const index = investorSteps.findIndex((step) => step.id === form.step);
-  const current = investorSteps[index]!;
+  const index = registrationSteps.findIndex((step) => step.id === form.step);
+  const current = registrationSteps[index] ?? registrationSteps[0]!;
+  useEffect(() => {
+    if (!form.loading && index < 0) form.navigate('review');
+  }, [form, index]);
   useEffect(() => {
     if (!form.loading) title.current?.focus({ preventScroll: true });
   }, [form.loading, form.step, finished]);
@@ -82,11 +86,11 @@ export function InvestorOnboardingPage() {
     }
     if (form.step !== 'consent') {
       form.complete();
-      form.navigate(editing ? 'review' : investorSteps[index + 1]!.id);
+      form.navigate(editing ? 'review' : registrationSteps[index + 1]!.id);
       setEditing(false);
       return;
     }
-    const invalid = investorSteps.find(
+    const invalid = registrationSteps.find(
       (step) => Object.keys(validateInvestor(step.id, form.data)).length,
     );
     if (invalid) {
@@ -167,7 +171,7 @@ export function InvestorOnboardingPage() {
             ) : (
               <>
                 <Stepper
-                  steps={investorSteps}
+                  steps={registrationSteps}
                   current={form.step}
                   completed={form.completedValid}
                   onSelect={(id) => {
@@ -178,7 +182,7 @@ export function InvestorOnboardingPage() {
                 <Content>
                   <Intro>
                     <span>
-                      Etapa {index + 1} de {investorSteps.length} ·{' '}
+                      Etapa {index + 1} de {registrationSteps.length} ·{' '}
                       {current.label}
                     </span>
                     <h1 ref={title} tabIndex={-1}>
@@ -186,7 +190,6 @@ export function InvestorOnboardingPage() {
                     </h1>
                     <p>{current.description}</p>
                   </Intro>
-                  <SyncLegend />
                   <form
                     ref={ref}
                     noValidate
@@ -277,7 +280,7 @@ export function InvestorOnboardingPage() {
                               $variant="secondary"
                               onClick={() => {
                                 setEditing(false);
-                                form.navigate(investorSteps[index - 1]!.id);
+                                form.navigate(registrationSteps[index - 1]!.id);
                               }}
                             >
                               Voltar

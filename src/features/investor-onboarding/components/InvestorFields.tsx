@@ -2,6 +2,7 @@ import { ProfilePhoto } from '@/shared/components/profile/ProfilePhoto';
 import {
   supportedSegment,
   supportedModel,
+  registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 import { useEffect, useState } from 'react';
 import { LinkedinLogoIcon } from '@phosphor-icons/react';
@@ -235,7 +236,11 @@ export function InvestorFields({
         {multi(
           'expertise',
           'Em quais áreas você poderia ajudar uma startup?',
-          model.expertise,
+          model.expertise.filter(
+            (item) =>
+              Object.hasOwn(registrationHelpAreas, item.value) ||
+              data.expertise.includes(item.value),
+          ),
         )}
       </>
     ),
@@ -244,7 +249,7 @@ export function InvestorFields({
         {radio(
           'history',
           'Você já investiu ou atuou com startups?',
-          model.historyOptions,
+          model.historyOptions.filter((item) => item.value !== 'undisclosed'),
         )}
         {data.history === 'yes' && (
           <>
@@ -260,13 +265,6 @@ export function InvestorFields({
                 onValueChange={(value) => update('exactInvestmentCount', value)}
               />
             )}
-            {data.participation !== 'mentor' &&
-              radio(
-                'investmentCount',
-                'Número aproximado de investimentos',
-                model.counts,
-                false,
-              )}
             {text(
               'experience',
               'Experiência anterior',
@@ -290,53 +288,25 @@ export function InvestorFields({
       <>
         <Select
           id="availability"
+          required
+          error={errors.availability}
           label="Quanto tempo você pode dedicar?"
           value={data.availability}
           options={model.availabilityOptions}
           onChange={(event) => update('availability', event.target.value)}
         />
-        {!accountEdit && (
-          <>
-            {radio(
-              'frequency',
-              'Com que frequência você gostaria de interagir com startups?',
-              model.frequencies,
-            )}
-            {multi(
-              'interactions',
-              'Que tipo de interação você prefere?',
-              model.interactions,
-            )}
-            <RadioGroup
-              id="acceptsMentoring"
-              label="Você aceita mentorias?"
-              required
-              value={
-                data.acceptsMentoring === null
-                  ? ''
-                  : data.acceptsMentoring
-                    ? 'yes'
-                    : 'no'
-              }
-              error={errors.acceptsMentoring}
-              options={[
-                { value: 'yes', label: 'Sim' },
-                { value: 'no', label: 'Não' },
-              ]}
-              onChange={(value) => update('acceptsMentoring', value === 'yes')}
-            />
-            {data.participation !== 'mentor' &&
-              radio(
-                'openInvestment',
-                'Você está aberto a novos investimentos neste momento?',
-                model.openness,
-              )}
-          </>
-        )}
       </>
     ),
     offers: accountEdit
-      ? multi('expertise', 'Como você pode ajudar?', model.expertise)
+      ? multi(
+          'expertise',
+          'Como você pode ajudar?',
+          model.expertise.filter(
+            (item) =>
+              Object.hasOwn(registrationHelpAreas, item.value) ||
+              data.expertise.includes(item.value),
+          ),
+        )
       : multi(
           'offers',
           'O que você pode oferecer?',
