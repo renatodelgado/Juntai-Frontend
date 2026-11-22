@@ -1,3 +1,8 @@
+import {
+  SparkleIcon,
+  MagnifyingGlassIcon,
+  ChatCircleIcon,
+} from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 import logo from '@/shared/assets/images/logo-txt.svg';
 import symbol from '@/shared/assets/images/logo-symb.svg';
@@ -202,7 +207,7 @@ export function HomePage() {
             <div className="feature-grid">
               <article className="feature">
                 <div className="feature-icon" aria-hidden="true">
-                  ✦
+                  <SparkleIcon size={24} weight="bold" />
                 </div>
                 <h3>Conte sua história</h3>
                 <p>
@@ -212,7 +217,7 @@ export function HomePage() {
               </article>
               <article className="feature">
                 <div className="feature-icon" aria-hidden="true">
-                  ⌕
+                  <MagnifyingGlassIcon size={24} weight="bold" />
                 </div>
                 <h3>Descubra afinidades</h3>
                 <p>
@@ -222,7 +227,7 @@ export function HomePage() {
               </article>
               <article className="feature">
                 <div className="feature-icon" aria-hidden="true">
-                  ◌
+                  <ChatCircleIcon size={24} weight="bold" />
                 </div>
                 <h3>Comece a conversa</h3>
                 <p>
