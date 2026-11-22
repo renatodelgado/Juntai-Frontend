@@ -181,27 +181,6 @@ export function InvestorProfilePage() {
                             empreendedores a dar os próximos passos.
                           </p>
                           {tags(model.expertise, data.expertise)}
-                          <S.Metrics>
-                            <div>
-                              Frequência
-                              <strong>
-                                {catalogs.optionLabel(
-                                  model.frequencies,
-                                  data.frequency,
-                                ) || 'Não informado'}
-                              </strong>
-                            </div>
-                            <div>
-                              Aceita mentorias
-                              <strong>
-                                {data.acceptsMentoring === null
-                                  ? 'Não informado'
-                                  : data.acceptsMentoring
-                                    ? 'Sim'
-                                    : 'Não'}
-                              </strong>
-                            </div>
-                          </S.Metrics>
                         </>,
                       )
                     : section(
@@ -223,17 +202,6 @@ export function InvestorProfilePage() {
                                   'Não informado'}
                               </strong>
                             </div>
-                            <div>
-                              Novos investimentos
-                              <strong>
-                                {data.openInvestment === 'yes'
-                                  ? 'Aberto a oportunidades'
-                                  : catalogs.optionLabel(
-                                      model.openness,
-                                      data.openInvestment,
-                                    ) || 'Não informado'}
-                              </strong>
-                            </div>
                           </S.Metrics>
                           <S.Row>
                             <Button
@@ -246,7 +214,7 @@ export function InvestorProfilePage() {
                               $variant="quiet"
                               onClick={() => edit('availability')}
                             >
-                              Atualizar disponibilidade para investir
+                              Atualizar disponibilidade
                             </Button>
                           </S.Row>
                         </>,
@@ -291,10 +259,8 @@ export function InvestorProfilePage() {
                             <>
                               <h3>Investimentos realizados</h3>
                               <p>
-                                {catalogs.optionLabel(
-                                  model.counts,
-                                  data.investmentCount,
-                                ) || 'Ainda não informado'}
+                                {data.exactInvestmentCount ??
+                                  'Ainda não informado'}
                               </p>
                             </>
                           )}
@@ -357,37 +323,7 @@ export function InvestorProfilePage() {
                             )}
                           </strong>
                         </div>
-                        <div>
-                          Frequência
-                          <strong>
-                            {catalogs.optionLabel(
-                              model.frequencies,
-                              data.frequency,
-                            ) || 'Não informado'}
-                          </strong>
-                        </div>
-                        <div>
-                          Aceita mentorias
-                          <strong>
-                            {data.acceptsMentoring === null
-                              ? 'Não informado'
-                              : data.acceptsMentoring
-                                ? 'Sim'
-                                : 'Não'}
-                          </strong>
-                        </div>
                       </S.Metrics>
-                      <h3>Formatos</h3>
-                      {tags(model.interactions, data.interactions)}
-                      {!mentor && (
-                        <p>
-                          Novos investimentos:{' '}
-                          {catalogs.optionLabel(
-                            model.openness,
-                            data.openInvestment,
-                          ) || 'Não informado'}
-                        </p>
-                      )}
                       <Button
                         $variant="secondary"
                         onClick={() => edit('availability')}

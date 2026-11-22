@@ -91,20 +91,11 @@ export function InvestorPublicPreview({ data }: { data: model.InvestorDraft }) {
         values={data.businessModels}
       />
       <ProfileTags options={catalogs.regions} values={data.regions} />
-      <h3>Como posso contribuir</h3>
-      <ProfileTags
-        options={data.offers.length ? model.offers : model.expertise}
-        values={data.offers.length ? data.offers : data.expertise}
-      />
       <h3>Disponibilidade</h3>
       <p>
-        {catalogs.optionLabel(model.frequencies, data.frequency) ||
+        {catalogs.optionLabel(model.availabilityOptions, data.availability) ||
           'Não informado'}
       </p>
-      <ProfileTags options={model.interactions} values={data.interactions} />
-      <S.Muted>
-        Prévia local de apresentação. Nenhum perfil está publicado.
-      </S.Muted>
     </div>
   );
 }
