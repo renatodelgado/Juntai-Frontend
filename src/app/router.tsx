@@ -2,7 +2,6 @@ import {
   createBrowserRouter,
   type ShouldRevalidateFunctionArgs,
 } from 'react-router-dom';
-import { HomePage } from '@/features/home/pages/HomePage';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
@@ -156,7 +155,10 @@ export const router = createBrowserRouter([
   })),
   {
     path: '/',
-    element: <HomePage />,
+    lazy: async () => {
+      const { HomePage } = await import('@/features/home/pages/HomePage');
+      return { Component: HomePage };
+    },
     loader: redirectAuthenticated,
     errorElement: <AuthRouteError />,
   },
