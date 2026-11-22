@@ -2,6 +2,10 @@ import { RegistrationSyncScope } from '@/shared/components/forms/RegistrationSyn
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useBlocker, useSearchParams } from 'react-router-dom';
 import {
+  passwordError,
+  passwordRequirements,
+} from '@/features/auth/model/password';
+import {
   ArrowLeftIcon,
   ArrowRightIcon,
   FloppyDiskIcon,
@@ -121,6 +125,11 @@ export function StartupOnboardingPage() {
   }
   async function createAccount() {
     setAccountError('');
+    const invalidPassword = passwordError(password);
+    if (invalidPassword) {
+      setAccountError(invalidPassword);
+      return;
+    }
     if (password !== confirmPassword) {
       setAccountError('As senhas precisam ser iguais.');
       return;
@@ -222,8 +231,8 @@ export function StartupOnboardingPage() {
             label="Crie uma senha"
             type="password"
             required
-            minLength={6}
-            hint="Pelo menos 6 caracteres."
+            minLength={8}
+            hint={passwordRequirements}
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}

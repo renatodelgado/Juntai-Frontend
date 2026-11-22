@@ -4,6 +4,10 @@ import {
 } from '@/shared/components/forms/RegistrationSync';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useBlocker } from 'react-router-dom';
+import {
+  passwordError,
+  passwordRequirements,
+} from '@/features/auth/model/password';
 import { ThemeProvider } from 'styled-components';
 import { HandshakeIcon, CheckCircleIcon } from '@phosphor-icons/react';
 import logo from '@/shared/assets/images/logo-txt.svg';
@@ -89,6 +93,11 @@ export function InvestorOnboardingPage() {
       form.navigate(invalid.id);
       form.validate(invalid.id);
       focusError();
+      return;
+    }
+    const invalidPassword = passwordError(password);
+    if (invalidPassword) {
+      setAccountError(invalidPassword);
       return;
     }
     if (password !== confirmation) {
@@ -232,7 +241,7 @@ export function InvestorOnboardingPage() {
                             required
                             type="password"
                             autoComplete="new-password"
-                            hint="Pelo menos 6 caracteres."
+                            hint={passwordRequirements}
                             value={password}
                             onChange={(event) =>
                               setPassword(event.target.value)

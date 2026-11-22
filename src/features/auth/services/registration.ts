@@ -12,6 +12,10 @@ import {
   registrationHelpAreas,
 } from '@/shared/config/registrationCatalogs';
 import { normalizeUrl } from '@/features/startup-onboarding/model/validation';
+import {
+  passwordError,
+  passwordRequirements,
+} from '@/features/auth/model/password';
 export {
   supportedSegment,
   supportedModel,
@@ -55,7 +59,9 @@ const money = z.number().finite().min(0).max(999999999999.99);
 const credentials = z.object({
   nome: z.string().trim().min(1, 'Informe o nome completo.').max(150),
   email: z.email('Informe um e-mail válido.').max(150),
-  senha: z.string().min(6, 'Use uma senha com pelo menos 6 caracteres.'),
+  senha: z
+    .string()
+    .refine((value) => !passwordError(value), passwordRequirements),
 });
 export interface RegistrationDetails {
   ownerName: string;
