@@ -28,17 +28,24 @@ Acesse `http://localhost:5173`. Os recursos integrados dependem do backend em ex
 - Agendamento de reuniões e painéis administrativos.
 - Páginas de termos de uso e política de privacidade.
 
-Parte dos fluxos de compatibilidade e reuniões ainda utiliza dados demonstrativos e armazenamento no navegador. A existência de uma tela não implica integração completa com o backend. Os textos legais são provisórios.
+A exploração, as mensagens, os interesses e as reuniões usam APIs autenticadas. Favoritos e alguns estados da descoberta ficam no navegador e não são sincronizados entre dispositivos. A integração completa com serviços reais deve ser validada em ambiente de teste; os textos legais são provisórios.
+
+A recuperação de senha depende do backend atualizado, da migração do banco e de um serviço de e-mail configurado.
 
 ## Comandos
 
-| Comando           | Finalidade                         |
-| ----------------- | ---------------------------------- |
-| `npm run dev`     | Iniciar o ambiente local           |
-| `npm run build`   | Validar tipos e gerar `dist/`      |
-| `npm run preview` | Conferir o build localmente        |
-| `npm run check`   | Verificar tipos, lint e formatação |
-| `npm run format`  | Aplicar formatação                 |
+| Comando                         | Finalidade                                                     |
+| ------------------------------- | -------------------------------------------------------------- |
+| `npm run dev`                   | Iniciar o ambiente local                                       |
+| `npm run build`                 | Validar tipos e gerar `dist/`                                  |
+| `npm run preview`               | Conferir o build localmente                                    |
+| `npm run check`                 | Verificar tipos, lint e formatação                             |
+| `npm test`                      | Executar testes unitários de recomendações e reuniões          |
+| `npm run test:browser`          | Executar parte dos testes de navegador com respostas simuladas |
+| `npm run test:recovery:browser` | Verificar a recuperação de senha no navegador                  |
+| `npm run format`                | Aplicar formatação                                             |
+
+Os testes de navegador usam Playwright e, por padrão, Microsoft Edge. Alguns testes individuais exigem build prévio; consulte os arquivos em `tests/`. Os testes simulados não substituem a validação com o backend real.
 
 ## Estrutura
 
