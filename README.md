@@ -23,7 +23,7 @@ Acesse `http://localhost:5173`. Os recursos integrados dependem do backend em ex
 ## Funcionalidades
 
 - Cadastro e edição de perfis de startups, investidores e mentores, com rascunhos locais.
-- Login, validação de sessão e solicitação de recuperação de senha via API.
+- Login, validação de sessão e recuperação de senha via API, quando o envio de e-mail estiver configurado no backend.
 - Exploração de startups, conexões, matches e mensagens.
 - Agendamento de reuniões e painéis administrativos.
 - Páginas de termos de uso e política de privacidade.

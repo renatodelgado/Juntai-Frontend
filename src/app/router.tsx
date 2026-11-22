@@ -7,6 +7,7 @@ import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { ProtectedRoute, AuthRouteError } from '@/features/auth/ProtectedRoute';
 import {
   requireRole,
@@ -182,6 +183,7 @@ export const router = createBrowserRouter([
     ],
   })),
   { path: '/esqueci-minha-senha', element: <ForgotPasswordPage /> },
+  { path: '/redefinir-senha', element: <ResetPasswordPage /> },
   {
     path: '/cadastro/investidor',
     lazy: async () => {
