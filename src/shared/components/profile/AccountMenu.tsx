@@ -107,7 +107,12 @@ export function AccountMenu() {
       <Container
         ref={container}
         onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget))
+          // Safari on iOS can blur the focused menu item without focusing the
+          // tapped button. Let the outside pointer handler handle that case.
+          if (
+            event.relatedTarget &&
+            !event.currentTarget.contains(event.relatedTarget)
+          )
             setOpen(false);
         }}
         onKeyDown={(event) => {

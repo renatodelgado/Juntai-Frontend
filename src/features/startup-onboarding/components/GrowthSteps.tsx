@@ -19,11 +19,9 @@ export function TractionStep({ form }: { form: OnboardingController }) {
           error={form.errors.customers}
         />
       </Fields>
-      <NumberInput
+      <MoneyInput
         id="monthlyRevenue"
         label="Faturamento mensal (R$)"
-        min={0}
-        step="0.01"
         value={form.data.monthlyRevenue}
         error={form.errors.monthlyRevenue}
         onValueChange={(value) => form.update('monthlyRevenue', value)}

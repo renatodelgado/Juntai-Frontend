@@ -1,5 +1,11 @@
 import { FieldSync } from './RegistrationSync';
-import { useId, type ComponentProps, type ReactNode } from 'react';
+import {
+  useId,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from 'react';
 import {
   FieldRoot,
   Label,
@@ -287,6 +293,10 @@ export function NumberInput({
     <Input
       {...props}
       type="number"
+      inputMode={
+        props.inputMode ??
+        (Number(props.step ?? 1) === 1 ? 'numeric' : 'decimal')
+      }
       value={value ?? ''}
       onChange={(event) =>
         onValueChange(
@@ -304,22 +314,80 @@ export function MoneyInput(
     onValueChange: (value: number | null) => void;
   },
 ) {
-  return (
-    <NumberInput
-      {...props}
-      inputMode="decimal"
-      min={0}
-      max={1e12}
-      step="0.01"
-      placeholder="500000"
-      hint={
-        props.value === null
-          ? 'Valor em reais. Exemplo: 500000 para R$ 500.000.'
-          : new Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            }).format(props.value)
+  const { value, onValueChange, ...inputProps } = props;
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const previous = useRef('');
+  const formatValue = (value: number | null) =>
+    value === null
+      ? ''
+      : new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+  function change(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    let text = input.value.replace(/[^\d,.]/g, '');
+    const changeEvent = event.nativeEvent as InputEvent;
+    // Accept the decimal key on keyboards that use a period, while keeping
+    // periods already inserted as thousands separators.
+    if (
+      changeEvent.inputType === 'insertText' &&
+      changeEvent.data === '.' &&
+      !previous.current.includes(',')
+    ) {
+      const position = (input.selectionStart ?? text.length) - 1;
+      text = text.slice(0, position) + ',' + text.slice(position + 1);
+    }
+    if (
+      changeEvent.inputType === 'insertFromPaste' &&
+      !text.includes(',') &&
+      /\.\d{1,2}$/.test(text)
+    ) {
+      // A pasted value with a decimal point is also accepted.
+      text = text.replace(/\.(?=\d{1,2}$)/, ',');
+    }
+    const [whole = '', ...fractionParts] = text.split(',');
+    const digits = whole.replace(/\D/g, '');
+    const fraction = fractionParts.join('').replace(/\D/g, '').slice(0, 2);
+    const grouped = digits
+      .replace(/^0+(?=\d)/, '')
+      .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const formatted = grouped + (fractionParts.length ? ',' + fraction : '');
+    const position = input.selectionStart ?? input.value.length;
+    const significantBefore = text
+      .slice(0, position)
+      .replace(/[^\d,]/g, '').length;
+    setDraft(formatted);
+    previous.current = formatted;
+    onValueChange(digits ? Number(`${digits}.${fraction || '0'}`) : null);
+    requestAnimationFrame(() => {
+      if (document.activeElement !== input) return;
+      let seen = 0;
+      let caret = 0;
+      while (caret < formatted.length && seen < significantBefore) {
+        if (/[\d,]/.test(formatted[caret]!)) seen++;
+        caret++;
       }
+      input.setSelectionRange(caret, caret);
+    });
+  }
+  return (
+    <Input
+      {...inputProps}
+      type="text"
+      inputMode="decimal"
+      value={editing ? draft : formatValue(value)}
+      onFocus={() => {
+        const current = formatValue(value);
+        previous.current = current;
+        setDraft(current);
+        setEditing(true);
+      }}
+      onChange={change}
+      onBlur={() => setEditing(false)}
+      placeholder="0,00"
+      hint="Valor em reais. Use vírgula para os centavos."
     />
   );
 }
