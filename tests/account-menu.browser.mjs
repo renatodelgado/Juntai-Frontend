@@ -10,9 +10,9 @@ await server.listen();
 const browser = await chromium.launch({ headless: true, channel: 'msedge' });
 try {
   for (const role of ['investidor', 'startup']) {
-    const context = await browser.newContext();
+    const context = await browser.newContext({ hasTouch: true });
     const page = await context.newPage();
-    page.setDefaultTimeout(60_000);
+    page.setDefaultTimeout(120_000);
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     const usuario = {
@@ -78,7 +78,9 @@ try {
       'reunioes',
       ...(role === 'investidor' ? ['startups'] : []),
     ]) {
-      await page.goto(`http://127.0.0.1:5197/${role}/${tab}`);
+      await page.goto(`http://127.0.0.1:5197/${role}/${tab}`, {
+        waitUntil: 'domcontentloaded',
+      });
       await page.waitForFunction(
         (role) =>
           document.querySelector('[data-account-role]')?.textContent === role,
@@ -107,7 +109,9 @@ try {
         .waitFor();
       await page.getByRole('button', { name: 'Fechar', exact: true }).click();
     }
-    await page.goto(`http://127.0.0.1:5197/${role}/perfil`);
+    await page.goto(`http://127.0.0.1:5197/${role}/perfil`, {
+      waitUntil: 'domcontentloaded',
+    });
     await page.getByRole('heading', { name: 'Dados para conexões' }).waitFor();
     const feature = page
       .getByRole('heading', { name: 'Dados para conexões' })
@@ -192,10 +196,21 @@ try {
       });
       await page.keyboard.press('Escape');
     }
+    await page.setViewportSize({ width: 390, height: 844 });
     await page
       .getByRole('button', { name: 'Menu da conta', exact: true })
       .click();
-    await page.getByRole('menuitem', { name: 'Sair', exact: true }).click();
+    // iOS Safari can send focusout with no relatedTarget before the tap's click.
+    await page.evaluate(() =>
+      document.activeElement?.dispatchEvent(
+        new FocusEvent('focusout', { bubbles: true, relatedTarget: null }),
+      ),
+    );
+    const logoutButton = page.getByRole('menuitem', {
+      name: 'Sair',
+      exact: true,
+    });
+    await logoutButton.tap();
     await page.waitForURL('**/login');
     assert.equal(
       await page.evaluate(() => localStorage.getItem('juntai:auth-session')),

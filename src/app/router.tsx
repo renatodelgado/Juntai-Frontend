@@ -4,6 +4,8 @@ import {
 } from 'react-router-dom';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { LegalPage } from '@/features/legal/LegalPage';
+import { getSession, homePath } from '@/features/auth/services/session';
+import { redirect } from 'react-router-dom';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
@@ -33,9 +35,15 @@ export const router = createBrowserRouter([
           'investidores',
           'auditoria',
           'reunioes',
+          'denuncias',
         ].map((path) => ({
           ...(path ? { path } : { index: true }),
           lazy: async () => {
+            if (path === 'denuncias') {
+              const { AdminModerationPage } =
+                await import('@/features/moderation/AdminModerationPage');
+              return { Component: AdminModerationPage };
+            }
             if (path === 'reunioes') {
               const { AdminMeetingsPage } =
                 await import('@/features/admin/AdminMeetingsPage');
@@ -48,6 +56,29 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  ...(['startup', 'investidor'] as const).map((role) => ({
+    path: `/${role}/moderacao`,
+    element: <ProtectedRoute />,
+    loader: () => {
+      const user = getSession()?.usuario;
+      return !user
+        ? redirect('/login')
+        : user.tipoPerfil !== role
+          ? redirect(homePath(user.tipoPerfil))
+          : user;
+    },
+    errorElement: <AuthRouteError />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { ModerationPage } =
+            await import('@/features/moderation/ModerationPage');
+          return { Component: ModerationPage };
+        },
+      },
+    ],
+  })),
   ...(['startup', 'investidor'] as const).map((role) => ({
     id: `${role}-meetings`,
     path: `/${role}/reunioes`,

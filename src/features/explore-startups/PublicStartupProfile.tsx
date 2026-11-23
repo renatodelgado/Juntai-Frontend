@@ -1,3 +1,4 @@
+import { ReportButton } from '@/features/moderation/ReportButton';
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
@@ -94,6 +95,7 @@ export function PublicStartupProfile() {
                 />
               </S.SaveButton>
               <div className="actions">
+                <ReportButton tipo="startup" id={startup.id} />
                 <Button
                   onClick={() => setInterest(true)}
                   disabled={!data.approved}

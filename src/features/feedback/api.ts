@@ -32,6 +32,15 @@ const state = z.object({
   elegivel: z.boolean(),
   nome: z.string(),
   avaliacao: review.nullable(),
+  avaliacaoRecebida: z
+    .object({
+      id: z.string(),
+      nota: z.number(),
+      comentario: z.string().nullable(),
+      atualizadoEm: z.string(),
+    })
+    .nullable()
+    .optional(),
   investimentoInformadoPeloOutro: z.boolean(),
   investimentoConfirmado: z.boolean(),
 });

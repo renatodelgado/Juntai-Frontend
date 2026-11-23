@@ -1,3 +1,4 @@
+import { ReportButton } from '@/features/moderation/ReportButton';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { StarIcon } from '@phosphor-icons/react';
@@ -184,6 +185,14 @@ export function FeedbackDialog({
               <strong>{data.nome}</strong> ·{' '}
               {tipo === 'conversa' ? 'Conversa até agora' : 'Reunião'}
             </p>
+            {data.avaliacaoRecebida && (
+              <section>
+                <h3>Avaliação recebida</h3>
+                <p>Nota: {data.avaliacaoRecebida.nota}/5</p>
+                <p>{data.avaliacaoRecebida.comentario}</p>
+                <ReportButton tipo="avaliacao" id={data.avaliacaoRecebida.id} />
+              </section>
+            )}
             {data.avaliacao ? (
               <p>
                 Sua avaliação foi registrada no sistema. Obrigado pelo feedback!

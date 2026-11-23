@@ -19,6 +19,7 @@
     "test": "node --test tests/recommendations.test.mjs tests/meetings.test.mjs",
     "test:recovery:browser": "npm run build && node tests/password-recovery.browser.mjs",
     "test:meetings:browser": "npm run build && node tests/meetings.browser.mjs",
+    "test:money:browser": "node tests/money-input.browser.mjs",
     "test:browser": "node tests/recommendations.browser.mjs && node tests/explore-stability.browser.mjs && node tests/profile-location.browser.mjs && node tests/dashboard-highlights.browser.mjs && node tests/account-menu.browser.mjs"
   },
   "dependencies": {

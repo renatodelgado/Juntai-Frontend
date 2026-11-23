@@ -107,7 +107,12 @@ export function AccountMenu() {
       <Container
         ref={container}
         onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget))
+          // Safari on iOS can blur the focused menu item without focusing the
+          // tapped button. Let the outside pointer handler handle that case.
+          if (
+            event.relatedTarget &&
+            !event.currentTarget.contains(event.relatedTarget)
+          )
             setOpen(false);
         }}
         onKeyDown={(event) => {
@@ -169,6 +174,18 @@ export function AccountMenu() {
             role="menu"
             aria-label="Opções da conta"
           >
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                void navigate(
+                  startup ? '/startup/moderacao' : '/investidor/moderacao',
+                );
+              }}
+            >
+              <ShieldCheckIcon size={19} aria-hidden="true" />
+              Denúncias e sanções
+            </button>
             {panels.map(({ id, label, Icon }) => (
               <button
                 key={id}

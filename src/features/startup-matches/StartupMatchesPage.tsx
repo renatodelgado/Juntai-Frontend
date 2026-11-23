@@ -1,3 +1,4 @@
+import { ReportButton } from '@/features/moderation/ReportButton';
 import { useEffect, useState } from 'react';
 import { Link, useRouteLoaderData } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
@@ -330,6 +331,7 @@ function Screen({ userId }: { userId: string }) {
             {selected && (
               <S.Profile>
                 <Identity person={selected} />
+                <ReportButton tipo="investidor" id={selected.investidorId} />
                 {[selected.cidade, selected.estado].filter(Boolean).length >
                   0 && (
                   <p className="meta">
