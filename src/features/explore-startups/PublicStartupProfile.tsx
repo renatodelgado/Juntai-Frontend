@@ -10,6 +10,7 @@ import {
 import { Button } from '@/shared/components/ui/Button';
 import { PageHeader } from '@/shared/components/profile/PageHeader';
 import { useDiscovery } from './useDiscovery';
+import { useProfileInteraction } from './useProfileInteraction';
 import { DiscoveryLayout } from './components/DiscoveryLayout';
 import {
   CompatibilityIndicator,
@@ -32,6 +33,7 @@ export function PublicStartupProfile() {
   const fromMatches = routeState?.returnTo === '/investidor/matches';
   const back = `${fromMatches ? '/investidor/matches' : '/investidor/startups'}${routeState?.returnSearch ? `?${routeState.returnSearch}` : ''}`;
   const startup = data.startups.find((item) => item.id === id);
+  useProfileInteraction(startup?.id, data.approved && !data.loading);
   const [interest, setInterest] = useState(false);
   const [meeting, setMeeting] = useState(false);
   const connected = data.connections.some((chat) => chat.participant.id === id);

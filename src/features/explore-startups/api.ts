@@ -2,6 +2,35 @@
 import { apiRequest } from '@/shared/services/api';
 import { startupSchema } from '@/features/auth/services/profiles';
 import type { AuthUser } from '@/features/auth/services/session';
+
+export const discoveryInteractions = {
+  async saved(signal?: AbortSignal): Promise<string[]> {
+    return z
+      .array(z.string().uuid())
+      .parse(
+        await (
+          await apiRequest('startups/salvas', { authenticated: true, signal })
+        ).json(),
+      );
+  },
+  async record(
+    startupId: string,
+    tipo: 'perfil_aberto' | 'tempo_perfil' | 'salvou' | 'removeu_salvo',
+    segundos?: number,
+  ) {
+    return apiRequest(`startups/${encodeURIComponent(startupId)}/interacoes`, {
+      authenticated: true,
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventId: crypto.randomUUID(),
+        tipo,
+        ...(segundos === undefined ? {} : { segundos }),
+      }),
+    });
+  },
+};
 import { investmentRanges, type Filters, type Startup } from './model';
 
 export const segmentLabels: Record<string, string> = {
