@@ -101,9 +101,6 @@ export function HomePage() {
           <Link className="btn btn-outline" to="/login">
             Entrar
           </Link>
-          <Link className="btn btn-primary" to="/cadastro/startup">
-            Começar agora
-          </Link>
         </div>
       </header>
       <main>

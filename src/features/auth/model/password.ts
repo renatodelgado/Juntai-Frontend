@@ -8,16 +8,19 @@ export function passwordChecks(value: string) {
     { label: 'Uma letra minúscula', valid: /\p{Ll}/u.test(value) },
     { label: 'Um número', valid: /[0-9]/.test(value) },
     { label: 'Um caractere especial', valid: /[^\p{L}\p{N}\s]/u.test(value) },
-    {
-      label: 'No máximo 72 bytes',
-      valid: new TextEncoder().encode(value).length <= 72,
-    },
   ];
 }
 
 export function passwordError(value: string): string | undefined {
-  if (new TextEncoder().encode(value).length > 72)
-    return 'A senha deve ter no máximo 72 bytes.';
+  if (new TextEncoder().encode(value).length > 72) {
+    let prefix = '';
+    for (const character of value) {
+      if (new TextEncoder().encode(prefix + character).length > 72) break;
+      prefix += character;
+    }
+    const limit = Array.from(prefix).length;
+    return `Senha muito longa. Reduza para até ${limit} caracteres; alguns caracteres ocupam mais espaço.`;
+  }
   if (passwordChecks(value).some((check) => !check.valid))
     return passwordRequirements;
 }
