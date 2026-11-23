@@ -67,6 +67,13 @@ export const StatusPanel = styled(StatusCard)`
   h2 {
     margin: 0.6rem 0;
   }
+  .status-flow {
+    gap: 0.4rem;
+  }
+  .inactive-step {
+    background: #eceef0;
+    color: #555;
+  }
 `;
 export const TipsPanel = styled(FeatureCard)`
   background: ${({ theme }) => theme.colors.accentStrong};
