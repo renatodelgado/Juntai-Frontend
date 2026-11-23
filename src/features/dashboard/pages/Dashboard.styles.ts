@@ -68,11 +68,26 @@ export const StatusPanel = styled(StatusCard)`
     margin: 0.6rem 0;
   }
   .status-flow {
-    gap: 0.4rem;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    padding-bottom: 0.2rem;
+    > span {
+      flex-shrink: 0;
+    }
+    > span:not([aria-hidden]) {
+      padding: 0.25rem 0.4rem;
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+    > span[aria-hidden] {
+      color: #afb3ba;
+    }
   }
   .inactive-step {
-    background: #eceef0;
-    color: #555;
+    background: #f2f3f5;
+    color: #9298a1;
   }
 `;
 export const TipsPanel = styled(FeatureCard)`

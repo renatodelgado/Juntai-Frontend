@@ -132,17 +132,21 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
         </h2>
       </header>
       <Row>
-        <Avatar>
-          {data.role === 'startup' && data.profile.logoUrl ? (
-            <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
-          ) : data.role === 'investidor' ? (
-            <ProfilePhoto src={data.profile.avatarUrl} name={name} />
-          ) : (
-            <span aria-hidden="true">{initials(name)}</span>
-          )}
-        </Avatar>
+        <Link to={`/${data.role}/perfil`} aria-label={`Ver perfil de ${name}`}>
+          <Avatar>
+            {data.role === 'startup' && data.profile.logoUrl ? (
+              <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
+            ) : data.role === 'investidor' ? (
+              <ProfilePhoto src={data.profile.avatarUrl} name={name} />
+            ) : (
+              <span aria-hidden="true">{initials(name)}</span>
+            )}
+          </Avatar>
+        </Link>
         <div>
-          <strong>{name}</strong>
+          <strong>
+            <Link to={`/${data.role}/perfil`}>{name}</Link>
+          </strong>
           <br />
           <Badge>{moderation(data.profile.statusModeracao).badge}</Badge>
         </div>
