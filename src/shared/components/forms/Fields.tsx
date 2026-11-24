@@ -1,5 +1,3 @@
-import { passwordChecks } from '@/features/auth/model/password';
-import { EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import { FieldSync } from './RegistrationSync';
 import {
   useId,
@@ -60,12 +58,6 @@ export function Input({
   id,
   ...props
 }: Common & Omit<ComponentProps<'input'>, 'id'>) {
-  const [visible, setVisible] = useState(false);
-  const isPassword = props.type === 'password';
-  const showChecks =
-    isPassword &&
-    props.autoComplete === 'new-password' &&
-    /^(account-password|new-password)$/.test(id);
   return (
     <FieldSync field={id}>
       <FieldRoot>
@@ -74,72 +66,15 @@ export function Input({
           {label}
           {!required && <span>Opcional</span>}
         </Label>
-        <div style={{ position: 'relative' }}>
-          <InputControl
-            {...props}
-            type={isPassword && visible ? 'text' : props.type}
-            style={
-              isPassword
-                ? { ...props.style, paddingRight: '3.5rem' }
-                : props.style
-            }
-            maxLength={props.maxLength ?? 2048}
-            id={id}
-            required={required}
-            aria-invalid={!!error}
-            aria-describedby={describedBy(
-              id,
-              showChecks ? undefined : hint,
-              error,
-            )}
-          />
-          {isPassword && (
-            <button
-              type="button"
-              aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
-              aria-pressed={visible}
-              onClick={() => setVisible(!visible)}
-              style={{
-                position: 'absolute',
-                right: 4,
-                top: 4,
-                bottom: 4,
-                minWidth: 44,
-                border: 0,
-                background: 'transparent',
-                color: 'inherit',
-                cursor: 'pointer',
-              }}
-            >
-              {visible ? <EyeSlashIcon size={22} /> : <EyeIcon size={22} />}
-            </button>
-          )}
-        </div>
-        {showChecks && (
-          <ul
-            aria-label="Requisitos da senha"
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              fontSize: '0.85rem',
-            }}
-          >
-            {passwordChecks(String(props.value ?? '')).map((check) => (
-              <li
-                key={check.label}
-                style={{ color: check.valid ? '#176b40' : '#555' }}
-              >
-                {check.valid ? '\u2713' : '\u25cb'} {check.label}
-              </li>
-            ))}
-          </ul>
-        )}
-        <FieldDescription
+        <InputControl
+          {...props}
+          maxLength={props.maxLength ?? 2048}
           id={id}
-          hint={showChecks ? undefined : hint}
-          error={error}
+          required={required}
+          aria-invalid={!!error}
+          aria-describedby={describedBy(id, hint, error)}
         />
+        <FieldDescription id={id} hint={hint} error={error} />
       </FieldRoot>
     </FieldSync>
   );

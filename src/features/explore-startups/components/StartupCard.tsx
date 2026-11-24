@@ -1,4 +1,4 @@
-import { Link, useNavigation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
   ArrowUpRightIcon,
@@ -141,11 +141,6 @@ export function StartupCard({
   approved?: boolean;
 }) {
   const exposureRef = useExposure(startup.contextoExposicao);
-  const navigation = useNavigation();
-  const profilePath = `/startups/${startup.id}`;
-  const opening =
-    navigation.state !== 'idle' &&
-    navigation.location?.pathname === profilePath;
   return (
     <S.Card ref={exposureRef} $list={list}>
       {startup.variant === 'visual' && !list && (
@@ -160,20 +155,10 @@ export function StartupCard({
       )}
       <div className="body">
         <div className="card-top">
-          <Link
-            to={profilePath}
-            state={{ returnSearch }}
-            aria-label={`Ver perfil de ${startup.name}`}
-          >
-            <StartupIdentity startup={startup} />
-          </Link>
+          <StartupIdentity startup={startup} />
           <div>
             <span className="segment">{startup.segment}</span>
-            <h3>
-              <Link to={profilePath} state={{ returnSearch }}>
-                {startup.name}
-              </Link>
-            </h3>
+            <h3>{startup.name}</h3>
             <p className="location">
               <MapPinIcon size={13} aria-hidden="true" />
               {startup.location.city}, {startup.location.state}
@@ -206,9 +191,8 @@ export function StartupCard({
           </div>
         )}
         <div className="card-footer">
-          <Link to={profilePath} state={{ returnSearch }} aria-busy={opening}>
-            {opening ? 'Carregando...' : 'Ver startup'}{' '}
-            <ArrowUpRightIcon size={17} aria-hidden="true" />
+          <Link to={`/startups/${startup.id}`} state={{ returnSearch }}>
+            Ver startup <ArrowUpRightIcon size={17} aria-hidden="true" />
           </Link>
           <button
             className="interest"

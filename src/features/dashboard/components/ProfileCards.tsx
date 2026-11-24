@@ -40,23 +40,15 @@ export function ProfileStatusCard({ data }: { data: Dashboard }) {
         <h2 id="profile-status-title">{status.title}</h2>
         <p>{status.description}</p>
         {(data.profile.statusModeracao === 'pendente' || status.approved) && (
-          <Row className="status-flow" aria-label="Etapas da avaliação">
-            <Badge className="inactive-step">
+          <Row aria-label="Etapas da avaliação">
+            <Badge>
               <CheckCircleIcon aria-hidden="true" />
               Cadastro concluído
             </Badge>
-            <span aria-hidden="true">&#8212;</span>
-            <Badge
-              className={status.approved ? 'inactive-step' : undefined}
-              aria-current={!status.approved ? 'step' : undefined}
-            >
+            <Badge aria-current={!status.approved ? 'step' : undefined}>
               Em avaliação
             </Badge>
-            <span aria-hidden="true">&#8212;</span>
-            <Badge
-              className={!status.approved ? 'inactive-step' : undefined}
-              aria-current={status.approved ? 'step' : undefined}
-            >
+            <Badge aria-current={status.approved ? 'step' : undefined}>
               Perfil aprovado
             </Badge>
           </Row>
@@ -132,21 +124,17 @@ export function ProfileSummaryCard({ data }: { data: Dashboard }) {
         </h2>
       </header>
       <Row>
-        <Link to={`/${data.role}/perfil`} aria-label={`Ver perfil de ${name}`}>
-          <Avatar>
-            {data.role === 'startup' && data.profile.logoUrl ? (
-              <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
-            ) : data.role === 'investidor' ? (
-              <ProfilePhoto src={data.profile.avatarUrl} name={name} />
-            ) : (
-              <span aria-hidden="true">{initials(name)}</span>
-            )}
-          </Avatar>
-        </Link>
+        <Avatar>
+          {data.role === 'startup' && data.profile.logoUrl ? (
+            <img src={data.profile.logoUrl} alt={`Logo de ${name}`} />
+          ) : data.role === 'investidor' ? (
+            <ProfilePhoto src={data.profile.avatarUrl} name={name} />
+          ) : (
+            <span aria-hidden="true">{initials(name)}</span>
+          )}
+        </Avatar>
         <div>
-          <strong>
-            <Link to={`/${data.role}/perfil`}>{name}</Link>
-          </strong>
+          <strong>{name}</strong>
           <br />
           <Badge>{moderation(data.profile.statusModeracao).badge}</Badge>
         </div>
