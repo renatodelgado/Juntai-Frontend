@@ -6,7 +6,8 @@ import type { Conversation } from '@/features/messages/model';
 import { defaultFilters, type Filters, type Startup } from './model';
 import type { DiscoverySummary, StartupPage } from './api';
 import { getSession } from '@/features/auth/services/session';
-import { startupRepository, interestsApi } from './api';
+import { ApiError } from '@/shared/services/api';
+import { startupRepository, interestsApi, discoveryInteractions } from './api';
 
 export type DiscoveryState = {
   saved: string[];
@@ -51,6 +52,8 @@ export function useDiscovery(filters?: Filters) {
   const token = getSession()?.token;
   const userRef = useRef(user);
   const discoveryOwner = useRef(userId);
+  const saving = useRef(new Set<string>());
+  const hydratingSaved = useRef(false);
   useEffect(() => {
     userRef.current = user;
   }, [user]);
@@ -63,6 +66,58 @@ export function useDiscovery(filters?: Filters) {
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [notice, setNotice] = useState('');
+  useEffect(() => {
+    if (!approved) return;
+    const controller = new AbortController();
+    hydratingSaved.current = true;
+    void (async () => {
+      let saved = await discoveryInteractions.saved(controller.signal);
+      // Import bookmarks created by the former browser-only implementation once.
+      const marker = `juntai:saved-imported:${userId}`;
+      if (!localStorage.getItem(marker)) {
+        for (const id of readDiscovery(userId).saved) {
+          if (controller.signal.aborted) return;
+          if (!saved.includes(id)) {
+            try {
+              await discoveryInteractions.record(id, 'salvou');
+            } catch (error) {
+              // A legacy bookmark may refer to a startup that no longer exists.
+              if (
+                !(error instanceof ApiError) ||
+                ![400, 404].includes(error.status)
+              )
+                throw error;
+            }
+          }
+        }
+        saved = await discoveryInteractions.saved(controller.signal);
+        localStorage.setItem(marker, '1');
+      }
+      if (controller.signal.aborted) return;
+      setState((current) => {
+        const next = { ...current, saved };
+        try {
+          localStorage.setItem(
+            `juntai:discovery:${userId}`,
+            JSON.stringify(next),
+          );
+        } catch {
+          /* The server remains authoritative. */
+        }
+        return next;
+      });
+    })()
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setNotice(
+            'Não foi possível atualizar suas startups salvas. Tente novamente.',
+          );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) hydratingSaved.current = false;
+      });
+    return () => controller.abort();
+  }, [approved, userId, token, attempt]);
   const { id: profileId } = useParams();
   const filterKey = filters ? JSON.stringify({ ...filters, view: '' }) : '';
   const savedKey = filters?.saved ? JSON.stringify(state.saved) : '';
@@ -266,19 +321,46 @@ export function useDiscovery(filters?: Filters) {
       return false;
     }
   }
-  function save(id: string) {
+  async function save(id: string) {
+    if (!approved || saving.current.has(id)) return;
+    if (hydratingSaved.current) {
+      setNotice('Aguarde a atualização das startups salvas.');
+      return;
+    }
+    saving.current.add(id);
     const exists = state.saved.includes(id);
-    commit(
-      {
-        ...state,
-        saved: exists
-          ? state.saved.filter((item) => item !== id)
-          : [...state.saved, id],
-      },
-      exists
-        ? 'Startup removida das salvas.'
-        : 'Startup salva neste navegador.',
-    );
+    try {
+      await discoveryInteractions.record(
+        id,
+        exists ? 'removeu_salvo' : 'salvou',
+      );
+      setState((current) => {
+        const next = {
+          ...current,
+          saved: exists
+            ? current.saved.filter((item) => item !== id)
+            : [...current.saved.filter((item) => item !== id), id],
+        };
+        try {
+          localStorage.setItem(
+            `juntai:discovery:${user.id}`,
+            JSON.stringify(next),
+          );
+        } catch {
+          /* Already saved on the server. */
+        }
+        return next;
+      });
+      setNotice(
+        exists ? 'Startup removida das salvas.' : 'Startup salva na sua conta.',
+      );
+    } catch {
+      setNotice(
+        'Não foi possível atualizar suas startups salvas. Tente novamente.',
+      );
+    } finally {
+      saving.current.delete(id);
+    }
   }
   async function interest(id: string) {
     if (!approved)

@@ -508,6 +508,17 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                         aria-label="Mensagem"
                         placeholder="Escreva sua mensagem…"
                         maxLength={5000}
+                        onKeyDown={(event) => {
+                          if (
+                            event.key === 'Enter' &&
+                            !event.shiftKey &&
+                            !event.nativeEvent.isComposing
+                          ) {
+                            event.preventDefault();
+                            if (!sending && !threadLoading && draft.trim())
+                              void send();
+                          }
+                        }}
                         value={draft}
                         onChange={(e) =>
                           setDrafts((current) => ({
@@ -526,7 +537,10 @@ function MessagesScreen({ user }: { user: AuthUser }) {
                         {sending ? 'Enviando…' : 'Enviar'}
                       </Button>
                     </div>
-                    <small>{draft.length}/5000</small>
+                    <small>
+                      Enter para enviar &middot; Shift + Enter para nova linha
+                      &middot; {draft.length}/5000
+                    </small>
                   </S.Composer>
                 </>
               )}
