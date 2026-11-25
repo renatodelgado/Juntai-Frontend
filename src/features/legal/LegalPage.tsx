@@ -7,143 +7,128 @@ export function LegalDocument({ document }: { document: 'terms' | 'privacy' }) {
   return (
     <article>
       <p>
-        <strong>Minuta provisória · versão {LEGAL_VERSION}</strong>
-      </p>
-      <p>
-        Este texto descreve a versão de testes do Juntaí! e precisa ser revisado
-        pelo grupo antes do lançamento. Ainda não define as condições de um
-        serviço público em produção.
+        <strong>Versão de testes · {LEGAL_VERSION}</strong>
       </p>
       {terms ? (
         <>
-          <h2>1. O que é esta prévia</h2>
+          <h2>1. Sobre o Juntaí!</h2>
           <p>
-            O Juntaí! é um projeto acadêmico para aproximar startups,
-            investidores anjo e mentores. Nesta versão, você pode construir e
-            revisar um perfil e receber recomendações de conexões entre perfis
-            aprovados. As recomendações não representam oferta de investimento,
-            intermediação financeira ou garantia de conexão.
+            O Juntaí! é um projeto acadêmico que aproxima startups, investidores
+            anjo e mentores. A plataforma permite criar perfis, descobrir
+            oportunidades e iniciar conversas. As sugestões são um apoio à
+            busca: elas não garantem contato, investimento ou retorno
+            financeiro.
           </p>
-          <h2>2. Informações e materiais do perfil</h2>
+          <h2>2. Cadastro e perfil</h2>
           <p>
-            Ao preencher o perfil, utilize informações verdadeiras e materiais
-            que você tenha autorização para apresentar. Confirme a autorização
-            dos integrantes antes de incluir dados pessoais da equipe. Não
-            inclua documentos pessoais, senhas ou informações confidenciais de
-            terceiros.
+            Forneça informações verdadeiras e mantenha seu perfil atualizado.
+            Inclua dados e materiais de outras pessoas somente quando tiver
+            autorização para isso. Evite enviar senhas, documentos pessoais,
+            informações confidenciais ou dados sensíveis em campos de texto e
+            apresentações.
           </p>
-          <h2>3. Salvamento e disponibilidade</h2>
           <p>
-            Ao escolher salvar, os dados e o arquivo de apresentação ficam
-            apenas neste navegador. Eles podem ser perdidos se você limpar os
-            dados do site, usar navegação privada ou trocar de dispositivo. Você
-            pode remover o rascunho pela própria tela de cadastro.
+            Após o envio, o cadastro passa por análise. Perfis aprovados podem
+            ser apresentados a outros participantes, conforme as funções da
+            plataforma. A aprovação não representa verificação financeira,
+            jurídica ou garantia sobre o conteúdo de um perfil.
           </p>
-          <h2>4. Publicação e moderação futuras</h2>
+          <h2>3. Uso responsável</h2>
           <p>
-            A conclusão envia os dados compatíveis ao servidor, que registra o
-            cadastro com status inicial pendente. Ainda não há acompanhamento da
-            análise pelo frontend. Os critérios de publicação, ajustes,
-            aprovação e rejeição precisarão ser apresentados em uma nova versão
-            dos termos.
+            Use mensagens, perfis e materiais recebidos para interações ligadas
+            à finalidade da plataforma. Não divulgue conteúdo de terceiros sem
+            autorização nem utilize o serviço para fraude ou assédio. As
+            funcionalidades e a disponibilidade podem mudar durante os testes.
           </p>
-          <h2>5. Antes do lançamento</h2>
+          <h2>4. Rascunho e conta</h2>
           <p>
-            O grupo deverá definir a entidade responsável pelo serviço, os
-            canais de contato, condições de acesso, responsabilidades,
-            procedimentos de moderação e demais regras aplicáveis. Os termos
-            definitivos serão apresentados para novo aceite.
+            Um rascunho salvo pode ser retomado no mesmo navegador e pode ser
+            perdido se os dados do site forem apagados. Remover o rascunho não
+            exclui a conta enviada ao servidor. A exclusão da conta ainda não
+            está disponível na interface.
+          </p>
+          <p>
+            Estes termos são provisórios. As condições definitivas e a
+            identificação do responsável pelo serviço ainda precisam ser
+            estabelecidas antes de uma operação pública.
           </p>
         </>
       ) : (
         <>
-          <h2>1. Informações preenchidas</h2>
+          <h2>1. Quais dados são usados</h2>
           <p>
-            O cadastro reúne apresentação da startup, localização, estágio,
-            segmento, mercado, indicadores de tração, necessidades, preferências
-            de parceiros, pitch, Canvas e dados profissionais da equipe. Alguns
-            campos são opcionais e indicadores permitem escolher não informar.
+            No cadastro, podem ser informados nome, e-mail, senha, localização,
+            foto, informações profissionais e dados do perfil da startup, do
+            investidor ou do mentor. Conforme as escolhas feitas, o perfil pode
+            incluir segmento, estágio, interesses, experiência, disponibilidade,
+            valores de investimento, links e apresentação. A plataforma também
+            trata mensagens, reuniões e interações realizadas durante o uso.
           </p>
           <p>
-            Para investidores e mentores, o perfil também reúne foto, bio, áreas
-            de interesse, faixas de investimento quando aplicáveis, experiência,
-            disponibilidade e formas de contribuição. As opções são usadas para
-            construir a apresentação e recomendar conexões com base nas
-            características e preferências dos perfis aprovados.
+            Alguns campos são opcionais. Não é necessário informar dados sobre
+            saúde, religião, origem racial ou outras informações sensíveis para
+            criar um perfil. Evite incluí-los em textos livres e arquivos, assim
+            como dados de outras pessoas sem autorização.
           </p>
-          <h2>2. Finalidade e armazenamento nesta prévia</h2>
+          <h2>2. Para que os dados são usados</h2>
           <p>
-            As informações servem para montar, revisar e retomar o perfil. Ao
-            salvar, o navegador guarda o rascunho e a apresentação usando
-            armazenamento local do site (IndexedDB). Ao finalizar o cadastro,
-            nome, email, senha e dados compatíveis do perfil são enviados ao
-            servidor do Juntaí!. Fotos, arquivos, links, preferências
-            complementares e consentimentos continuam apenas no rascunho local.
+            Os dados permitem criar e administrar a conta, autenticar o acesso,
+            apresentar perfis aprovados, apoiar a moderação, ordenar sugestões
+            de conexão e viabilizar mensagens e reuniões. As características e
+            preferências informadas podem ser comparadas com outros perfis. A
+            pontuação é uma indicação de afinidade e não assegura interesse,
+            contato ou investimento; a decisão de conversar permanece com as
+            pessoas envolvidas.
+          </p>
+          <h2>3. Onde ficam e com quem são compartilhados</h2>
+          <p>
+            Se você escolher salvar o rascunho, ele ficará no armazenamento
+            deste navegador. Ao criar a conta, os dados compatíveis são enviados
+            ao servidor. Fotos e apresentações selecionadas podem ser enviadas
+            após a criação da conta. Partes dos perfis aprovados ficam visíveis
+            a outros usuários conforme a plataforma permite; não inclua em seu
+            perfil informações que não queira apresentar.
           </p>
           <p>
-            A senha do novo cadastro é enviada ao servidor para criação da conta
-            e não é gravada pelo frontend. O login é validado pelo servidor. O
-            token de acesso fica no armazenamento de sessão da aba e é removido
-            ao sair da conta. Alterações no perfil continuam locais.
+            No ambiente de testes, a infraestrutura utiliza serviços da Azure;
+            imagens e arquivos podem ser armazenados no Cloudinary. A seleção de
+            cidades consulta a API do IBGE, e as fontes são carregadas pelo
+            Google Fonts. Esses fornecedores podem receber dados necessários à
+            prestação de seus serviços, inclusive dados técnicos de conexão.
           </p>
-          <h2>3. Serviços externos utilizados</h2>
+          <h2>4. Segurança e conservação</h2>
           <p>
-            A seleção de cidades consulta a API pública do IBGE usando o estado
-            escolhido. As fontes são carregadas pelo Google Fonts. Essas
-            conexões podem expor dados técnicos de navegação, como o endereço
-            IP, aos provedores. O conteúdo completo do perfil não é enviado
-            nessas consultas.
+            O servidor armazena a senha em forma de hash e utiliza autenticação
+            para proteger recursos da conta. Rascunhos podem ser acessados por
+            quem utiliza o mesmo perfil do navegador; prefira um dispositivo
+            pessoal. Os prazos de retenção, a rotina de descarte e as condições
+            de restauração ainda precisam ser definidos para o serviço.
           </p>
-          <h2>4. Sugestões de conexão</h2>
+          <h2>5. Seus direitos e escolhas</h2>
           <p>
-            O Juntaí! compara características estruturadas, como segmento,
-            estágio, regiões e necessidades, com preferências de investidores e
-            mentores para ordenar recomendações. A interface identifica a
-            compatibilidade com o perfil ou a probabilidade estimada de
-            interesse, conforme o método utilizado. O modelo de probabilidade é
-            experimental. A pontuação não garante interesse, conexão ou
-            investimento.
+            A LGPD prevê direitos como confirmação do tratamento, acesso,
+            correção, eliminação nas hipóteses aplicáveis e informações sobre o
+            compartilhamento. Quando o tratamento depender de consentimento,
+            você também pode revogá-lo. A lei prevê ainda a solicitação de
+            revisão de decisões tomadas unicamente de forma automatizada quando
+            afetarem seus interesses.
           </p>
-          <h2>5. Controle sobre seu rascunho</h2>
           <p>
-            Você pode revisar e alterar os dados a qualquer momento ou usar
-            “Remover rascunho” para apagá-los deste navegador. Os dados locais
-            permanecem até essa remoção ou até o navegador limpar seu
-            armazenamento. Pessoas que utilizem o mesmo perfil de navegador
-            podem acessar o rascunho; prefira um dispositivo pessoal. Remover o
-            rascunho não exclui um cadastro já enviado ao servidor. A exclusão
-            da conta no servidor ainda não está disponível nesta interface.
+            Você pode remover o rascunho no navegador, mas isso não apaga a
+            conta no servidor. O canal para solicitações, a exclusão da conta e
+            os procedimentos para exercer esses direitos ainda estão em
+            definição e não estão disponíveis nesta interface. Os aceites
+            exibidos no cadastro ainda não são registrados no servidor.
           </p>
-          <h2>6. Registro das escolhas</h2>
+          <h2>6. Informações ainda necessárias</h2>
           <p>
-            Na conclusão da prévia, os aceites e preferências são salvos
-            localmente com a versão deste documento e a data e hora do
-            dispositivo. Não há usuário autenticado associado ainda. O registro
-            oficial, vinculado ao usuário e com horário do servidor, depende da
-            integração futura.
-          </p>
-          <h2>7. Definições pendentes</h2>
-          <p>
-            Antes do lançamento, deverão ser identificados o controlador dos
-            dados e seu canal de atendimento, as bases legais, os prazos de
-            retenção, os destinatários e as medidas de proteção. Também deverão
-            ser definidos os procedimentos para exercer direitos relacionados
-            aos dados pessoais. Esta minuta não declara conformidade integral
-            com a LGPD.
+            O responsável pelo tratamento, seu canal de contato, as bases legais
+            de cada finalidade, os prazos de conservação e os procedimentos de
+            atendimento ainda precisam ser definidos. Este texto descreve a
+            versão de testes e deverá ser atualizado antes da operação pública.
           </p>
         </>
       )}
-      <p>
-        Referência para a revisão do grupo:{' '}
-        <a
-          href="https://www.gov.br/governodigital/pt-br/lgpd-pagina-do-cidadao/conheca-os-principais-conceitos"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          conceitos de proteção de dados do Governo Digital
-        </a>
-        .
-      </p>
     </article>
   );
 }
