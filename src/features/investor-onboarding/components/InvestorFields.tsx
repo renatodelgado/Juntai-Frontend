@@ -332,10 +332,11 @@ export function InvestorFields({
     consent: (
       <>
         <p>
-          Ao finalizar, sua identificação, atuação, interesses e dados de
-          investimento serão enviados ao servidor. As informações complementares
-          e os consentimentos só ficam neste navegador se você clicar em “Salvar
-          e continuar depois”.
+          Ao criar sua conta, seus dados de identificação, perfil e interesses
+          serão enviados ao servidor. Essas informações ajudam a apresentar seu
+          perfil e sugerir startups. Se você salvar um rascunho, ele ficará
+          neste navegador. Os registros abaixo ainda não são enviados ao
+          servidor.
         </p>
         <Button
           type="button"
@@ -353,24 +354,23 @@ export function InvestorFields({
         </Button>
         <Checkbox
           id="termsAccepted"
-          label="Concordo com os Termos de Uso do Juntaí!."
+          label="Li e concordo com os Termos de Uso do Juntaí!."
           checked={data.termsAccepted}
           error={errors.termsAccepted}
           onChange={(value) => update('termsAccepted', value)}
         />
         <Checkbox
           id="privacyAcknowledged"
-          label="Estou ciente de como meus dados pessoais serão tratados conforme a Política de Privacidade."
+          label="Li e estou ciente da Política de Privacidade e de como meus dados serão utilizados."
           checked={data.privacyAcknowledged}
           error={errors.privacyAcknowledged}
           onChange={(value) => update('privacyAcknowledged', value)}
         />
-        <Checkbox
-          id="matchingConsent"
-          label="Quero que minhas preferências sejam consideradas nas sugestões de conexões."
-          checked={data.matchingConsent}
-          onChange={(value) => update('matchingConsent', value)}
-        />
+        <p>
+          Suas preferências, como segmentos e estágios de interesse, são usadas
+          para ordenar sugestões. As recomendações não garantem contato ou
+          investimento.
+        </p>
       </>
     ),
   };

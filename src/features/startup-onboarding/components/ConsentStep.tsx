@@ -14,11 +14,11 @@ export function ConsentStep({ form }: { form: OnboardingController }) {
       <Notice>
         <ShieldCheckIcon size={28} aria-hidden="true" />
         <p>
-          <strong>Você está experimentando uma prévia do cadastro.</strong> Os
-          documentos abaixo são provisórios. Ao finalizar, os dados compatíveis
-          do cadastro serão enviados ao servidor. Os consentimentos e as
-          informações complementares só ficam neste navegador se você clicar em
-          “Salvar e continuar depois”.
+          <strong>Antes de criar sua conta</strong>, conheça como o Juntaí!
+          utiliza seus dados. Ao finalizar o cadastro, as informações do perfil
+          serão enviadas ao servidor. Se você salvar um rascunho, ele ficará
+          neste navegador. Os registros abaixo ainda não são enviados ao
+          servidor.
         </p>
       </Notice>
       <div>
@@ -47,21 +47,22 @@ export function ConsentStep({ form }: { form: OnboardingController }) {
         checked={form.data.termsAccepted}
         onChange={(value) => form.update('termsAccepted', value)}
         error={form.errors.termsAccepted}
-        label="Concordo com os Termos de Uso desta prévia local."
+        label="Li e concordo com os Termos de Uso do Juntaí!."
       />
       <Checkbox
         id="privacyAcknowledged"
         checked={form.data.privacyAcknowledged}
         onChange={(value) => form.update('privacyAcknowledged', value)}
         error={form.errors.privacyAcknowledged}
-        label="Estou ciente da Política de Privacidade e do tratamento dos meus dados para as finalidades apresentadas nesta prévia."
+        label="Li e estou ciente da Política de Privacidade e de como meus dados serão utilizados."
       />
       <Notice>
         <strong>Como aproximamos você de parceiros</strong>
         <p>
-          Segmento, estágio, regiões, necessidades e preferências são comparados
-          com os interesses de investidores e mentores para recomendar conexões
-          entre perfis aprovados.
+          Dados do perfil, como segmento, estágio, regiões e necessidades, são
+          comparados com interesses de investidores e mentores para sugerir
+          conexões. Perfis aprovados podem ser apresentados a outros usuários. A
+          recomendação não garante contato ou investimento.
         </p>
       </Notice>
       <ContentDialog

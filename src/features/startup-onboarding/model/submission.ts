@@ -1,7 +1,7 @@
 import type { StartupDraft, RegistrationStatus } from './types';
 import { normalizeUrl } from './validation';
 
-export const LEGAL_VERSION = 'preview-2026-09-13';
+export const LEGAL_VERSION = 'preview-2026-11-25';
 export const LEGAL_DOCUMENTS_APPROVED = false;
 
 export function buildSubmission(
